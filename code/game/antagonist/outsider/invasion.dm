@@ -18,8 +18,6 @@ var/datum/antagonist/invasion/invaders
 
 	faction = "lii'dra"
 
-	id_type = /obj/item/weapon/card/id/syndicate
-
 /datum/antagonist/invasion/New()
 	..()
 	invaders = src
@@ -33,6 +31,8 @@ var/datum/antagonist/invasion/invaders
 
 	if(!..())
 		return 0
+
+	create_radio(RAID_FREQ, player)
 
 	//MATT-TODO: equip stuff here
 
