@@ -8,7 +8,7 @@ var/datum/antagonist/invasion/invaders
 	antag_indicator = "invader"
 	landmark_id = "invaderstart"
 	welcome_text = "Use :H to talk on your encrypted channel."
-	flags = ANTAG_OVERRIDE_JOB | ANTAG_CLEAR_EQUIPMENT | ANTAG_CHOOSE_NAME | ANTAG_VOTABLE | ANTAG_SET_APPEARANCE | ANTAG_HAS_LEADER
+	flags = ANTAG_OVERRIDE_JOB | ANTAG_CLEAR_EQUIPMENT | ANTAG_CHOOSE_NAME | ANTAG_VOTABLE | ANTAG_HAS_LEADER
 	antaghud_indicator = "hudinvader"
 
 	hard_cap = 2
@@ -31,6 +31,8 @@ var/datum/antagonist/invasion/invaders
 
 	if(!..())
 		return 0
+
+	player.set_species("Vaurca Warrior")
 
 	create_radio(RAID_FREQ, player)
 
