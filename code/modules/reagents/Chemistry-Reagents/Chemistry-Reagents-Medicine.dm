@@ -1491,3 +1491,31 @@
 	metabolism = 0.5 * REM
 	taste_description = "sourness"
 	fallback_specific_heat = 1
+
+/datum/reagent/alienmeds
+	name = "Alien Medicine"
+	id = "aliummeds"
+	description = "Alien medicine is an unknown substance that seems to inflict minor burns upon touching flesh or chitin, before quickly repairing it."
+	reagent_state = LIQUID
+	color = "#E3B510"
+	metabolism = 0.5
+	taste_description = "pure distilled pain"
+	fallback_specific_heat = 1
+
+/datum/reagent/alienmeds/affect_touch(var/mob/living/carbon/M, var/alien, var/removed)
+	M.take_organ_damage(0, removed) //getting this sprayed over you gives burns
+	M.reagents.add_reagent("aliummeds", 1)
+	M.adjustHalLoss(8 * removed)
+
+/datum/reagent/alienmeds/touch_turf(var/turf/T, var/amount)
+	if(amount >= 1)
+		for(var/mob/living/carbon/human/M in T)
+			M.take_organ_damage(0, amount) //getting this over you gives you burns
+			M.reagents.add_reagent("aliummeds", amount)
+			M.adjustHalLoss(8 * amount)
+
+/datum/reagent/alienmeds/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
+		M.adjustCloneLoss(-3 * removed)
+		M.adjustOxyLoss(-3 * removed)
+		M.heal_organ_damage(3 * removed, 3 * removed)
+		M.adjustToxLoss(-3 * removed)

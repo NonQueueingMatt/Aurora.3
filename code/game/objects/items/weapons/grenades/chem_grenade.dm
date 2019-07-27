@@ -368,3 +368,31 @@
 		beakers += B1
 		beakers += B2
 		icon_state = initial(icon_state) +"_locked"
+
+/obj/item/weapon/grenade/chem_grenade/aliummeds //lii'dra sekrit alium meds
+	name = "Alien Medicine Crystal"
+	desc = "A crystaline capsule containing alien medicine. Crush in hand to unleash it."
+	icon_state = "chemg" //placeholder
+	item_state = "chemg"
+
+/obj/item/weapon/grenade/chem_grenade/aliummeds/Initialize()
+	. = ..()
+	var/obj/item/weapon/reagent_containers/glass/beaker/B1 = new(src)
+	var/obj/item/weapon/reagent_containers/glass/beaker/B2 = new(src)
+
+	B1.reagents.add_reagent("aliummeds", 25)
+	B1.reagents.add_reagent("potassium", 25)
+	B2.reagents.add_reagent("phosphorus", 25)
+	B2.reagents.add_reagent("sugar", 25)
+
+	beakers += B1
+	beakers += B2
+
+/obj/item/weapon/grenade/chem_grenade/aliummeds/attack_self(mob/user as mob)
+	to_chat(user, "<span class='warning'>You crush the [name] in your hand!</span>")
+	for(var/obj/item/weapon/reagent_containers/glass/G in beakers)
+		G.reagents.trans_to_obj(src, G.reagents.total_volume)
+	qdel(src)
+
+/obj/item/weapon/grenade/chem_grenade/aliummeds/attackby(obj/item/weapon/W as obj, mob/user as mob) //we dont want anything to be done
+	return
