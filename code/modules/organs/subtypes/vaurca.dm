@@ -105,6 +105,24 @@ obj/item/organ/vaurca/neuralsocket/process()
 		to_chat(target, "<span class='warning'>Your mind suddenly grows dark as the unity of the Hive is torn from you.</span>")
 	..()
 
+/obj/item/organ/vaurca/neuralsocket/liidra
+	name = "lii'dra neural socket"
+	organ_tag = "lii'dra neural socket"
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "liidra_neural_socket"
+	parent_organ = "head"
+	robotic = 2
+	var/last_brainblast = 0
+
+/obj/item/organ/vaurca/neuralsocket/liidra/process()
+	if (within_jamming_range(src))
+		if(world.time > last_brainblast)
+			to_chat(owner, "<span class='warning'>You feel your connection from the hivemind being ripped away, it hurts!</span>")
+			last_brainblast = world.time + 100
+		if(owner.getHalLoss() <= 80) //we don't want to buttblast the lii'dra bois with a shitton of halloss
+			owner.adjustHalLoss(5)
+	..()
+
 /obj/item/organ/vaurca/preserve
 	name = "phoron reserve tank"
 	organ_tag = "phoron reserve tank"

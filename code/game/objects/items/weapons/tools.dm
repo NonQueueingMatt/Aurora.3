@@ -9,12 +9,17 @@
  * 		Wirecutters
  * 		Welding Tool
  * 		Crowbar
-*		Pipe Wrench
+ * 		Pipe Wrench
  */
+
+//Geeves' Toolspeed changes:
+//Use Speed: Percentage based, as it's literally just a modifier of the original time. 1 = 100%, 0.8 = 80%, 0.5 = 50%
+//Use Sound: Plays the tool's sound on usage, no more searching for the specific sound!
 
 /*
  * Wrench
  */
+
 /obj/item/weapon/wrench
 	name = "wrench"
 	desc = "An adjustable tool used for gripping and turning nuts or bolts."
@@ -28,6 +33,8 @@
 	origin_tech = list(TECH_MATERIAL = 1, TECH_ENGINEERING = 1)
 	matter = list(DEFAULT_WALL_MATERIAL = 150)
 	attack_verb = list("bashed", "battered", "bludgeoned", "whacked")
+	var/usespeed = 1
+	var/usesound = 'sound/items/Ratchet.ogg'
 	drop_sound = 'sound/items/drop/sword.ogg'
 
 /obj/item/weapon/wrench/iswrench()
@@ -52,6 +59,8 @@
 	attack_verb = list("stabbed")
 	lock_picking_level = 5
 	var/random_icon = TRUE
+	var/usespeed = 1
+	var/usesound = 'sound/items/Screwdriver.ogg'
 	drop_sound = 'sound/items/drop/scrap.ogg'
 
 
@@ -117,9 +126,14 @@
 	attack_verb = list("pinched", "nipped")
 	sharp = 1
 	edge = 1
+	var/random_icon = TRUE
+	var/usespeed = 1
+	var/usesound = 'sound/items/Wirecutter.ogg'
 	drop_sound = 'sound/items/drop/knife.ogg'
 
 /obj/item/weapon/wirecutters/New()
+	if(!random_icon)
+		return
 	if(prob(50))
 		icon_state = "cutters-y"
 		item_state = "cutters_yellow"
@@ -153,6 +167,8 @@
 	slot_flags = SLOT_BELT
 	var/base_iconstate = "welder"//These are given an _on/_off suffix before being used
 	var/base_itemstate = "welder"
+	var/usespeed = 1
+	var/usesound = 'sound/items/Welder.ogg'
 	drop_sound = 'sound/items/drop/scrap.ogg'
 
 	//Amount of OUCH when it's thrown
@@ -533,7 +549,7 @@
  * Crowbar
  */
 
-/obj/item/weapon/crowbar
+/obj/item/weapon/crowbar/
 	name = "crowbar"
 	desc = "An iron bar with a flattened end, used as a lever to remove floors and pry open doors."
 	icon = 'icons/obj/tools.dmi'
@@ -547,6 +563,8 @@
 	origin_tech = list(TECH_ENGINEERING = 1)
 	matter = list(DEFAULT_WALL_MATERIAL = 50)
 	attack_verb = list("attacked", "bashed", "battered", "bludgeoned", "whacked")
+	var/usespeed = 1
+	var/usesound = 'sound/items/Crowbar.ogg'
 	drop_sound = 'sound/items/drop/sword.ogg'
 
 /obj/item/weapon/crowbar/iscrowbar()
@@ -570,6 +588,8 @@
 	w_class = 2.0
 	origin_tech = list(TECH_MATERIAL = 1, TECH_ENGINEERING = 2)
 	matter = list(DEFAULT_WALL_MATERIAL = 150)
+	var/usespeed = 1
+	var/usesound = 'sound/items/Ratchet.ogg'
 	attack_verb = list("bashed", "battered", "bludgeoned", "whacked")
 
 //combitool
@@ -631,3 +651,59 @@
 	update_tool()
 	return 1
 
+/* Alium Tools!
+ *
+ * Contains:
+ * 		Alien Wrench
+ * 		Alien Screwdriver
+ * 		Alien Wirecutters
+ * 		Alien Welding Tool
+ * 		Alien Crowbar
+ */
+
+/obj/item/weapon/wrench/alien
+	name = "alien wrench"
+	desc = "(tell the lore bastards to write this)"
+	icon = 'icons/obj/alien_tools.dmi'
+	force = 10.0
+	throwforce = 8.0
+	origin_tech = list(TECH_MATERIAL = 3, TECH_ENGINEERING = 3, TECH_MEDICAL = 2)
+	matter = list(DEFAULT_WALL_MATERIAL = 450)
+	usespeed = 0.5
+
+/obj/item/weapon/screwdriver/alien
+	name = "alien screwdriver"
+	desc = "(tell the lore bastards to write this)"
+	icon = 'icons/obj/alien_tools.dmi'
+	force = 10.0
+	throwforce = 8.0
+	matter = list(DEFAULT_WALL_MATERIAL = 350)
+	lock_picking_level = 8
+	random_icon = FALSE
+	usespeed = 0.5
+
+/obj/item/weapon/wirecutters/alien
+	name = "alien wirecutters"
+	desc = "(tell the lore bastards to write this)"
+	icon = 'icons/obj/alien_tools.dmi'
+	force = 12.0
+	origin_tech = list(TECH_MATERIAL = 3, TECH_ENGINEERING = 3, TECH_MEDICAL = 2)
+	matter = list(DEFAULT_WALL_MATERIAL = 350)
+	random_icon = FALSE
+	usespeed = 0.5
+
+/obj/item/weapon/weldingtool/alien
+	name = "alien welding tool"
+	desc = "(tell the lore bastards to write this)"
+	icon = 'icons/obj/alien_tools.dmi'
+	usespeed = 0.5
+
+/obj/item/weapon/crowbar/alien
+	name = "alien crowbar"
+	desc = "(tell the lore bastards to write this)"
+	icon = 'icons/obj/alien_tools.dmi'
+	force = 10.0
+	throwforce = 8.0
+	origin_tech = list(TECH_ENGINEERING = 3, TECH_MEDICAL = 2)
+	matter = list(DEFAULT_WALL_MATERIAL = 350)
+	usespeed = 0.5

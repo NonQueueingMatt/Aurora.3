@@ -102,3 +102,13 @@
 
 /datum/language/terminator/get_random_name()
 	return "HK [pick(list("Hera","Zeus","Artemis","Athena","Ares","Hades","Poseidon","Demeter","Apollo","Aphrodite","Hermes","Hestia","Dionysus","Persephone","Kronos","Odysseus","Ajax","Agamemnon","Chiron","Charon"))]-[rand(100, 999)]"
+
+/datum/language/liidra
+	name = LANGUAGE_LIIDRA
+	desc = "A private Lii'dra hivenet unaccessible by normal Vaurcae."
+	speech_verb = "transmits"
+	ask_verb = "transmits"
+	exclaim_verb = "buzzes"
+	colour = "bad"
+	key = "l"
+	flags = RESTRICTED | HIVEMIND

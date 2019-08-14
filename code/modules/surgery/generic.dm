@@ -321,6 +321,7 @@
 
 /datum/surgery_step/generic/amputate
 	allowed_tools = list(
+	/obj/item/weapon/splicer = 100,
 	/obj/item/weapon/circular_saw = 100,
 	/obj/item/weapon/melee/energy = 100,
 	/obj/item/weapon/melee/chainsword = 100,
@@ -371,6 +372,8 @@
 			clean = 0
 
 		var/var/obj/item/organ/external/parent = affected.parent//Cache the parent organ of the limb before we sever it
+		if (istype(tool, /obj/item/weapon/splicer))
+			affected.frozen = TRUE
 		affected.droplimb(clean,DROPLIMB_EDGE)
 
 		if (istype(tool, /obj/item/weapon/melee/energy))//Code for energy weapons cauterising the cut

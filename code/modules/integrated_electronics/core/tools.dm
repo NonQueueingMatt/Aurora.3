@@ -169,6 +169,10 @@
 	var/datum/integrated_io/selected_io = null
 	var/mode = 0
 
+/obj/item/device/multitool/alien
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "multitool"
+
 /obj/item/device/multitool/attack_self(mob/user)
 	if(selected_io)
 		selected_io = null

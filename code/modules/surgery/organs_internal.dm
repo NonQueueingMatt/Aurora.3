@@ -104,6 +104,7 @@
 /datum/surgery_step/internal/detatch_organ
 
 	allowed_tools = list(
+	/obj/item/weapon/splicer = 100,
 	/obj/item/weapon/scalpel = 100,
 	/obj/item/weapon/material/knife = 75,
 	/obj/item/weapon/material/shard = 50
@@ -152,6 +153,8 @@
 		"<span class='notice'>You have separated [target]'s [target.op_stage.current_organ] with \the [tool].</span>")
 
 		var/obj/item/organ/I = target.internal_organs_by_name[target.op_stage.current_organ]
+		if (istype(tool, /obj/item/weapon/splicer))
+			I.frozen = TRUE
 		if(I && istype(I))
 			I.status |= ORGAN_CUT_AWAY
 
@@ -205,6 +208,8 @@
 		// Extract the organ!
 		if(target.op_stage.current_organ)
 			var/obj/item/organ/O = target.internal_organs_by_name[target.op_stage.current_organ]
+			if (istype(tool, /obj/item/weapon/splicer))
+				O.frozen = TRUE
 			if(O && istype(O))
 				O.removed(user)
 			target.op_stage.current_organ = null

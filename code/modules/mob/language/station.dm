@@ -203,7 +203,7 @@
 		return
 
 	for(var/mob/player in player_list)
-		if(istype(player,/mob/abstract/observer) || ((src in player.languages && !within_jamming_range(player)) || check_special_condition(player)))
+		if(istype(player,/mob/abstract/observer) || (src in player.languages && !within_jamming_range(player)) || check_special_condition(player))
 			to_chat(player, msg)
 
 /datum/language/bug/check_special_condition(var/mob/other)

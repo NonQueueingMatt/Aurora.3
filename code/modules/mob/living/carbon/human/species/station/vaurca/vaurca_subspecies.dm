@@ -158,3 +158,36 @@
 /datum/species/bug/type_big/handle_post_spawn(var/mob/living/carbon/human/H)
 	H.mutations.Add(HULK)
 	return ..()
+
+/datum/species/bug/type_b/liidra //invasion lii'dra will basically only ever be warriors, duh
+	name = "Lii'dra Warrior"
+	short_name = "val"
+	language = LANGUAGE_LIIDRA
+	icobase = 'icons/mob/human_races/vaurca/r_liidra.dmi'
+
+	eyes = "liidra_eyes"
+	eyes_icons = 'icons/mob/human_face/eyes.dmi'
+
+	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick,  /datum/unarmed_attack/claws/strong, /datum/unarmed_attack/bite/strong)
+
+	brute_mod = 0.5
+
+	breakcuffs = list(MALE,FEMALE,NEUTER)
+
+	speech_sounds = list('sound/voice/hiss1.ogg','sound/voice/hiss2.ogg','sound/voice/hiss3.ogg','sound/voice/hiss4.ogg')
+	speech_chance = 20
+
+	death_sound = 'sound/voice/hiss6.ogg'
+
+	has_organ = list(
+		"lii'dra neural socket"       = /obj/item/organ/vaurca/neuralsocket/liidra,
+		"lungs"                       = /obj/item/organ/lungs/vaurca,
+		"filtration bit"              = /obj/item/organ/vaurca/filtrationbit,
+		"right heart"                 = /obj/item/organ/heart/right,
+		"left heart"                  = /obj/item/organ/heart/left,
+		"phoron reserve tank"         = /obj/item/organ/vaurca/preserve,
+		"liver"                       = /obj/item/organ/liver/vaurca,
+		"kidneys"                     = /obj/item/organ/kidneys/vaurca,
+		"brain"                       = /obj/item/organ/brain/vaurca,
+		"eyes"                        = /obj/item/organ/eyes/vaurca
+	)

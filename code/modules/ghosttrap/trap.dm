@@ -412,6 +412,18 @@ datum/ghosttrap/pai/transfer_personality(var/mob/candidate, var/mob/living/silic
 /datum/ghosttrap/legion/welcome_candidate(var/mob/target)
 	return 0
 
+/datum/ghosttrap/invasion
+	object = "Invader"
+	pref_check = MODE_INVASION
+	ghost_trap_message = "They are occupying a Lii'dra invader."
+	ghost_trap_role = "Lii'dra Invader"
+	ban_checks = list(MODE_INVASION)
+	can_set_own_name = FALSE
+	list_as_special_role = FALSE
+
+/datum/ghosttrap/invasion/welcome_candidate(var/mob/target)
+	return 0
+
 /datum/ghosttrap/special
 	object = "Special"
 	pref_check = null

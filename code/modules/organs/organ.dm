@@ -8,6 +8,7 @@
 	var/status = 0
 	var/vital //Lose a vital limb, die immediately.
 	var/damage = 0 // amount of damage to the organ
+	var/frozen = FALSE // whether to process damage when outside the body
 
 	var/min_bruised_damage = 10
 	var/min_broken_damage = 30
@@ -135,6 +136,9 @@
 	if(istype(loc,/obj/item/device/mmi))
 		return
 	if(istype(loc,/obj/structure/closet/body_bag/cryobag) || istype(loc,/obj/structure/closet/crate/freezer) || istype(loc,/obj/item/weapon/storage/box/freezer))
+		return
+	//don't deal damage if the damage's frozen
+	if(frozen)
 		return
 	//Process infections
 	if ((status & ORGAN_ROBOT) || (owner && owner.species && (owner.species.flags & IS_PLANT)))

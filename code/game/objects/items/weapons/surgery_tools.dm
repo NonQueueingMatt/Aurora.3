@@ -174,3 +174,143 @@
 	w_class = 2.0
 	attack_verb = list("attacked", "hit", "bludgeoned")
 	drop_sound = 'sound/items/drop/scrap.ogg'
+
+/* Alien Surgery Tools
+ * Contains:
+ *		Alien Retractor
+ *		Alien Hemostat
+ *		Alien Cautery
+ *		Alien Surgical Drill
+ *		Alien Scalpel
+ *		Alien Circular Saw
+ *		Alien Bonegel
+ *		Alien Bonesetter
+ *		Alien Fix-O-Vein
+ *		Alien Splicer [New Item!]
+ */
+
+/obj/item/weapon/retractor/alien
+	name = "alien retractor"
+	desc = "(lore bastards)"
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "retractor"
+	force = 10.0
+	throwforce = 10.0
+	matter = list(DEFAULT_WALL_MATERIAL = 15000, "glass" = 5000)
+	origin_tech = list(TECH_MATERIAL = 3, TECH_BIO = 2)
+
+/*
+ * Hemostat
+ */
+/obj/item/weapon/hemostat/alien
+	name = "alien hemostat"
+	desc = "(lore bastards)"
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "hemostat"
+	force = 10.0
+	throwforce = 10.0
+	matter = list(DEFAULT_WALL_MATERIAL = 10000, "glass" = 5000)
+	w_class = 2.0
+	origin_tech = list(TECH_MATERIAL = 3, TECH_BIO = 2)
+
+/*
+ * Cautery
+ */
+/obj/item/weapon/cautery/alien
+	name = "alien cautery"
+	desc = "(lore bastards)"
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "cautery"
+	force = 10.0
+	throwforce = 10.0
+	damtype = "fire"
+	matter = list(DEFAULT_WALL_MATERIAL = 15000, "glass" = 5000)
+	origin_tech = list(TECH_MATERIAL = 3, TECH_BIO = 2)
+
+/*
+ * Surgical Drill
+ */
+/obj/item/weapon/surgicaldrill/alien
+	name = "alien surgical drill"
+	desc = "(lore bastards)"
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "drill"
+	force = 20.0
+	throwforce = 10.0
+	origin_tech = list(TECH_MATERIAL = 3, TECH_BIO = 3)
+
+/*
+ * Scalpel
+ */
+/obj/item/weapon/scalpel/alien
+	name = "alien scalpel"
+	desc = "(lore bastards)"
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "scalpel"
+	force = 15.0
+	throwforce = 10.0
+	origin_tech = list(TECH_MATERIAL = 3, TECH_BIO = 2)
+
+/*
+ * Circular Saw
+ */
+/obj/item/weapon/circular_saw/alien
+	name = "alien circular saw"
+	desc = "(lore bastards)"
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "saw"
+	force = 20.0
+	throwforce = 10.0
+	origin_tech = list(TECH_MATERIAL = 4, TECH_BIO = 3)
+
+//misc, formerly from code/defines/weapons.dm
+/obj/item/weapon/bonegel/alien
+	name = "alien bone gel"
+	icon = 'icons/obj/surgery.dmi'
+	icon_state = "bone-gel"
+	force = 0
+	w_class = 2.0
+	throwforce = 1.0
+	drop_sound = 'sound/items/drop/bottle.ogg'
+
+/obj/item/weapon/FixOVein/alien
+	name = "alien FixOVein"
+	icon = 'icons/obj/surgery.dmi'
+	icon_state = "fixovein"
+	force = 0
+	throwforce = 1.0
+	origin_tech = list(TECH_MATERIAL = 1, TECH_BIO = 3)
+	w_class = 2.0
+	usage_amount = 5
+	drop_sound = 'sound/items/drop/accessory.ogg'
+
+/obj/item/weapon/bonesetter/alien
+	name = "alien bone setter"
+	icon = 'icons/obj/surgery.dmi'
+	icon_state = "bone setter"
+	force = 8.0
+	throwforce = 9.0
+	throw_speed = 3
+	throw_range = 5
+	w_class = 2.0
+	attack_verb = list("attacked", "hit", "bludgeoned")
+	drop_sound = 'sound/items/drop/scrap.ogg'
+
+/obj/item/weapon/splicer
+	name = "alien splicer"
+	desc = "A device that houses cutting lasers, capable of amputating limbs and removing organs. Injects removed organs with survival stimulants."
+	description_fluff = "This device uses complex picto-factories to create infinitesimally small life support devices, while also severing the appendage effectively with cutting lasers. This allows for the clean removal of any body part except for the torso. Limbs removed by the Splicer will not die, The Splicer can also remove any organ without killing the body, except the brain."
+	icon = 'icons/obj/alien_tools.dmi'
+	icon_state = "splicer"
+	hitsound = 'sound/weapons/bladeslice.ogg'
+	flags = CONDUCT
+	force = 15.0
+	w_class = 3
+	throwforce = 9.0
+	throw_speed = 3
+	throw_range = 5
+	damtype = "fire"
+	origin_tech = list(TECH_MATERIAL = 4, TECH_BIO = 3)
+	matter = list(DEFAULT_WALL_MATERIAL = 25000,"glass" = 15000)
+	attack_verb = list("attacked", "lasered", "eviscerated")
+	drop_sound = 'sound/items/drop/accessory.ogg'

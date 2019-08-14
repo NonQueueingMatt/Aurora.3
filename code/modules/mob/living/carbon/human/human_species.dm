@@ -69,6 +69,15 @@ INITIALIZE_IMMEDIATE(/mob/living/carbon/human/dummy/mannequin)
 	. = ..(mapload, "Vaurca Warrior")
 	src.gender = NEUTER
 
+/mob/living/carbon/human/liidra/Initialize(mapload)
+	h_style = "Classic Antennae"
+	. = ..(mapload, "Lii'dra Warrior")
+	src.equip_to_slot_or_del(new /obj/item/clothing/mask/breath/vaurca/filter(src), slot_wear_mask)
+	var/obj/item/organ/vaurca/preserve/tank = src.internal_organs_by_name["phoron reserve tank"]
+	src.internal = tank
+	src.change_skin_color(0, 0, 0)
+	src.gender = NEUTER
+
 /mob/living/carbon/human/type_c/Initialize(mapload)
 	. = ..(mapload, "Vaurca Breeder")
 	src.gender = FEMALE
