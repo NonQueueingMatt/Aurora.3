@@ -13,8 +13,6 @@
 	if(stat == DEAD || paralysis || weakened || stunned || restrained())
 		return
 
-
-
 	var/list/choices = list()
 	for(var/mob/living/carbon/C in view(1,src))
 
@@ -61,7 +59,7 @@
 		to_chat(src, "<span class='notice'>You feel your being twine with that of \the [H] as you merge with its biomass.</span>")
 		for(var/obj/O in src.contents)
 			drop_from_inventory(O)
-		loc = H
+		src.forceMove(H)
 	else
 		to_chat(src, span("warning", "Something went wrong while trying to merge into [H], cancelling."))
 		return 0
@@ -145,10 +143,6 @@
 
 	else
 		return 0
-
-
-
-
 
 //Split allows a nymph to peel away from a gestalt and be a lone agent
 /mob/living/carbon/alien/diona/proc/split()
@@ -256,9 +250,6 @@
 			donor.adjustBruteLoss(4)
 			src.visible_message("<span class='notice'>[src] sucks some blood from [donor.name]</span>", "<span class='notice'>You extract a delicious mouthful of blood from [donor.name]!</span>")
 
-
-
-
 			if (newDNA in sampled_DNA)
 				to_chat(src, "<span class='danger'>You have already sampled the DNA of this creature before, you can learn nothing new. Move onto something else.</span>")
 				return
@@ -355,3 +346,18 @@
 				D.update_verbs()
 
 	verbs.Remove(/mob/living/carbon/proc/echo_eject)
+
+/mob/living/carbon/human/proc/consume_nutrition_from_air()
+	set category = "Abilities"
+	set name = "Toggle Consuming Air For Nutrition"
+	set desc = "Consumes air, restoring part of the nutrition."
+
+	if(stat == DEAD)
+		return
+	
+	if(!consume_nutrition_from_air && (nutrition / max_nutrition > 0.25) )
+		to_chat(src, span("warning", "You still have plenty of nutrition left. Consuming air is the last resort."))
+		return
+	
+	consume_nutrition_from_air = !consume_nutrition_from_air
+	to_chat(src, span("notice", "You [consume_nutrition_from_air ? "started" : "stopped"] consuming air for nutrition."))

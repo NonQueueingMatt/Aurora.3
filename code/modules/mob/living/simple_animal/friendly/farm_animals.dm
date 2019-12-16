@@ -2,6 +2,7 @@
 /mob/living/simple_animal/hostile/retaliate/goat
 	name = "goat"
 	desc = "Not known for their pleasant disposition."
+	icon = 'icons/mob/npc/livestock.dmi'
 	icon_state = "goat"
 	icon_living = "goat"
 	icon_dead = "goat_dead"
@@ -12,7 +13,7 @@
 	speak_chance = 1
 	turns_per_move = 5
 	see_in_dark = 6
-	meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat
+	meat_type = /obj/item/reagent_containers/food/snacks/meat
 	meat_amount = 6
 	mob_size = 4.5//weight based on Chanthangi goats
 	response_help  = "pets"
@@ -23,23 +24,16 @@
 	maxHealth = 40
 	melee_damage_lower = 1
 	melee_damage_upper = 5
-	var/datum/reagents/udder = null
+	udder = null
+	canbrush = TRUE
+	emote_sounds = list('sound/effects/creatures/goat.ogg')
+	has_udder = TRUE
 
-/mob/living/simple_animal/hostile/retaliate/goat/Initialize()
-	. = ..()
-	udder = new(50)
-	udder.my_atom = src
-
-/mob/living/simple_animal/hostile/retaliate/goat/beg(var/atom/thing, var/atom/holder)
-	visible_emote("butts insistently at [holder]'s legs and reaches towards their [thing].",0)
+	butchering_products = list(/obj/item/stack/material/animalhide = 3)
 
 /mob/living/simple_animal/hostile/retaliate/goat/Life()
 	. = ..()
 	if(.)
-		if(stat == CONSCIOUS)
-			if(udder && prob(5))
-				udder.add_reagent("milk", rand(5, 10))
-
 		if(locate(/obj/effect/plant) in loc)
 			var/obj/effect/plant/SV = locate() in loc
 			SV.die_off(1)
@@ -76,66 +70,34 @@
 		for(var/obj/effect/plant/SV in loc)
 			SV.die_off(1)
 
-/mob/living/simple_animal/hostile/retaliate/goat/attackby(var/obj/item/O as obj, var/mob/user as mob)
-	var/obj/item/weapon/reagent_containers/glass/G = O
-	if(stat == CONSCIOUS && istype(G) && G.is_open_container())
-		user.visible_message("<span class='notice'>[user] milks [src] using \the [O].</span>")
-		var/transfered = udder.trans_id_to(G, "milk", rand(5,10))
-		if(G.reagents.total_volume >= G.volume)
-			to_chat(user, "<span class='warning'>The [O] is full.</span>")
-		if(!transfered)
-			to_chat(user, "<span class='warning'>The udder is dry. Wait a bit longer...</span>")
-	else
-		..()
 //cow
 /mob/living/simple_animal/cow
 	name = "cow"
 	desc = "Known for their milk, just don't tip them over."
+	icon = 'icons/mob/npc/livestock.dmi'
 	icon_state = "cow"
 	icon_living = "cow"
 	icon_dead = "cow_dead"
 	icon_gib = "cow_gib"
 	speak = list("moo?","moo","MOOOOOO")
-	speak_emote = list("moos","moos hauntingly")
+	speak_emote = list("moos")
 	emote_hear = list("brays")
 	emote_see = list("shakes its head")
 	speak_chance = 1
 	turns_per_move = 5
 	see_in_dark = 6
-	meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat
+	meat_type = /obj/item/reagent_containers/food/snacks/meat
 	meat_amount = 40 //Cows are huge, should be worth a lot of meat
 	response_help  = "pets"
 	response_disarm = "gently pushes aside"
 	response_harm   = "kicks"
 	attacktext = "kicked"
 	health = 250
-	autoseek_food = 0
-	beg_for_food = 0
-	var/datum/reagents/udder = null
 	mob_size = 20//based on mass of holstein fresian dairy cattle, what the sprite is based on
-
-/mob/living/simple_animal/cow/Initialize()
-	. = ..()
-	udder = new(50)
-	udder.my_atom = src
-
-/mob/living/simple_animal/cow/attackby(var/obj/item/O as obj, var/mob/user as mob)
-	var/obj/item/weapon/reagent_containers/glass/G = O
-	if(stat == CONSCIOUS && istype(G) && G.is_open_container())
-		user.visible_message("<span class='notice'>[user] milks [src] using \the [O].</span>")
-		var/transfered = udder.trans_id_to(G, "milk", rand(5,10))
-		if(G.reagents.total_volume >= G.volume)
-			to_chat(user, "<span class='warning'>The [O] is full.</span>")
-		if(!transfered)
-			to_chat(user, "<span class='warning'>The udder is dry. Wait a bit longer...</span>")
-	else
-		..()
-
-/mob/living/simple_animal/cow/Life()
-	. = ..()
-	if(stat == CONSCIOUS)
-		if(udder && prob(5))
-			udder.add_reagent("milk", rand(5, 10))
+	emote_sounds = list('sound/effects/creatures/cow.ogg')
+	canbrush = TRUE
+	has_udder = TRUE
+	butchering_products = list(/obj/item/stack/material/animalhide = 8)
 
 /mob/living/simple_animal/cow/attack_hand(mob/living/carbon/M as mob)
 	if(!stat && M.a_intent == I_DISARM && icon_state != icon_dead)
@@ -156,6 +118,7 @@
 /mob/living/simple_animal/chick
 	name = "\improper chick"
 	desc = "Adorable! They make such a racket though."
+	icon = 'icons/mob/npc/livestock.dmi'
 	icon_state = "chick"
 	icon_living = "chick"
 	icon_dead = "chick_dead"
@@ -166,7 +129,7 @@
 	emote_see = list("pecks at the ground","flaps its tiny wings")
 	speak_chance = 2
 	turns_per_move = 2
-	meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat/chicken
+	meat_type = /obj/item/reagent_containers/food/snacks/meat/chicken
 	meat_amount = 1
 	response_help  = "pets"
 	response_disarm = "gently pushes aside"
@@ -175,12 +138,12 @@
 	maxHealth = 1
 	var/amount_grown = 0
 	pass_flags = PASSTABLE | PASSGRILLE
-	holder_type = /obj/item/weapon/holder/chick
-	autoseek_food = 0
-	beg_for_food = 0
+	holder_type = /obj/item/holder/chick
 	density = 0
 	mob_size = 0.75//just a rough estimate, the real value should be way lower
+	canbrush = TRUE
 	hunger_enabled = FALSE
+	emote_sounds = list('sound/effects/creatures/chick.ogg')
 
 /mob/living/simple_animal/chick/Initialize()
 	. = ..()
@@ -204,6 +167,7 @@
 /mob/living/simple_animal/chicken
 	name = "\improper chicken"
 	desc = "Hopefully the eggs are good this season."
+	icon = 'icons/mob/npc/livestock.dmi'
 	icon_state = "chicken"
 	icon_living = "chicken"
 	icon_dead = "chicken_dead"
@@ -213,7 +177,7 @@
 	emote_see = list("pecks at the ground","flaps its wings viciously")
 	speak_chance = 2
 	turns_per_move = 3
-	meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat/chicken
+	meat_type = /obj/item/reagent_containers/food/snacks/meat/chicken
 	meat_amount = 4
 	response_help  = "pets"
 	response_disarm = "gently pushes aside"
@@ -223,12 +187,14 @@
 	var/eggsleft = 0
 	var/body_color
 	pass_flags = PASSTABLE
-	holder_type = /obj/item/weapon/holder/chicken
+	holder_type = /obj/item/holder/chicken
 	density = 0
 	mob_size = 2
 	hunger_enabled = FALSE
+	canbrush = TRUE
 
 	var/static/chicken_count = 0
+	emote_sounds = list('sound/effects/creatures/chicken.ogg', 'sound/effects/creatures/chicken_bwak.ogg')
 
 /mob/living/simple_animal/chicken/Initialize()
 	. = ..()
@@ -242,11 +208,11 @@
 	chicken_count += 1
 	switch (body_color)
 		if ("brown")
-			holder_type = /obj/item/weapon/holder/chicken/brown
+			holder_type = /obj/item/holder/chicken/brown
 		if ("black")
-			holder_type = /obj/item/weapon/holder/chicken/black
+			holder_type = /obj/item/holder/chicken/black
 		if ("white")
-			holder_type = /obj/item/weapon/holder/chicken/white
+			holder_type = /obj/item/holder/chicken/white
 
 /mob/living/simple_animal/chicken/death()
 	..()
@@ -254,8 +220,8 @@
 	desc = "Now it's ready for plucking and cooking!"
 
 /mob/living/simple_animal/chicken/attackby(var/obj/item/O as obj, var/mob/user as mob)
-	if(istype(O, /obj/item/weapon/reagent_containers/food/snacks/grown)) //feedin' dem chickens
-		var/obj/item/weapon/reagent_containers/food/snacks/grown/G = O
+	if(istype(O, /obj/item/reagent_containers/food/snacks/grown)) //feedin' dem chickens
+		var/obj/item/reagent_containers/food/snacks/grown/G = O
 		if(G.seed && G.seed.kitchen_tag == "wheat")
 			if(!stat && eggsleft < 8)
 				user.visible_message(
@@ -279,16 +245,16 @@
 	if(!stat && prob(3) && eggsleft > 0)
 		visible_message("[src] [pick("lays an egg.","squats down and croons.","begins making a huge racket.","begins clucking raucously.")]")
 		eggsleft--
-		var/obj/item/weapon/reagent_containers/food/snacks/egg/E = new(get_turf(src))
+		var/obj/item/reagent_containers/food/snacks/egg/E = new(get_turf(src))
 		E.pixel_x = rand(-6,6)
 		E.pixel_y = rand(-6,6)
 		if(chicken_count < MAX_CHICKENS && prob(10))
 			START_PROCESSING(SSprocessing, E)
 
-/obj/item/weapon/reagent_containers/food/snacks/egg
+/obj/item/reagent_containers/food/snacks/egg
 	var/amount_grown = 0
 
-/obj/item/weapon/reagent_containers/food/snacks/egg/process()
+/obj/item/reagent_containers/food/snacks/egg/process()
 	if(isturf(loc))
 		amount_grown += rand(1,2)
 		if(amount_grown >= 100)

@@ -26,9 +26,6 @@
 		if(!config.dooc_allowed && (mob.stat == DEAD))
 			to_chat(usr, "<span class='danger'>OOC for dead mobs has been turned off.</span>")
 			return
-		if(prefs.muted & MUTE_OOC)
-			to_chat(src, "<span class='danger'>You cannot use OOC (muted).</span>")
-			return
 		if(handle_spam_prevention(msg,MUTE_OOC))
 			return
 		if(findtext(msg, "byond://"))
@@ -94,11 +91,8 @@
 		if(!config.looc_allowed)
 			to_chat(src, "<span class='danger'>LOOC is globally muted.</span>")
 			return
-		if(!config.dooc_allowed && (mob.stat == DEAD))
-			to_chat(usr, "<span class='danger'>OOC for dead mobs has been turned off.</span>")
-			return
-		if(prefs.muted & MUTE_OOC)
-			to_chat(src, "<span class='danger'>You cannot use OOC (muted).</span>")
+		if(!config.dead_looc_allowed && (mob.stat == DEAD))
+			to_chat(usr, "<span class='danger'>LOOC for dead mobs has been turned off.</span>")
 			return
 		if(handle_spam_prevention(msg, MUTE_OOC))
 			return
@@ -158,3 +152,13 @@
 		return
 
 	mob << sound(null)
+
+/client/verb/rolldice()
+	set name = "Roll the Dice!"
+	set desc = "Rolls the Dice of your choice!"
+	set category = "OOC"
+
+	var/list/choice = list(2, 4, 6, 8, 10, 12, 20, 50, 100)
+	var/input = input("Select the Dice you want!", "Dice", null, null) in choice
+
+	to_chat(usr, "<span class='notice'>You roll [rand(1,input)] out of [input]!</span>")

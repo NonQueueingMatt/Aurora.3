@@ -6,15 +6,15 @@
 
 /datum/gear/uniform/offworlder/New()
 	..()
-	gear_tweaks = list(gear_tweak_free_color_choice)
+	gear_tweaks += gear_tweak_free_color_choice
 
 /datum/gear/uniform/offworlder/dress
 	display_name = "CR dress"
-	path = /obj/item/clothing/under/offworlder
+	path = /obj/item/clothing/under/dress/offworlder
 
 /datum/gear/uniform/offworlder/skirt
 	display_name = "CR skirt"
-	path = /obj/item/clothing/under/dress/offworlder
+	path = /obj/item/clothing/under/skirt/offworlder
 
 /datum/gear/eyes/glasses/offworlder
 	display_name = "starshades"
@@ -24,7 +24,7 @@
 
 /datum/gear/eyes/glasses/offworlder/New()
 	..()
-	gear_tweaks = list(gear_tweak_free_color_choice)
+	gear_tweaks += gear_tweak_free_color_choice
 
 /datum/gear/accessory/offworlder
 	display_name = "legbrace"
@@ -34,7 +34,7 @@
 
 /datum/gear/accessory/offworlder/New()
 	..()
-	gear_tweaks = list(gear_tweak_free_color_choice)
+	gear_tweaks += gear_tweak_free_color_choice
 
 /datum/gear/accessory/offworlder/venter
 	display_name = "venter assembly"
@@ -59,22 +59,26 @@
 	gear_tweaks += new/datum/gear_tweak/path(armbands)
 
 /datum/gear/mask/offworlder
-	display_name = "overmask"
-	path = /obj/item/clothing/mask/breath/offworlder
+	display_name = "jagmask"
+	path = /obj/item/clothing/mask/breath/offworlder/jagmask
 	whitelisted = list("Off-Worlder Human")
 	sort_category = "Xenowear - Human"
 
-/datum/gear/mask/offworlder/New()
-	..()
-	gear_tweaks = list(gear_tweak_free_color_choice)
+/datum/gear/mask/offworlder/overmask
+	display_name = "overmask"
+	path = /obj/item/clothing/mask/breath/offworlder
 
-/datum/gear/mask/offworlder/veil
+/datum/gear/mask/offworlder/overmask/New()
+	..()
+	gear_tweaks += gear_tweak_free_color_choice
+
+/datum/gear/mask/offworlder/overmask/veil
 	display_name = "starveil"
 	path = /obj/item/clothing/mask/offworlder/veil
 
-/datum/gear/mask/offworlder/veil/jagmask
-	display_name = "jagmask"
-	path = /obj/item/clothing/mask/breath/offworlder/jagmask
+/datum/gear/mask/offworlder/overmask/scarf
+	display_name = "pioneer scarf"
+	path = /obj/item/clothing/mask/offworlder
 
 /datum/gear/gloves/offworlder
 	display_name = "starmitts"
@@ -84,10 +88,10 @@
 
 /datum/gear/gloves/offworlder/New()
 	..()
-	gear_tweaks = list(gear_tweak_free_color_choice)
+	gear_tweaks += gear_tweak_free_color_choice
 
-/datum/gear/offworlder_pills
-	display_name = "bottle of RTM pills"
-	path = /obj/item/weapon/storage/pill_bottle/rtm
+/datum/gear/offworlder_rig
+	display_name = "exo-stellar skeleton"
+	path = /obj/item/rig/light/offworlder
 	whitelisted = list("Off-Worlder Human")
 	sort_category = "Xenowear - Human"
