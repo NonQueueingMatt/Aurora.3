@@ -169,6 +169,7 @@
 /obj/item/gun/energy/gun/skrell
 	self_recharge = 1
 	fire_sound = 'sound/weapons/Laser2.ogg'
+	modifystate = null
 	charge_failure_message = "'s charging socket was removed to make room for a recharger."
 	secondary_fire_sound = 'sound/weapons/Laser3.ogg'
 
@@ -182,7 +183,6 @@
 	item_state = "particlepistol"
 	slot_flags = SLOT_BELT|SLOT_HOLSTER
 	force = 5
-	modifystate = null
 	projectile_type = /obj/item/projectile/beam/stun/skrell
 	secondary_projectile_type = /obj/item/projectile/beam/pulse/skrell
 
@@ -194,8 +194,9 @@
 /obj/item/gun/energy/gun/skrell/smg
 	name = "jargon particle submachinegun"
 	desc = "A Jargon Federation particle-beam submachine gun with two settings: Disable and Lethal."
-	icon_state = "particlesmg100"
-	slot_flags = SLOT_BELT|SLOT_HOLSTER
+	icon_state = "particlesmg"
+	item_state = "particlesmg"
+	slot_flags = SLOT_BELT|SLOT_HOLSTER|SLOT_BACK
 	max_shots = 14
 	force = 7
 	projectile_type = /obj/item/projectile/beam/stun/skrell
