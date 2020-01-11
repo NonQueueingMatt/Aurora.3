@@ -8,7 +8,7 @@
 	contained_sprite = TRUE
 
 /obj/item/clothing/under/unathi/Initialize()
-	..()
+	. = ..()
 	rolled_down = FALSE
 	rolled_sleeves = FALSE
 

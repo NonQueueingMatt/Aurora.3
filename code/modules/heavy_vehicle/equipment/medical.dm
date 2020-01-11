@@ -122,7 +122,7 @@
 	var/datum/beam/MyBeam = null
 
 /obj/item/mecha_equipment/crisis_drone/Initialize()
-	..()
+	. = ..()
 
 /obj/item/mecha_equipment/crisis_drone/Destroy()
 	STOP_PROCESSING(SSprocessing, src)
