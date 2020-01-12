@@ -2416,6 +2416,7 @@
 #include "code\modules\shuttles\shuttles_multi.dm"
 #include "code\modules\special_powers\complexus.dm"
 #include "code\modules\special_powers\hub.dm"
+#include "code\modules\special_powers\special_power.dm"
 #include "code\modules\special_powers\psionics\complexus\complexus.dm"
 #include "code\modules\special_powers\psionics\complexus\complexus_helpers.dm"
 #include "code\modules\special_powers\psionics\complexus\complexus_latency.dm"
