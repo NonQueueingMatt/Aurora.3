@@ -53,3 +53,9 @@
 	desc = "A simple, cheap t-shirt."
 	icon_state = "tshirt"
 	item_state = "tshirt"
+
+/obj/item/clothing/accessory/croptop
+	name = "croptop"
+	desc = "A light shirt which shows the midsection of the wearer."
+	icon_state = "croptop"
+	item_state = "croptop_s"
