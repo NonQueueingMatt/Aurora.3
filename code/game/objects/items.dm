@@ -83,6 +83,12 @@
 	var/reach = 1 // Length of tiles it can reach, 1 is adjacent.
 	var/lock_picking_level = 0 //used to determine whether something can pick a lock, and how well.
 	// Its vital that if you make new power tools or new recipies that you include this
+	
+	//Tooltip vars
+	///string form of an item's force. Edit this var only to set a custom force string
+	var/force_string
+	var/last_force_string_check = 0
+	var/tip_timer
 
 /obj/item/Destroy()
 	if(ismob(loc))
@@ -92,7 +98,6 @@
 		m.update_inv_l_hand()
 		src.loc = null
 	return ..()
-
 
 /obj/item/device
 	icon = 'icons/obj/device.dmi'
@@ -124,6 +129,38 @@
 				return
 		else
 	return
+
+/obj/item/proc/set_force_string()
+	switch(force)
+		if(0 to 4)
+			force_string = "very low"
+		if(4 to 7)
+			force_string = "low"
+		if(7 to 10)
+			force_string = "medium"
+		if(10 to 11)
+			force_string = "high"
+		if(11 to 20)
+			force_string = "robust"
+		if(20 to 25)
+			force_string = "very robust"
+		else
+			force_string = "exceptionally robust"
+	last_force_string_check = force
+
+/obj/item/proc/openTip(location, control, params, user)
+	if(last_force_string_check != force)
+		set_force_string()
+	if(!(item_flags & FORCE_STRING_OVERRIDE))
+		openToolTip(user,src,params,title = name,content = "[desc]<br>[force ? "<b>Force:</b> [force_string]" : ""]",theme = "")
+	else
+		openToolTip(user,src,params,title = name,content = "[desc]<br><b>Force:</b> [force_string]",theme = "")
+
+/obj/item/MouseEntered(location, control, params)
+	if((item_flags & IN_INVENTORY || item_flags & IN_STORAGE) && !QDELETED(src))
+		var/timedelay = usr.client.prefs.tip_delay/100
+		var/user = usr
+		tip_timer = addtimer(CALLBACK(src, .proc/openTip, location, control, params, user), timedelay, TIMER_STOPPABLE)//timer takes delay in deciseconds, but the pref is in milliseconds. dividing by 100 converts it.
 
 /obj/item/verb/move_to_top(obj/item/I in range(1))
 	set name = "Move To Top"
@@ -258,10 +295,13 @@
 	..()
 	if(drop_sound)
 		playsound(src, drop_sound, 50, 0, required_asfx_toggles = ASFX_DROPSOUND)
+	item_flags &= ~IN_INVENTORY
 
 //Apparently called whenever an item is dropped on the floor, thrown, or placed into a container.
 //It is called after loc is set, so if placed in a container its loc will be that container.
 /obj/item/proc/dropped(var/mob/user)
+	SHOULD_CALL_PARENT(1)
+	item_flags &= ~IN_INVENTORY
 	if(zoom)
 		zoom(user) //binoculars, scope, etc
 
@@ -274,16 +314,21 @@
 
 // called just as an item is picked up (loc is not yet changed)
 /obj/item/proc/pickup(mob/user)
+	SHOULD_CALL_PARENT(1)
 	pixel_x = 0
 	pixel_y = 0
+	item_flags |= IN_INVENTORY
 	return
 
 // called when this item is removed from a storage item, which is passed on as S. The loc variable is already set to the new destination before this is called.
 /obj/item/proc/on_exit_storage(obj/item/storage/S as obj)
+	SHOULD_CALL_PARENT(1)
+	item_flags &= ~IN_STORAGE
 	return
 
 // called when this item is added into a storage item, which is passed on as S. The loc variable is already set to the storage item.
 /obj/item/proc/on_enter_storage(obj/item/storage/S as obj)
+	item_flags |= IN_STORAGE
 	return
 
 // called when "found" in pockets and storage items. Returns 1 if the search should end.
@@ -295,10 +340,14 @@
 // slot uses the slot_X defines found in setup.dm
 // for items that can be placed in multiple slots
 /obj/item/proc/equipped(var/mob/user, var/slot)
+	SHOULD_CALL_PARENT(1)
 	layer = SCREEN_LAYER+0.01
 	equip_slot = slot
-	if(user.client)	user.client.screen |= src
-	if(user.pulling == src) user.stop_pulling()
+	item_flags |= IN_INVENTORY
+	if(user.client)
+		user.client.screen |= src
+	if(user.pulling == src)
+		user.stop_pulling()
 	return
 
 //Defines which slots correspond to which slot flags

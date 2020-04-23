@@ -37,6 +37,9 @@
 #define NOSLIP                 0x8  // Prevents from slipping on wet floors, in space, etc.
 #define BLOCK_GAS_SMOKE_EFFECT 0x10 // Blocks the effect that chemical clouds would have on a mob -- glasses, mask and helmets ONLY! (NOTE: flag shared with ONESIZEFITSALL)
 #define FLEXIBLEMATERIAL       0x20 // At the moment, masks with this flag will not prevent eating even if they are covering your face.
+#define IN_INVENTORY           0x40 // Used for examine tooltips.
+#define IN_STORAGE             0x80 // Used for examine tooltips.
+#define FORCE_STRING_OVERRIDE  0x100 //Used for examine tooltips.
 
 // Flags for pass_flags.
 #define PASSTABLE		0x1

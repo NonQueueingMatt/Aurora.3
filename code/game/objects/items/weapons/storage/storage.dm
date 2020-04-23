@@ -355,8 +355,9 @@
 //This proc handles items being inserted. It does not perform any checks of whether an item can or can't be inserted. That's done by can_be_inserted()
 //The stop_warning parameter will stop the insertion message from being displayed. It is intended for cases where you are inserting multiple items at once,
 //such as when picking up all the items on a tile with one click.
-/obj/item/storage/proc/handle_item_insertion(obj/item/W as obj, prevent_warning = 0, mob/user = usr)
-	if(!istype(W)) return 0
+/obj/item/storage/proc/handle_item_insertion(obj/item/W, prevent_warning = 0, mob/user = usr)
+	if(!istype(W))
+		return 0
 	if(user)
 		user.prepare_for_slotmove(W)
 	W.forceMove(src)
@@ -403,7 +404,7 @@
 	queue_icon_update()
 
 //Call this proc to handle the removal of an item from the storage item. The item will be moved to the atom sent as new_target
-/obj/item/storage/proc/remove_from_storage(obj/item/W as obj, atom/new_location)
+/obj/item/storage/proc/remove_from_storage(obj/item/W, atom/new_location)
 	if(!istype(W)) return 0
 
 	if(istype(src, /obj/item/storage/fancy))

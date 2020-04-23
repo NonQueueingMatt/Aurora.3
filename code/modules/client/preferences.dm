@@ -30,6 +30,7 @@ datum/preferences
 	var/skin_theme = "Light"
 	//Style for popup tooltips
 	var/tooltip_style = "Midnight"
+	var/tip_delay = 500					//tip delay in milliseconds
 	var/motd_hash = ""					//Hashes for the new server greeting window.
 	var/memo_hash = ""
 
