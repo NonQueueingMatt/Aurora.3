@@ -4,10 +4,6 @@
 	var/wet_amount = 0
 	var/image/wet_overlay = null
 
-	//Mining resources (for the large drills).
-	var/has_resources
-	var/list/resources
-
 	var/thermite = 0
 	oxygen = MOLES_O2STANDARD
 	nitrogen = MOLES_N2STANDARD
@@ -67,12 +63,6 @@
 	if (!mapload)
 		updateVisibility(src)
 
-/turf/simulated/proc/AddTracks(var/typepath,var/bloodDNA,var/comingdir,var/goingdir,var/bloodcolor="#A10808")
-	var/obj/effect/decal/cleanable/blood/tracks/tracks = locate(typepath) in src
-	if(!tracks)
-		tracks = new typepath(src)
-	tracks.AddTracks(bloodDNA,comingdir,goingdir,bloodcolor)
-
 /turf/simulated/proc/update_dirt()
 	dirt = min(dirt+1, 101)
 	var/obj/effect/decal/cleanable/dirt/dirtoverlay = locate(/obj/effect/decal/cleanable/dirt, src)
@@ -83,50 +73,12 @@
 
 /turf/simulated/Entered(atom/A, atom/OL)
 	if(movement_disabled && usr.ckey != movement_disabled_exception)
-		to_chat(usr, "<span class='danger'>Movement is admin-disabled.</span>") //This is to identify lag problems)
+		to_chat(usr, SPAN_WARNING("Movement is admin-disabled.")) //This is to identify lag problems)
 		return
 
-	if (istype(A,/mob/living))
+	if(istype(A,/mob/living))
 		var/mob/living/M = A
-		if(M.lying)
-			return ..()
-
-		// Ugly hack :( Should never have multiple plants in the same tile.
-		var/obj/effect/plant/plant = locate() in contents
-		if(plant) plant.trodden_on(M)
-
-		// Dirt overlays.
-		update_dirt()
-
-		if(istype(M, /mob/living/carbon/human))
-			var/mob/living/carbon/human/H = M
-			// Tracking blood
-			var/list/bloodDNA = null
-			var/bloodcolor=""
-			if(H.shoes)
-				var/obj/item/clothing/shoes/S = H.shoes
-				if(istype(S))
-					S.handle_movement(src,(H.m_intent == "run" ? 1 : 0))
-					if(S.track_blood && S.blood_DNA)
-						bloodDNA = S.blood_DNA
-						bloodcolor=S.blood_color
-						S.track_blood--
-			else
-				if(H.track_blood && H.feet_blood_DNA)
-					bloodDNA = H.feet_blood_DNA
-					bloodcolor = H.feet_blood_color
-					H.track_blood--
-
-			if(bloodDNA)
-				src.AddTracks(H.species.get_move_trail(H),bloodDNA,H.dir,0,bloodcolor) // Coming
-				var/turf/simulated/from = get_step(H,reverse_direction(H.dir))
-				if(istype(from) && from)
-					from.AddTracks(H.species.get_move_trail(H),bloodDNA,0,H.dir,bloodcolor) // Going
-
-				bloodDNA = null
-
 		if(src.wet_type && src.wet_amount)
-
 			if(M.buckled || (src.wet_type == 1 && M.m_intent == "walk"))
 				return
 
@@ -136,22 +88,30 @@
 			var/floor_type = "wet"
 
 			switch(src.wet_type)
-				if(2) // Lube
+				if(WET_TYPE_LUBE) // Lube
 					floor_type = "slippery"
 					slip_dist = 4
 					slip_stun = 10
-				if(3) // Ice
+				if(WET_TYPE_ICE) // Ice
 					floor_type = "icy"
 					slip_stun = 4
 
-			if(M.slip("the [floor_type] floor",slip_stun))
-				for(var/i = 0;i<slip_dist;i++)
-					step(M, M.dir)
+			if(M.slip("the [floor_type] floor",slip_stun) && slip_dist)
+				for (var/i in 1 to slip_dist)
 					sleep(1)
-			else
-				M.inertia_dir = 0
-		else
-			M.inertia_dir = 0
+					step(M, M.dir)
+
+		if(M.lying)
+			return ..()
+
+		// Ugly hack :c Should never have multiple plants in the same tile.
+		var/obj/effect/plant/plant = locate() in contents
+		if(plant) plant.trodden_on(M)
+
+		// Dirt overlays.
+		update_dirt()
+
+		M.inertia_dir = 0
 
 	..()
 

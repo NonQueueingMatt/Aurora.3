@@ -27,6 +27,9 @@ datum/preferences
 	var/UI_style_color = "#ffffff"
 	var/UI_style_alpha = 255
 	var/html_UI_style = "Nano"
+	var/skin_theme = "Light"
+	//Style for popup tooltips
+	var/tooltip_style = "Midnight"
 	var/motd_hash = ""					//Hashes for the new server greeting window.
 	var/memo_hash = ""
 
@@ -37,9 +40,6 @@ datum/preferences
 	var/age = 30						//age of character
 	var/spawnpoint = "Arrivals Shuttle" //where this character will spawn (0-2).
 	var/b_type = "A+"					//blood type (not-chooseable)
-	var/underwear						//underwear type
-	var/undershirt						//undershirt type
-	var/socks						//socks type
 	var/backbag = 2						//backpack type
 	var/backbag_style = 1
 	var/h_style = "Bald"				//Hair type
@@ -54,9 +54,9 @@ datum/preferences
 	var/b_facial = 0					//Face hair color
 	var/s_tone = 0						//Skin tone
 	var/skin_colour = "#000000"			//Skin colour hex value, for SQL loading
-	var/r_skin = 0						//Skin color
-	var/g_skin = 0						//Skin color
-	var/b_skin = 0						//Skin color
+	var/r_skin = 37						//Skin color
+	var/g_skin = 3						//Skin color
+	var/b_skin = 2						//Skin color
 	var/eyes_colour = "#000000"			//Eye colour hex value, for SQL loading
 	var/r_eyes = 0						//Eye color
 	var/g_eyes = 0						//Eye color
@@ -94,7 +94,7 @@ datum/preferences
 	var/unsanitized_jobs = ""
 
 	//Keeps track of preferrence for not getting any wanted jobs
-	var/alternate_option = 2
+	var/alternate_option = RETURN_TO_LOBBY
 
 	var/used_skillpoints = 0
 	var/skill_specialization = null
@@ -105,7 +105,7 @@ datum/preferences
 	var/list/organ_data = list()
 	var/list/rlimb_data = list()
 	var/list/body_markings = list() // "name" = "#rgbcolor"
-	var/list/player_alt_titles = new()		// the default name of a job like "Medical Doctor"
+	var/list/player_alt_titles = new()		// the default name of a job like "Physician"
 
 	var/list/flavor_texts = list()
 	var/list/flavour_texts_robot = list()
@@ -129,6 +129,7 @@ datum/preferences
 	// SPAAAACE
 	var/parallax_speed = 2
 	var/toggles_secondary = PARALLAX_SPACE | PARALLAX_DUST | PROGRESS_BARS
+	var/clientfps = 0
 
 	var/list/pai = list()	// A list for holding pAI related data.
 
@@ -224,7 +225,7 @@ datum/preferences
 
 /datum/preferences/proc/ShowChoices(mob/user)
 	if(!user || !user.client)	return
-	var/dat = "<html><body><center>"
+	var/dat = "<center>"
 
 	if(path)
 		dat += "<a href='?src=\ref[src];load=1'>Load slot</a> - "
@@ -240,9 +241,8 @@ datum/preferences
 	dat += player_setup.header()
 	dat += "<br><HR></center>"
 	dat += player_setup.content(user)
-
-	dat += "</html></body>"
-	user << browse(dat, "window=preferences;size=800x800")
+	send_theme_resources(user)
+	user << browse(enable_ui_theme(user, dat), "window=preferences;size=800x800")
 
 /datum/preferences/proc/process_link(mob/user, list/href_list)
 	if(!user)	return
@@ -251,7 +251,7 @@ datum/preferences
 
 	if(href_list["preference"] == "open_whitelist_forum")
 		if(config.forumurl)
-			to_chat(user, link(config.forumurl))
+			send_link(user, config.forumurl)
 		else
 			to_chat(user, "<span class='danger'>The forum URL is not set in the server configuration.</span>")
 			return
@@ -314,9 +314,9 @@ datum/preferences
 		character.dna.real_name = character.real_name
 
 	character.flavor_texts["general"] = flavor_texts["general"]
-	character.flavor_texts["head"] = flavor_texts["head"]
+	character.flavor_texts[BP_HEAD] = flavor_texts[BP_HEAD]
 	character.flavor_texts["face"] = flavor_texts["face"]
-	character.flavor_texts["eyes"] = flavor_texts["eyes"]
+	character.flavor_texts[BP_EYES] = flavor_texts[BP_EYES]
 	character.flavor_texts["torso"] = flavor_texts["torso"]
 	character.flavor_texts["arms"] = flavor_texts["arms"]
 	character.flavor_texts["hands"] = flavor_texts["hands"]
@@ -359,9 +359,8 @@ datum/preferences
 	character.h_style = h_style
 	character.f_style = f_style
 
-	character.home_system = home_system
 	character.citizenship = citizenship
-	character.personal_faction = faction
+	character.employer_faction = faction
 	character.religion = religion
 
 	character.skills = skills
@@ -372,11 +371,17 @@ datum/preferences
 
 	character.sync_trait_prefs_to_mob(src)
 
-	character.underwear = underwear
-
-	character.undershirt = undershirt
-
-	character.socks = socks
+	character.all_underwear.Cut()
+	character.all_underwear_metadata.Cut()
+	for(var/underwear_category_name in all_underwear)
+		var/datum/category_group/underwear/underwear_category = global_underwear.categories_by_name[underwear_category_name]
+		if(underwear_category)
+			var/underwear_item_name = all_underwear[underwear_category_name]
+			character.all_underwear[underwear_category_name] = underwear_category.items_by_name[underwear_item_name]
+			if(all_underwear_metadata[underwear_category_name])
+				character.all_underwear_metadata[underwear_category_name] = all_underwear_metadata[underwear_category_name]
+		else
+			all_underwear -= underwear_category_name
 
 	if(backbag > 6 || backbag < 1)
 		backbag = 1 //Same as above
@@ -392,8 +397,7 @@ datum/preferences
 		character.update_icons()
 
 /datum/preferences/proc/open_load_dialog_sql(mob/user)
-	var/dat = "<body>"
-	dat += "<tt><center>"
+	var/dat = "<tt><center>"
 
 	for(var/ckey in preferences_datums)
 		var/datum/preferences/D = preferences_datums[ckey]
@@ -427,12 +431,12 @@ datum/preferences
 	dat += "<hr>"
 	dat += "<a href='?src=\ref[src];close_load_dialog=1'>Close</a><br>"
 	dat += "</center></tt>"
-	user << browse(dat, "window=saves;size=300x390")
+	send_theme_resources(user)
+	user << browse(enable_ui_theme(user, dat), "window=saves;size=300x390")
 
 
 /datum/preferences/proc/open_load_dialog_file(mob/user)
-	var/dat = "<body>"
-	dat += "<tt><center>"
+	var/dat = "<tt><center>"
 
 	var/savefile/S = new /savefile(path)
 	if(S)
@@ -448,7 +452,8 @@ datum/preferences
 
 	dat += "<hr>"
 	dat += "</center></tt>"
-	user << browse(dat, "window=saves;size=300x390")
+	send_theme_resources(user)
+	user << browse(enable_ui_theme(user, dat), "window=saves;size=300x390")
 
 /datum/preferences/proc/close_load_dialog(mob/user)
 	user << browse(null, "window=saves")
@@ -568,3 +573,9 @@ datum/preferences
 	new_setup(1)
 
 	to_chat(C, "<span class='warning'>Character successfully deleted! Please make a new one or load an existing setup.</span>")
+
+/datum/preferences/proc/get_species_datum()
+	if (species)
+		return all_species[species]
+
+	return null

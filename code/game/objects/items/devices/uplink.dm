@@ -163,29 +163,28 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 		nanoui_data["items"] = items
 	else if(nanoui_menu == 2)
 		var/permanentData[0]
-		for(var/datum/data/record/L in sortRecord(data_core.locked))
-			permanentData[++permanentData.len] = list(Name = L.fields["name"],"id" = L.fields["id"])
+		for(var/datum/record/general/locked/L in sortRecord(SSrecords.records_locked))
+			permanentData[++permanentData.len] = list(Name = L.name,"id" = L.id)
 		nanoui_data["exploit_records"] = permanentData
 	else if(nanoui_menu == 21)
 		nanoui_data["exploit_exists"] = 0
 
-		for(var/datum/data/record/L in data_core.locked)
-			if(L.fields["id"] == exploit_id)
+		for(var/datum/record/general/locked/L in SSrecords.records_locked)
+			if(L.id == exploit_id)
 				nanoui_data["exploit"] = list()  // Setting this to equal L.fields passes it's variables that are lists as reference instead of value.
 								 // We trade off being able to automatically add shit for more control over what gets passed to json
 								 // and if it's sanitized for html.
-				nanoui_data["exploit"]["nanoui_exploit_record"] = html_encode(L.fields["exploit_record"])                         		// Change stuff into html
-				nanoui_data["exploit"]["nanoui_exploit_record"] = replacetext(nanoui_data["exploit"]["nanoui_exploit_record"], "\n", "<br>")    // change line breaks into <br>
-				nanoui_data["exploit"]["name"] =  html_encode(L.fields["name"])
-				nanoui_data["exploit"]["sex"] =  html_encode(L.fields["sex"])
-				nanoui_data["exploit"]["age"] =  html_encode(L.fields["age"])
-				nanoui_data["exploit"]["species"] =  html_encode(L.fields["species"])
-				nanoui_data["exploit"]["rank"] =  html_encode(L.fields["rank"])
-				nanoui_data["exploit"]["home_system"] =  html_encode(L.fields["home_system"])
-				nanoui_data["exploit"]["citizenship"] =  html_encode(L.fields["citizenship"])
-				nanoui_data["exploit"]["faction"] =  html_encode(L.fields["faction"])
-				nanoui_data["exploit"]["religion"] =  html_encode(L.fields["religion"])
-				nanoui_data["exploit"]["fingerprint"] =  html_encode(L.fields["fingerprint"])
+				nanoui_data["exploit"]["nanoui_exploit_record"] = html_encode(L.exploit_record) // Change stuff into html
+				nanoui_data["exploit"]["nanoui_exploit_record"] = replacetext(nanoui_data["exploit"]["nanoui_exploit_record"], "\n", "<br>") // change line breaks into <br>
+				nanoui_data["exploit"]["name"] =  html_encode(L.name)
+				nanoui_data["exploit"]["sex"] =  html_encode(L.sex)
+				nanoui_data["exploit"]["age"] =  html_encode(L.age)
+				nanoui_data["exploit"]["species"] =  html_encode(L.species)
+				nanoui_data["exploit"]["rank"] =  html_encode(L.rank)
+				nanoui_data["exploit"]["citizenship"] =  html_encode(L.citizenship)
+				nanoui_data["exploit"]["employer"] =  html_encode(L.employer)
+				nanoui_data["exploit"]["religion"] =  html_encode(L.religion)
+				nanoui_data["exploit"]["fingerprint"] =  html_encode(L.fingerprint)
 
 				nanoui_data["exploit_exists"] = 1
 				break
@@ -380,7 +379,7 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 	if(!title)
 		return
 
-	var/message = sanitize(input("Enter your announcement message.", "Announcement Title") as null|text)
+	var/message = sanitize(input("Enter your announcement message.", "Announcement Title") as message|null)
 	if(!message)
 		return
 
@@ -388,21 +387,34 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 	discord_bot.send_to_cciaa("Announcer - Fake announcement:`[title]` - `[message]`, sent by [user]!")
 	qdel(src)
 
-//ninja
-/obj/item/device/ninja_uplink
-	name = "infiltrator uplink"
-	desc = "A small device used for access to a restricted cache of specialized items."
+/obj/item/device/special_uplink
+	name = "special uplink"
+	desc = "A small device with knobs and switches."
+	description_antag = "This is hidden uplink! Use it in-hand to access the uplink interface and spend telecrystals to beam in items. Make sure to do it in private, it could look suspicious!"
 	icon = 'icons/obj/radio.dmi'
 	icon_state = "radio"
 	flags = CONDUCT
-	w_class = 2
+	w_class = ITEMSIZE_SMALL
+	var/starting_telecrystals // how much telecrystals the uplink should spawn with, defaults to default amount if not set
 
-/obj/item/device/ninja_uplink/New(var/loc, var/mind)
+/obj/item/device/special_uplink/New(var/loc, var/mind)
 	..()
 	hidden_uplink = new(src, mind)
-	hidden_uplink.uses = DEFAULT_TELECRYSTAL_AMOUNT
+	if(!starting_telecrystals)
+		hidden_uplink.uses = DEFAULT_TELECRYSTAL_AMOUNT
+	else
+		hidden_uplink.uses = starting_telecrystals
 	hidden_uplink.nanoui_menu = 1
 
-/obj/item/device/ninja_uplink/attack_self(mob/user as mob)
-	if (hidden_uplink)
+/obj/item/device/special_uplink/attack_self(mob/user as mob)
+	if(hidden_uplink)
 		hidden_uplink.trigger(user)
+
+/obj/item/device/special_uplink/ninja
+	name = "infiltrator uplink"
+
+/obj/item/device/special_uplink/rev
+	name = "station bounced radio"
+	desc = null // SBRs have no desc
+	icon_state = "walkietalkie" // more incognito
+	starting_telecrystals = DEFAULT_TELECRYSTAL_AMOUNT * 2

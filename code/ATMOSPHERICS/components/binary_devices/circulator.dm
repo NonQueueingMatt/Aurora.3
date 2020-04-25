@@ -6,7 +6,8 @@
 	desc = "A gas circulator turbine and heat exchanger."
 	icon = 'icons/obj/pipes.dmi'
 	icon_state = "circ-off"
-	anchored = 0
+	anchored = FALSE
+	obj_flags = OBJ_FLAG_ROTATABLE
 
 	var/kinetic_efficiency = 0.04 //combined kinetic and kinetic-to-electric efficiency
 	var/volume_ratio = 0.2
@@ -20,7 +21,7 @@
 	var/volume_capacity_used = 0
 	var/stored_energy = 0
 
-	density = 1
+	density = TRUE
 
 /obj/machinery/atmospherics/binary/circulator/Initialize()
 	. = ..()
@@ -85,9 +86,9 @@
 
 	return 1
 
-/obj/machinery/atmospherics/binary/circulator/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/obj/machinery/atmospherics/binary/circulator/attackby(obj/item/W as obj, mob/user as mob)
 	if (W.iswrench())
-		playsound(src.loc, 'sound/items/Ratchet.ogg', 75, 1)
+		playsound(src.loc, W.usesound, 75, 1)
 		anchored = !anchored
 		user.visible_message("[user.name] [anchored ? "secures" : "unsecures"] the bolts holding [src.name] to the floor.", \
 					"You [anchored ? "secure" : "unsecure"] the bolts holding [src] to the floor.", \
@@ -120,26 +121,3 @@
 
 	else
 		..()
-
-/obj/machinery/atmospherics/binary/circulator/verb/rotate_clockwise()
-	set category = "Object"
-	set name = "Rotate Circulator (Clockwise)"
-	set src in view(1)
-
-	if (usr.stat || usr.restrained() || anchored)
-		return
-
-	src.set_dir(turn(src.dir, 90))
-	desc = initial(desc) + " Its outlet port is to the [dir2text(dir)]."
-
-
-/obj/machinery/atmospherics/binary/circulator/verb/rotate_anticlockwise()
-	set category = "Object"
-	set name = "Rotate Circulator (Counterclockwise)"
-	set src in view(1)
-
-	if (usr.stat || usr.restrained() || anchored)
-		return
-
-	src.set_dir(turn(src.dir, -90))
-	desc = initial(desc) + " Its outlet port is to the [dir2text(dir)]."

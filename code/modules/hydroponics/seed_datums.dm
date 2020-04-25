@@ -163,7 +163,7 @@
 	name = "tomato"
 	seed_name = "tomato"
 	display_name = "tomato plant"
-	mutants = list("bluetomato","bloodtomato")
+	mutants = list("bluetomato","bloodtomato") // no killer :(
 	chems = list("nutriment" = list(1,10), "tomatojuice" = list(10,10))
 	kitchen_tag = "tomato"
 
@@ -282,7 +282,7 @@
 	seed_name = "apple"
 	display_name = "apple tree"
 	mutants = list("poisonapple","goldapple")
-	chems = list("nutriment" = list(1,10))
+	chems = list("applejuice" = list(1,10), "nutriment" = list(1,10))
 	kitchen_tag = "apple"
 
 /datum/seed/apple/setup_traits()
@@ -308,7 +308,7 @@
 	seed_name = "golden apple"
 	display_name = "gold apple tree"
 	mutants = null
-	chems = list("nutriment" = list(1,10), "gold" = list(1,5))
+	chems = list("applejuice" = list(1,10), MATERIAL_GOLD = list(1,5))
 	kitchen_tag = "goldapple"
 
 /datum/seed/apple/gold/setup_traits()
@@ -388,7 +388,7 @@
 				"phoron" = list(8))
 	splat_type = /obj/effect/plant
 	kitchen_tag = "koisspore"
-	mutants = list("blackkois")
+	mutants = null
 
 /datum/seed/koisspore/setup_traits()
 	..()
@@ -410,6 +410,8 @@
 
 /datum/seed/koisspore/black
 	name = "blackkois"
+	seed_name = "black kois"
+	display_name = "black k'ois spores"
 	mutants = null
 	chems = list(
 				"blackkois" = list(4),
@@ -767,7 +769,7 @@
 	seed_name = "banana"
 	display_name = "banana tree"
 	chems = list("banana" = list(10,10))
-	trash_type = /obj/item/weapon/bananapeel
+	trash_type = /obj/item/bananapeel
 	kitchen_tag = "banana"
 
 /datum/seed/banana/setup_traits()
@@ -790,7 +792,7 @@
 	display_name = "ears of corn"
 	chems = list("nutriment" = list(1,10), "cornoil" = list(1,10))
 	kitchen_tag = "corn"
-	trash_type = /obj/item/weapon/corncob
+	trash_type = /obj/item/corncob
 
 /datum/seed/corn/setup_traits()
 	..()
@@ -1109,7 +1111,7 @@
 	name = "kudzu"
 	seed_name = "kudzu"
 	display_name = "kudzu vines"
-	chems = list("nutriment" = list(1,50), "anti_toxin" = list(1,25))
+	chems = list("nutriment" = list(1,50), "dylovene" = list(1,25))
 
 /datum/seed/kudzu/setup_traits()
 	..()
@@ -1185,26 +1187,6 @@
 	set_trait(TRAIT_IDEAL_HEAT, 283)
 	set_trait(TRAIT_NUTRIENT_CONSUMPTION, 0.15)
 
-// Alien weeds.
-/datum/seed/xenomorph
-	name = "xenomorph"
-	seed_name = "alien weed"
-	display_name = "alien weeds"
-	force_layer = 3
-	chems = list("phoron" = list(1,3))
-
-/datum/seed/xenomorph/setup_traits()
-	..()
-	set_trait(TRAIT_PLANT_ICON,"vine2")
-	set_trait(TRAIT_IMMUTABLE,1)
-	set_trait(TRAIT_PRODUCT_COLOUR,"#3D1934")
-	set_trait(TRAIT_FLESH_COLOUR,"#3D1934")
-	set_trait(TRAIT_PLANT_COLOUR,"#3D1934")
-	set_trait(TRAIT_PRODUCTION,1)
-	set_trait(TRAIT_YIELD,-1)
-	set_trait(TRAIT_SPREAD,2)
-	set_trait(TRAIT_POTENCY,50)
-
 /datum/seed/earthenroot
 	name = "earthenroot"
 	seed_name = "earthen-root"
@@ -1222,6 +1204,7 @@
 	set_trait(TRAIT_PRODUCT_COLOUR,"#87CEEB")
 	set_trait(TRAIT_PLANT_COLOUR,"#4D8F53")
 	set_trait(TRAIT_PLANT_ICON,"alien2")
+	set_trait(TRAIT_IDEAL_HEAT, 283)
 	set_trait(TRAIT_WATER_CONSUMPTION, 8)
 
 /datum/seed/nifberries
@@ -1243,6 +1226,7 @@
 	set_trait(TRAIT_PRODUCT_COLOUR,"#C4AE7A")
 	set_trait(TRAIT_PLANT_COLOUR,"#4D8F53")
 	set_trait(TRAIT_PLANT_ICON,"bush4")
+	set_trait(TRAIT_IDEAL_HEAT, 283)
 	set_trait(TRAIT_WATER_CONSUMPTION, 6)
 	set_trait(TRAIT_NUTRIENT_CONSUMPTION, 0.15)
 
@@ -1250,10 +1234,10 @@
 	name = "tobacco"
 	seed_name = "tobacco"
 	display_name = "tobacco leaves"
-	mutants = list("finetobacco")
-	chems = list("tobacco" = list(1,10), "nicotine" = list(1,3))
+	mutants = list("finetobacco", "puretobacco", "badtobacco")
+	chems = list("tobacco" = list(1,10))
 
-/datum/seed/tobacco/setup_traits()
+/datum/seed/tobacco/New()
 	..()
 	set_trait(TRAIT_MATURATION,6)
 	set_trait(TRAIT_PRODUCTION,6)
@@ -1271,14 +1255,35 @@
 	name = "finetobacco"
 	seed_name = "fine tobacco"
 	display_name = "fine tobacco leaves"
-	chems = list("tobaccorich" = list(1,10), "nicotine" = list(3,5))
+	chems = list("tobaccofine" = list(1,10))
 
-/datum/seed/tobacco/finetobacco/setup_traits()
+/datum/seed/tobacco/finetobacco/New()
 	..()
 	set_trait(TRAIT_YIELD,4)
 	set_trait(TRAIT_PRODUCT_COLOUR,"#33571b")
 	set_trait(TRAIT_PLANT_COLOUR,"#33571b")
 	set_trait(TRAIT_NUTRIENT_CONSUMPTION, 0.20)
+
+/datum/seed/tobacco/puretobacco //provides the pure nicotine reagent
+	name = "puretobacco"
+	seed_name = "succulent tobacco"
+	display_name = "succulent tobacco leaves"
+	chems = list("nicotine" = list(1,10))
+
+/datum/seed/tobacco/puretobacco/New()
+	..()
+	set_trait(TRAIT_YIELD,3)
+	set_trait(TRAIT_JUICY,1)
+	set_trait(TRAIT_PRODUCT_COLOUR,"#b7c61a")
+	set_trait(TRAIT_PLANT_COLOUR,"#b7c61a")
+	set_trait(TRAIT_NUTRIENT_CONSUMPTION, 0.30)
+
+/datum/seed/tobacco/bad
+	name = "badtobacco"
+	seed_name = "low-grade tobacco"
+	display_name = "low-grade tobacco leaves"
+	mutants = list("tobacco")
+	chems = list("tobaccobad" = list(1,10))
 
 /datum/seed/peppercorn
 	name = "peppercorn"
@@ -1333,3 +1338,60 @@
 	set_trait(TRAIT_PRODUCT_COLOUR,"#ffeedd")
 	set_trait(TRAIT_PLANT_ICON,"stalk")
 	set_trait(TRAIT_WATER_CONSUMPTION, 5)
+
+/datum/seed/dyn
+	name = "dyn"
+	seed_name = "dyn"
+	display_name = "dyn bush"
+	mutants = null
+	chems = list("dynjuice" = list(2,2), "dylovene" = list(0,1))
+	kitchen_tag = "dyn leaf"
+
+/datum/seed/dyn/setup_traits()
+	..()
+	set_trait(TRAIT_MATURATION,10)
+	set_trait(TRAIT_PRODUCTION,10)
+	set_trait(TRAIT_YIELD,3)
+	set_trait(TRAIT_POTENCY,10)
+	set_trait(TRAIT_PRODUCT_ICON,"leaves")
+	set_trait(TRAIT_PRODUCT_COLOUR,"#00e0e0")
+	set_trait(TRAIT_PLANT_ICON,"bush8")
+
+/datum/seed/wulumunusha
+	name = "wulumunusha"
+	seed_name = "wulumunusha"
+	display_name = "wulumunusha vines"
+	chems = list("wulumunusha" = list(3,5))
+	kitchen_tag = "wulumunusha"
+
+/datum/seed/wulumunusha/setup_traits()
+	..()
+	set_trait(TRAIT_MATURATION,8)
+	set_trait(TRAIT_PRODUCTION,3)
+	set_trait(TRAIT_YIELD,3)
+	set_trait(TRAIT_POTENCY,5)
+	set_trait(TRAIT_PRODUCT_ICON,"wumpafruit")
+	set_trait(TRAIT_PRODUCT_COLOUR,"#61E2EC")
+	set_trait(TRAIT_PLANT_ICON,"wumpavines")
+	set_trait(TRAIT_WATER_CONSUMPTION, 10)
+
+/datum/seed/sugartree
+	name = "sugartree"
+	seed_name = "sugar tree fruit"
+	display_name = "sugar tree"
+	chems = list("sugar" = list(3,4))
+	kitchen_tag = "sugartree"
+
+/datum/seed/sugartree/setup_traits()
+	..()
+	set_trait(TRAIT_HARVEST_REPEAT,1)
+	set_trait(TRAIT_MATURATION,3)
+	set_trait(TRAIT_PRODUCTION,5)
+	set_trait(TRAIT_YIELD,1)
+	set_trait(TRAIT_POTENCY,5)
+	set_trait(TRAIT_PRODUCT_ICON,"alien2")
+	set_trait(TRAIT_PRODUCT_COLOUR,"#fffdf7")
+	set_trait(TRAIT_PLANT_COLOUR,"#6BBD68")
+	set_trait(TRAIT_PLANT_ICON, "alien3")
+	set_trait(TRAIT_WATER_CONSUMPTION, 6)
+	set_trait(TRAIT_IDEAL_HEAT, 283)

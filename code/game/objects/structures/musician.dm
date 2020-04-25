@@ -209,8 +209,7 @@
 	//hearers(15, src) << sound(soundfile)
 	var/turf/source = get_turf(src)
 	for(var/mob/M in hearers(15, source))
-		M.playsound_local(source, file(soundfile), 100, falloff = 5)
-
+		M.playsound_simple(source, file(soundfile), 100, falloff = 5)
 
 /obj/structure/device/piano/proc/playsong()
 	do
@@ -227,12 +226,12 @@
 					if(!playing || !anchored)//If the piano is playing, or is loose
 						playing = 0
 						return
-					if(lentext(note) == 0)
+					if(length(note) == 0)
 						continue
 					var/cur_note = text2ascii(note) - 96
 					if(cur_note < 1 || cur_note > 7)
 						continue
-					for(var/i=2 to lentext(note))
+					for(var/i=2 to length(note))
 						var/ni = copytext(note,i,i+1)
 						if(!text2num(ni))
 							if(ni == "#" || ni == "b" || ni == "n")
@@ -344,7 +343,7 @@
 				return
 			if(song.lines.len > 50)
 				return
-			if(lentext(newline) > 50)
+			if(length(newline) > 50)
 				newline = copytext(newline, 1, 50)
 			song.lines.Add(newline)
 
@@ -359,7 +358,7 @@
 			var/content = html_encode(input("Enter your line: ", "Piano", song.lines[num]) as text|null)
 			if(!content)
 				return
-			if(lentext(content) > 50)
+			if(length(content) > 50)
 				content = copytext(content, 1, 50)
 			if(num > song.lines.len || num < 1)
 				return
@@ -381,11 +380,11 @@
 				if (!in_range(src, usr))
 					return
 
-				if(lentext(t) >= 3072)
+				if(length(t) >= 3072)
 					var/cont = input(usr, "Your message is too long! Would you like to continue editing it?", "", "yes") in list("yes", "no")
 					if(cont == "no")
 						break
-			while(lentext(t) > 3072)
+			while(length(t) > 3072)
 
 			//split into lines
 			spawn()
@@ -399,7 +398,7 @@
 					lines.Cut(51)
 				var/linenum = 1
 				for(var/l in lines)
-					if(lentext(l) > 50)
+					if(length(l) > 50)
 						to_chat(usr, "Line [linenum] too long!")
 						lines.Remove(l)
 					else
@@ -416,18 +415,18 @@
 /obj/structure/device/piano/attackby(obj/item/O as obj, mob/user as mob)
 	if (O.iswrench())
 		if (anchored)
-			playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
+			playsound(src.loc, O.usesound, 50, 1)
 			to_chat(user, "<span class='notice'>You begin to loosen \the [src]'s casters...</span>")
-			if (do_after(user, 40))
+			if (do_after(user, 40/O.toolspeed))
 				user.visible_message( \
 					"[user] loosens \the [src]'s casters.", \
 					"<span class='notice'>You have loosened \the [src]. Now it can be pulled somewhere else.</span>", \
 					"You hear ratchet.")
 				src.anchored = 0
 		else
-			playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
+			playsound(src.loc, O.usesound, 50, 1)
 			to_chat(user, "<span class='notice'>You begin to tighten \the [src] to the floor...</span>")
-			if (do_after(user, 20))
+			if (do_after(user, 20/O.toolspeed))
 				user.visible_message( \
 					"[user] tightens \the [src]'s casters.", \
 					"<span class='notice'>You have tightened \the [src]'s casters. Now it can be played again</span>.", \

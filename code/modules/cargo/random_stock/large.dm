@@ -81,14 +81,7 @@ STOCK_ITEM_LARGE(suspension, 2)
 	new /obj/machinery/suspension_gen(L)
 
 STOCK_ITEM_LARGE(animal, 2.5)
-	var/type = pick( \
-		/obj/structure/largecrate/animal/chick, \
-		/obj/structure/largecrate/animal/cat, \
-		/obj/structure/largecrate/animal/goat, \
-		/obj/structure/largecrate/animal/cow, \
-		/obj/structure/largecrate/animal/corgi \
-	)
-	new type(L)
+	new /obj/random/animal_crate(L)
 
 STOCK_ITEM_LARGE(cablelayer, 1)
 	new /obj/machinery/cablelayer(L)
@@ -125,7 +118,10 @@ STOCK_ITEM_LARGE(pipemachine, 1.7)
 		new /obj/machinery/pipedispenser(L)
 
 STOCK_ITEM_LARGE(bike, 0.3)
-	new /obj/vehicle/bike(L)
+	if (prob(75))
+		new /obj/vehicle/bike(L)
+	else
+		new /obj/vehicle/bike/monowheel(L)
 
 STOCK_ITEM_LARGE(sol, 0.2)
 	if (prob(50))

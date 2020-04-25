@@ -24,7 +24,7 @@
 	var/effective_armor = (armor - armour_pen)/100
 	var/fullblock = (effective_armor*effective_armor) * ARMOR_BLOCK_CHANCE_MULT
 
-	if(fullblock >= 1 || prob(fullblock*100))
+	if(fullblock >= 1)
 		if(absorb_text)
 			show_message("<span class='warning'>[absorb_text]</span>")
 		else
@@ -62,10 +62,10 @@
 	return 0
 
 
-/mob/living/bullet_act(var/obj/item/projectile/P, var/def_zone)
+/mob/living/bullet_act(var/obj/item/projectile/P, var/def_zone, var/used_weapon = null)
 
 	//Being hit while using a cloaking device
-	var/obj/item/weapon/cloaking_device/C = locate((/obj/item/weapon/cloaking_device) in src)
+	var/obj/item/cloaking_device/C = locate(/obj/item/cloaking_device) in src
 	if(C && C.active)
 		C.attack_self(src)//Should shut it off
 		update_icons()
@@ -91,14 +91,25 @@
 	var/absorb = run_armor_check(def_zone, P.check_armour, P.armor_penetration)
 	var/proj_sharp = is_sharp(P)
 	var/proj_edge = has_edge(P)
+	var/damaged
 	if ((proj_sharp || proj_edge) && prob(absorb))
 		proj_sharp = 0
 		proj_edge = 0
 
 	if(!P.nodamage)
-		apply_damage(P.damage, P.damage_type, def_zone, absorb, 0, P, sharp=proj_sharp, edge=proj_edge)
+		damaged = apply_damage(P.damage, P.damage_type, def_zone, absorb, 0, P, sharp=proj_sharp, edge=proj_edge, damage_flags = P.damage_flags, used_weapon = "\a [P.name]")
+		bullet_impact_visuals(P, def_zone, damaged)
 	P.on_hit(src, absorb, def_zone)
 	return absorb
+
+//For visuals, blood splatters and so on.
+/mob/living/proc/bullet_impact_visuals(var/obj/item/projectile/P, var/def_zone, var/damage)
+	var/list/impact_sounds = LAZYACCESS(P.impact_sounds, get_bullet_impact_effect_type(def_zone))
+	if(length(impact_sounds))
+		playsound(src, pick(impact_sounds), 75)
+
+/mob/living/get_bullet_impact_effect_type(var/def_zone)
+	return BULLET_IMPACT_MEAT
 
 //Handles the effects of "stun" weapons
 /mob/living/proc/stun_effect_act(var/stun_amount, var/agony_amount, var/def_zone, var/used_weapon=null)
@@ -111,7 +122,7 @@
 		apply_effect(EYE_BLUR, stun_amount)
 
 	if (agony_amount)
-		apply_damage(agony_amount, HALLOSS, def_zone, 0, used_weapon)
+		apply_damage(agony_amount, PAIN, def_zone, 0, used_weapon)
 		apply_effect(STUTTER, agony_amount/10)
 		apply_effect(EYE_BLUR, agony_amount/10)
 
@@ -189,7 +200,7 @@
 			if(assailant)
 				src.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been hit with a [O], thrown by [M.name] ([assailant.ckey])</font>")
 				M.attack_log += text("\[[time_stamp()]\] <font color='red'>Hit [src.name] ([src.ckey]) with a thrown [O]</font>")
-				if(!istype(src,/mob/living/simple_animal/mouse))
+				if(!istype(src,/mob/living/simple_animal/rat))
 					msg_admin_attack("[src.name] ([src.ckey]) was hit by a [O], thrown by [M.name] ([assailant.ckey]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>)",ckey=key_name(M),ckey_target=key_name(src))
 
 		// Begin BS12 momentum-transfer code.
@@ -224,9 +235,10 @@
 	src.embedded += O
 	src.verbs += /mob/proc/yank_out_object
 
-//This is called when the mob is thrown into a dense turf
-/mob/living/proc/turf_collision(var/turf/T, var/speed)
-	src.take_organ_damage(speed*5)
+/mob/living/proc/turf_collision(var/turf/T, var/speed = THROWFORCE_SPEED_DIVISOR)
+	visible_message("<span class='danger'>[src] slams into \the [T]!</span>")
+	playsound(T, 'sound/effects/bangtaper.ogg', 50, 1, 1)//so it plays sounds on the turf instead, makes for awesome carps to hull collision and such
+	apply_damage(speed*5, BRUTE)
 
 /mob/living/proc/near_wall(var/direction,var/distance=1)
 	var/turf/T = get_step(get_turf(src),direction)
@@ -257,24 +269,42 @@
 	spawn(1) updatehealth()
 	return 1
 
-/mob/living/proc/IgniteMob()
+/mob/living/proc/IgniteMob(var/fire_stacks_to_add = 0)
+
+	if(fire_stacks_to_add)
+		adjust_fire_stacks(fire_stacks_to_add)
+
 	if(fire_stacks > 0 && !on_fire)
 		on_fire = 1
 		set_light(light_range + MOB_FIRE_LIGHT_RANGE, light_power + MOB_FIRE_LIGHT_POWER)
 		update_fire()
+		return TRUE
 
-/mob/living/proc/ExtinguishMob()
-	if(on_fire)
+	return FALSE
+
+/mob/living/proc/ExtinguishMob(var/fire_stacks_to_remove = 0)
+
+	if (fire_stacks_to_remove)
+		adjust_fire_stacks(-fire_stacks_to_remove)
+
+	if(fire_stacks <= 0 && on_fire)
 		on_fire = 0
-		fire_stacks = 0
 		set_light(max(0, light_range - MOB_FIRE_LIGHT_RANGE), max(0, light_power - MOB_FIRE_LIGHT_POWER))
 		update_fire()
+		return TRUE
+
+	return FALSE
+
+/mob/living/proc/ExtinguishMobCompletely()
+	return ExtinguishMob(fire_stacks)
 
 /mob/living/proc/update_fire()
 	return
 
-/mob/living/proc/adjust_fire_stacks(add_fire_stacks) //Adjusting the amount of fire_stacks we have on person
-    fire_stacks = Clamp(fire_stacks + add_fire_stacks, FIRE_MIN_STACKS, FIRE_MAX_STACKS)
+/mob/living/proc/adjust_fire_stacks(var/add_fire_stacks)
+	fire_stacks = Clamp(fire_stacks + add_fire_stacks, FIRE_MIN_STACKS, FIRE_MAX_STACKS)
+
+	return fire_stacks
 
 /mob/living/proc/handle_fire()
 	if(fire_stacks < 0)
@@ -283,20 +313,19 @@
 	if(!on_fire)
 		return 1
 	else if(fire_stacks <= 0)
-		ExtinguishMob() //Fire's been put out.
+		ExtinguishMobCompletely() //Fire's been put out.
 		return 1
 
 	var/datum/gas_mixture/G = loc.return_air() // Check if we're standing in an oxygenless environment
 	if(G.gas["oxygen"] < 1)
-		ExtinguishMob() //If there's no oxygen in the tile we're on, put out the fire
+		ExtinguishMobCompletely() //If there's no oxygen in the tile we're on, put out the fire
 		return 1
 
 	var/turf/location = get_turf(src)
 	location.hotspot_expose(fire_burn_temperature(), 50, 1)
 
 /mob/living/fire_act()
-	adjust_fire_stacks(2)
-	IgniteMob()
+	IgniteMob(2)
 
 /mob/living/proc/get_cold_protection()
 	return 0

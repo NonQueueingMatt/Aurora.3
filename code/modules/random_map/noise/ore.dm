@@ -43,7 +43,7 @@
 
 	for(var/i=0,i<chunk_size,i++)
 		for(var/j=0,j<chunk_size,j++)
-			var/turf/simulated/T = locate(tx+j, ty+i, origin_z)
+			var/turf/T = locate(tx+j, ty+i, origin_z)
 			if(!istype(T) || !T.has_resources)
 				continue
 			if(!priority_process) 
@@ -79,9 +79,14 @@
 				T.resources["phoron"] =   rand(RESOURCE_HIGH_MIN, RESOURCE_HIGH_MAX)
 				T.resources["osmium"] =   rand(RESOURCE_HIGH_MIN, RESOURCE_HIGH_MAX)
 				T.resources["hydrogen"] = rand(RESOURCE_MID_MIN,  RESOURCE_MID_MAX)
-				T.resources["iron"] =     0
-				T.resources["gold"] =     0
-				T.resources["silver"] =   0
+				if(prob(40)) // A medium chance for these useful mats to appear in very small quantities
+					T.resources["iron"] =     rand(RESOURCE_LOW_MIN,  RESOURCE_LOW_MAX)
+					T.resources["gold"] =     rand(RESOURCE_LOW_MIN,  RESOURCE_LOW_MAX)
+					T.resources["silver"] =   rand(RESOURCE_LOW_MIN,  RESOURCE_LOW_MAX)
+				else
+					T.resources["iron"] =     0
+					T.resources["gold"] =     0
+					T.resources["silver"] =   0
 	return
 
 /datum/random_map/noise/ore/get_map_char(var/value)

@@ -18,6 +18,7 @@
 	var/list/msg_deathsquad = list()
 	var/list/msg_syndicate = list()
 	var/list/msg_raider = list()
+	var/list/msg_ninja = list()
 	var/list/msg_cargo = list()
 	var/list/msg_service = list()
 
@@ -54,7 +55,7 @@
 
 	// Handle population polling.
 	if (config.sql_enabled && config.sql_stats)
-		var/admincount = admins.len
+		var/admincount = staff.len
 		var/playercount = 0
 		for(var/mob/M in player_list)
 			if(M.client)
@@ -241,7 +242,7 @@
 		return
 
 	var/area/placeofdeath = get_area(H)
-	var/podname = placeofdeath ? placeofdeath.name : "Unknown area"
+	var/podname = placeofdeath ? "[placeofdeath]" : "Unknown area"
 
 	var/sqlname = sanitizeSQL(H.real_name)
 	var/sqlkey = sanitizeSQL(H.key)
@@ -274,7 +275,7 @@
 		return
 
 	var/area/placeofdeath = get_area(H)
-	var/podname = placeofdeath ? placeofdeath.name : "Unknown area"
+	var/podname = placeofdeath ? "[placeofdeath]" : "Unknown area"
 
 	var/sqlname = sanitizeSQL(H.real_name)
 	var/sqlkey = sanitizeSQL(H.key)

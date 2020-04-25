@@ -12,8 +12,8 @@
 	pathweight = 100000 //Seriously, don't try and path over this one numbnuts
 	is_hole = TRUE
 	flags = MIMIC_BELOW | MIMIC_OVERWRITE | MIMIC_NO_AO
-
 	roof_type = null
+	footstep_sound = null
 
 	// A lazy list to contain a list of mobs who are currently scaling
 	// up this turf. Used in human/can_fall.
@@ -25,8 +25,7 @@
 /turf/simulated/open/Enter(mob/living/carbon/human/mover, atom/oldloc)
 	if (istype(mover) && isturf(oldloc))
 		if (mover.Check_Shoegrip(FALSE) && mover.can_fall(below, src))
-			to_chat(mover, span("notice",
-				"You are stopped from falling off the edge by \the [mover.shoes] you're wearing!"))
+			to_chat(mover, span("notice", "You are stopped from falling off the edge by \the [mover.shoes] you're wearing!"))
 			return FALSE
 
 	return ..()
@@ -71,7 +70,6 @@
  */
 /turf/simulated/open/proc/add_climber(atom/climber, flags = CLIMBER_DEFAULT)
 	if (!flags)
-		PROCLOG_WEIRD("Attempted to add climber [climber] without flags.")
 		return FALSE
 
 	if (LAZYACCESS(climbers, climber))
@@ -134,10 +132,7 @@
 /turf/simulated/open/Initialize(mapload)
 	. = ..()
 	icon_state = ""	// Clear out the debug icon.
-	shadower = new(src)
-	if (!(flags & MIMIC_OVERWRITE) && plane == PLANE_SPACE_BACKGROUND)
-		// If the plane is default and we're a no_mutate turf, force it to 0 so the icon works properly.
-		plane = 0
+
 	update(mapload)
 
 /**
@@ -222,5 +217,12 @@
 /turf/simulated/open/is_plating()
 	return TRUE
 
-/turf/simulated/open/AddTracks(var/list/DNA, var/comingdir, var/goingdir, var/bloodcolor="#A10808")
+/turf/simulated/open/add_tracks(var/list/DNA, var/comingdir, var/goingdir, var/bloodcolor="#A10808")
 	return
+
+//Returns the roof type of the turf below
+/turf/simulated/open/get_roof_type()
+	var/turf/t = GetBelow(src)
+	if(!t)
+		return null
+	return t.roof_type

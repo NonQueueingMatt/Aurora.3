@@ -39,6 +39,7 @@
 		icon_state = on_icon
 
 /obj/machinery/holosign/power_change()
+	..()
 	if (stat & NOPOWER)
 		lit = 0
 		use_power = 0
@@ -54,7 +55,10 @@
 	name = "holosign switch"
 	desc = "A remote control switch for holosign."
 	icon = 'icons/obj/power.dmi'
-	icon_state = "crema_switch"
+	icon_state = "holosign_switch"
+
+/obj/machinery/button/holosign/update_icon()
+	return
 
 /obj/machinery/button/holosign/attack_hand(mob/user as mob)
 	if(..())

@@ -65,7 +65,7 @@
 	if(!accurate)
 		if(prob(80))
 			hit_zone = ran_zone(hit_zone)
-		if(prob(15) && hit_zone != "chest") // Missed!
+		if(prob(15) && hit_zone != BP_CHEST) // Missed!
 			if(!D.lying)
 				attack_message = "[A] attempted to strike [D], but missed!"
 			else
@@ -117,7 +117,7 @@
 			real_damage += G.punch_force
 			hit_dam_type = G.punch_damtype
 			if(A.pulling_punches)
-				hit_dam_type = AGONY
+				hit_dam_type = PAIN
 
 			if(G.sharp)
 				is_sharp = 1
@@ -174,7 +174,12 @@
 	name = "SolCom manual"
 	desc = "A manual designated to teach the user about the martial art of solarian combat, a style based on traditional human martial arts."
 	icon = 'icons/obj/library.dmi'
+	item_icons = list(
+		slot_l_hand_str = 'icons/mob/items/lefthand_books.dmi',
+		slot_r_hand_str = 'icons/mob/items/righthand_books.dmi'
+		)
 	icon_state ="cqcmanual"
+	item_state ="book1"
 	var/martial_art = /datum/martial_art/sol_combat
 
 /obj/item/martial_manual/attack_self(mob/user as mob)

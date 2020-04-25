@@ -13,7 +13,7 @@
 			if(item.can_view(U))
 				return 1
 		return 0
-	
+
 	for(var/antag_role in antag_roles)
 		var/datum/antagonist/antag = all_antag_types[antag_role]
 		if(antag.is_antagonist(U.uplink_owner))
@@ -53,6 +53,15 @@
 /datum/uplink_category/badassery
 	name = "Badassery"
 
+/datum/uplink_category/exosuit
+	name = "Exosuit"
+
+/datum/uplink_category/exosuit_equipment
+	name = "Exosuit Equipment"
+
+/datum/uplink_category/corporate_equipment
+	name = "Corporate Equipment"
+
 /datum/uplink_category/telecrystals
 	name = "Telecrystals"
 
@@ -63,3 +72,10 @@
 	name = "Infiltration Items"
 	antag_roles = list(MODE_NINJA)
 
+/datum/uplink_category/gear_loadout
+	name = "Gear Loadout"
+	antag_roles = list(MODE_MERCENARY)
+
+/datum/uplink_category/revolution
+	name = "Revolution Items"
+	antag_roles = list(MODE_REVOLUTIONARY)

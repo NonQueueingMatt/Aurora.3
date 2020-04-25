@@ -56,8 +56,8 @@
 		equip_to_slot_or_del(W, slot)
 	else
 		//Mob can't equip it.  Put it their backpack or toss it on the floor
-		if(istype(back, /obj/item/weapon/storage))
-			var/obj/item/weapon/storage/S = back
+		if(istype(back, /obj/item/storage))
+			var/obj/item/storage/S = back
 			//Now, B represents a container we can insert W into.
 			S.handle_item_insertion(W,1)
 			return S
@@ -104,14 +104,14 @@ var/list/slot_equipment_priority = list( \
 
 /mob/proc/equip_to_storage(obj/item/newitem)
 	// Try put it in their backpack
-	if(istype(src.back,/obj/item/weapon/storage))
-		var/obj/item/weapon/storage/backpack = src.back
+	if(istype(src.back,/obj/item/storage))
+		var/obj/item/storage/backpack = src.back
 		if(backpack.can_be_inserted(newitem, 1))
 			newitem.forceMove(src.back)
 			return 1
 
 	// Try to place it in any item that can store stuff, on the mob.
-	for(var/obj/item/weapon/storage/S in src.contents)
+	for(var/obj/item/storage/S in src.contents)
 		if(S.can_be_inserted(newitem, 1))
 			newitem.forceMove(S)
 			return 1
@@ -164,7 +164,7 @@ var/list/slot_equipment_priority = list( \
 
 // Removes an item from inventory and places it in the target atom.
 // If canremove or other conditions need to be checked then use unEquip instead.
-/mob/proc/drop_from_inventory(var/obj/item/W, var/atom/target = null)
+/mob/proc/drop_from_inventory(var/obj/item/W, var/atom/target)
 	if(W)
 		if(!target)
 			target = loc
@@ -185,9 +185,26 @@ var/list/slot_equipment_priority = list( \
 	return drop_from_inventory(r_hand, target)
 
 //Drops the item in our active hand. TODO: rename this to drop_active_hand or something
-/mob/proc/drop_item(var/atom/target)
-	if(hand)	return drop_l_hand(target)
-	else		return drop_r_hand(target)
+
+/mob/proc/drop_item(var/atom/Target)
+    var/obj/item/item_dropped = null
+
+    if (hand)
+        item_dropped = l_hand
+        . = drop_l_hand(Target)
+    else
+        item_dropped = r_hand
+        . = drop_r_hand(Target)
+
+    if (istype(item_dropped) && !QDELETED(item_dropped))
+        addtimer(CALLBACK(src, .proc/make_item_drop_sound, item_dropped), 1)
+
+/mob/proc/make_item_drop_sound(obj/item/I)
+	if(QDELETED(I))
+		return
+
+	if(I.drop_sound)
+		playsound(I, I.drop_sound, 25, 0, required_asfx_toggles = ASFX_DROPSOUND)
 
 /*
 	Removes the object from any slots the mob might have, calling the appropriate icon update proc.
@@ -235,10 +252,10 @@ var/list/slot_equipment_priority = list( \
 	return slot
 
 //This differs from remove_from_mob() in that it checks if the item can be unequipped first.
-/mob/proc/unEquip(obj/item/I, force = 0) //Force overrides NODROP for things like wizarditis and admin undress.
+/mob/proc/unEquip(obj/item/I, force = 0, var/atom/target) //Force overrides NODROP for things like wizarditis and admin undress.
 	if(!(force || canUnEquip(I)))
 		return
-	drop_from_inventory(I)
+	drop_from_inventory(I, target)
 	return 1
 
 
@@ -285,12 +302,12 @@ var/list/slot_equipment_priority = list( \
 //Outdated but still in use apparently. This should at least be a human proc.
 /mob/proc/get_equipped_items(var/include_carried = 0)
 	. = list()
-	if(slot_back) . += back
-	if(slot_wear_mask) . += wear_mask
+	if(back) . += back
+	if(wear_mask) . += wear_mask
 
 	if(include_carried)
-		if(slot_l_hand) . += l_hand
-		if(slot_r_hand) . += r_hand
+		if(l_hand) . += l_hand
+		if(r_hand) . += r_hand
 
 
 
@@ -300,18 +317,21 @@ var/list/slot_equipment_priority = list( \
 
 /mob/living/carbon/throw_item(atom/target)
 	src.throw_mode_off()
-	if(usr.stat || !target)
+	if(stat || !target)
 		return
-	if(target.type == /obj/screen) return
+	if(target.type == /obj/screen)
+		return
 
 	var/atom/movable/item = src.get_active_hand()
 
-	if(!item) return
+	if(!item)
+		return
 
-	if (istype(item, /obj/item/weapon/grab))
-		var/obj/item/weapon/grab/G = item
+	var/can_throw = TRUE
+	if(istype(item, /obj/item/grab))
+		var/obj/item/grab/G = item
 		item = G.throw_held() //throw the person instead of the grab
-		if(ismob(item))
+		if(ismob(item) && G.state >= GRAB_NECK)
 			var/turf/start_T = get_turf(loc) //Get the start and target tile for the descriptors
 			var/turf/end_T = get_turf(target)
 			if(start_T && end_T)
@@ -329,8 +349,11 @@ var/list/slot_equipment_priority = list( \
 				msg_admin_attack("[usr.name] ([usr.ckey]) has thrown [M.name] ([M.ckey]) from [start_T_descriptor] with the target [end_T_descriptor] (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[usr.x];Y=[usr.y];Z=[usr.z]'>JMP</a>)",ckey=key_name(usr),ckey_target=key_name(M))
 
 			qdel(G)
+		else
+			can_throw = FALSE
 
-	if(!item) return //Grab processing has a chance of returning null
+	if(!item || !can_throw)
+		return //Grab processing has a chance of returning null
 
 
 	src.remove_from_mob(item)
@@ -358,6 +381,9 @@ var/list/slot_equipment_priority = list( \
 			step(src, inertia_dir)
 */
 
+		if(istype(item,/obj/item))
+			var/obj/item/W = item
+			W.randpixel_xy()
 
 		item.throw_at(target, item.throw_range, item.throw_speed, src)
 

@@ -55,7 +55,7 @@
 	"mi","jri","dynh","manq","rhe","zar","rrhaz","kal","chur","eech","thaa","dra","jurl","mah","sanu","dra","ii'r",
 	"ka","aasi","far","wa","baq","ara","qara","zir","sam","mak","hrar","nja","rir","khan","jun","dar","rik","kah",
 	"hal","ket","jurl","mah","tul","cresh","azu","ragh","mro","mra","mrro","mrra")
-	partial_understanding = list(LANGUAGE_SIIK_TAJR = 50, LANGUAGE_YA_SSA = 25, LANGUAGE_DELVAHII = 50, LANGUAGE_SIIK_TAU = 40)
+	partial_understanding = list(LANGUAGE_SIIK_TAJR = 50, LANGUAGE_YA_SSA = 25, LANGUAGE_DELVAHII = 50)
 
 /datum/language/tajaran/get_random_name(var/gender)
 
@@ -92,7 +92,7 @@
 	"mi","jri","dynh","manq","rhe","zar","rrhaz","kal","chur","eech","thaa","dra","jurl","mah","sanu","dra","ii'r",
 	"ka","aasi","far","wa","baq","ara","qara","zir","sam","mak","hrar","nja","rir","khan","jun","dar","rik","kah",
 	"hal","ket","jurl","mah","tul","cresh","azu","ragh","mro","mra","mrro","mrra")
-	partial_understanding = list(LANGUAGE_SIIK_MAAS = 50, LANGUAGE_SIGN_TAJARA = 25, LANGUAGE_SIIK_TAU= 20)
+	partial_understanding = list(LANGUAGE_SIIK_MAAS = 50, LANGUAGE_SIGN_TAJARA = 25)
 
 /datum/language/yassa
 	name = LANGUAGE_YA_SSA
@@ -124,19 +124,6 @@
 	"hal","ket","jurl","mah","tul","cresh","azu","ragh","mro","mra","mrro","mrra")
 	partial_understanding = list(LANGUAGE_SIIK_MAAS = 50)
 
-/datum/language/siik_tau
-	name = LANGUAGE_SIIK_TAU
-	desc = "A macaronic form of Tau Ceti Basic and Siik'maas, developed in Mendell City soon after Tajara entered the galactic field."
-	speech_verb = "slurs"
-	ask_verb = "mrowmbles"
-	exclaim_verb = "exclaims"
-	colour = "siiktau"
-	key = "t"
-	flags = WHITELISTED|TCOMSSIM
-	syllables = list("m'Rr","rr","tahjr","kir","rrahj","kii","mirr","krah","ahhk","nahl","vahh","khahz","jri","rahn","dahrr",
-	"mi","j'Rri","dy'Nh","mah'nq","rhe","zahr","r'Rhahz","kahl")
-	partial_understanding = list(LANGUAGE_SIIK_MAAS = 40,  LANGUAGE_SIIK_TAJR = 20, LANGUAGE_TCB = 60)
-
 /datum/language/skrell
 	name = LANGUAGE_SKRELLIAN
 	desc = "A melodic and complex language spoken by the Skrell of Qerrbalak. Some of the notes are inaudible to humans."
@@ -151,7 +138,7 @@
 /datum/language/skrell/get_random_name()
 	var/new_name = ""
 	var/suff = ""
-	var/name_pieces = list("Zish", "Kin", "Qu", "Sukak", "Shin", "Ulu", "Nini", "Nai", "Xunu", "Zix", "Ooo", "Paut", "Sulux", "Xiialt", "Riori", "Eqeq", "Xicic", "Ooin", "Kaaxi", "Nuux", "Iirun", "Akoox", "Nunuz", "Ouik", "Uptari", "Vuzu", "Weish", "Liise", "Xiiux", "Lesh", "Ezhin", "Vulun", "Ponoh", "Pish", "Nali", "Yonosh")
+	var/name_pieces = list("Qu", "Su", "Xu", "Xi", "Qi", "Si", "Ei", "Qui", "Iuq", "Qiu", "Kiu", "Uiu", "Eis", "Seq", "Eqa", "Uiq", "Kui", "Muu", "Muq", "Kuo", "Omq", "Xoi", "Liq", "Zuk", "Kono", "Koxi", "Auuo", "Iili", "Kesi", "Irek", "Quak", "Qoku", "Uokk", "Eeok", "Teie", "Xiou", "Xoku", "Xiru", "Qiuu", "Laqu", "Leua", "Olru", "Oquo", "Oeoo", "Isik", "Kiue", "Ruee", "Ouqu", "Kiiq", "Tesh", "Lish", "Ilin", "Shiq", "Quis", "Oquq", "Ququ", "Xoio", "Nolko", "Ruusi", "Ieliu", "Nuptu", "Eiuos", "Seiuu", "Xeriu", "Ioquk", "Teiqu", "Quoru", "Qiiuk", "Qeouu", "Quaoi", "Uieuu", "Koqun", "Nuouu", "Leuqo", "Luroq", "Urqul", "Uluqu", "Iequu", "Uiuou", "Suioq", "Urouu", "Xeouu", "Xeios", "Qarui", "Njubu", "Buquk", "Zueou", "Qosko", "Tuiru", "Tuquu", "Xorie", "Zouuo", "Euioi", "Liise", "Riori", "Iirun", "Akoox", "Nunuz", "Ezhin", "Vulun", "Ponoh", "Sulux", "Suqui", "Suqua", "Souqx", "Squix", "Quish", "Shiqu", "Jeshi", "Xushi", "Kiqui", "Liuiq", "Tuish", "Vuzuna", "Uptari", "Xiialt", "Yonosh", "Lieuqo", "Turiuu", "Utrieo", "Yutiex", "Xuitou", "Xieoru", "Xioshi", "Quisuu", "Juiqii", "Uituik", "Ruisui", "Tuisuh", "Jixktu", "Lioxui", "Shixul", "Iuoquu", "Nuitqu", "Kuixqu", "Oiquio", "Oiakuu", "Juukxu", "Iouiuu", "Tuirou", "Suahuk", "Seuaio", "Juirue", "Kioxui", "Xusuui", "Tuirul", "Luishi", "Liropo", "Lixuqe", "Urueir", "Queire", "Iuosuu", "Jaxxak", "Kqullu", "Xulluu", "Xikkuq", "Oiuqkk", "Tuiskk", "Liqukk", "Orueix", "Rkusix", "Turieu", "Kduish", "Xdurui", "Liquuq", "Shiruu", "Xuisoo", "Ooruex", "Uuooux", "Oieuix", "Laishi", "Xiaooi", "Oruexi", "Xiatal", "Xekkua")
 	var/first_name = "[pick(name_pieces)]"
 	name_pieces -= first_name
 	if(prob(40))
@@ -195,7 +182,7 @@
 	var/msg = "<i><span class='game say'>[name], <span class='name'>[speaker_mask]</span>[format_message(message, get_spoken_verb(message))]</span></i>"
 
 	if(isvaurca(speaker))
-		speaker.custom_emote(1, "[pick("twitches their antennae", "twitches their antennae rythmically")].")
+		speaker.custom_emote(1, "[pick("twitches their antennae", "twitches their antennae rhythmically")].")
 
 	if (within_jamming_range(speaker))
 		// The user thinks that the message got through.
@@ -287,25 +274,6 @@
 	if(prob(70))
 		return "[pick(list("PBU","HIU","SINA","ARMA","OSI"))]-[rand(100, 999)]"
 	return pick(ai_names)
-
-/datum/language/resomi
-	name = LANGUAGE_RESOMI
-	desc = "A trilling language spoken by the diminutive Resomi."
-	speech_verb = "chirps"
-	ask_verb = "chirrups"
-	exclaim_verb = "trills"
-	colour = "alien"
-	key = "v"
-	flags = WHITELISTED
-	space_chance = 50
-	syllables = list(
-			"ca", "ra", "ma", "sa", "na", "ta", "la", "sha", "scha", "a", "a",
-			"ce", "re", "me", "se", "ne", "te", "le", "she", "sche", "e", "e",
-			"ci", "ri", "mi", "si", "ni", "ti", "li", "shi", "schi", "i", "i"
-		)
-
-/datum/language/resomi/get_random_name(gender)
-	return ..(gender, 1, 4, 1.5)
 
 /datum/language/unathi_azaziba
 	name = LANGUAGE_AZAZIBA

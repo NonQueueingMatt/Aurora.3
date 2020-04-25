@@ -1,13 +1,13 @@
 // These are pricey, but damn do they look nice.
 /turf/simulated/lava
+	name = "lava"
+	desc = "Toasty."
 	icon = 'icons/turf/smooth/lava.dmi'
 	icon_state = "smooth"
 	gender = PLURAL
 	smooth = SMOOTH_TRUE | SMOOTH_BORDER
 	light_color = LIGHT_COLOR_LAVA
 	light_range = 2
-	name = "lava"
-	desc = "Toasty."
 	canSmoothWith = list(
 			/turf/simulated/lava,
 			/turf/simulated/mineral
@@ -19,7 +19,7 @@
 /turf/simulated/lava/get_smooth_underlay_icon(mutable_appearance/underlay_appearance, turf/asking_turf, adjacency_dir)
 	underlay_appearance.icon = 'icons/turf/basalt.dmi'
 	underlay_appearance.icon_state = "basalt"
-	if (prob(20))
+	if(prob(20))
 		underlay_appearance.icon_state += "[rand(0,12)]"
 	return TRUE
 
@@ -27,30 +27,29 @@
 	if(istype(AM, /mob/living))
 		var/mob/living/L = AM
 		if(locate(/obj/structure/lattice/catwalk, src))	//should be safe to walk upon
-			return 1
+			return TRUE
 		if(!istype(oldloc,/turf/simulated/lava))
-			to_chat(L, "<span class='warning'>You are covered by fire and heat from entering \the [src]!</span>")
+			to_chat(L, SPAN_WARNING("You are covered by fire and heat from entering \the [src]!"))
 		if(isanimal(L))
 			var/mob/living/simple_animal/H = L
 			if(H.flying) //flying mobs will ignore the lava
-				return 1
+				return TRUE
 			else
 				L.bodytemperature = min(L.bodytemperature + 150, 1000)
 		else
-			L.adjust_fire_stacks(15)
-			L.IgniteMob()
-			return 1
+			L.IgniteMob(15)
+			return TRUE
 	..()
 
 /turf/simulated/lava/Exited(atom/movable/AM, atom/newloc)
 	if(istype(AM, /mob/living))
 		var/mob/living/L = AM
 		if(!istype(newloc, /turf/simulated/lava))
-			to_chat(L, "<span class='warning'>You climb out of \the [src].</span>")
+			to_chat(L, SPAN_WARNING("You climb out of \the [src]."))
 	..()
 
 // Special asteroid variant that goes with lava better.
-/turf/simulated/floor/asteroid/basalt
+/turf/unsimulated/floor/asteroid/basalt
 	name = "basalt"
 	icon = 'icons/turf/basalt.dmi'
 	icon_state = "basalt"
@@ -64,16 +63,16 @@
 	canSmoothWith = null
 	openspace_override_type = /turf/simulated/open/chasm/airless
 
-	footstep_sound = "concretestep"
+	footstep_sound = "asteroid"
 
-/turf/simulated/floor/asteroid/basalt/get_smooth_underlay_icon(mutable_appearance/underlay_appearance, turf/asking_turf, adjacency_dir)
+/turf/unsimulated/floor/asteroid/basalt/get_smooth_underlay_icon(mutable_appearance/underlay_appearance, turf/asking_turf, adjacency_dir)
 	underlay_appearance.icon = icon
 	underlay_appearance.icon_state = "basalt"
 	if (prob(20))
 		underlay_appearance.icon_state += "[rand(0,12)]"
 	return TRUE
 
-/turf/simulated/floor/asteroid/basalt/Initialize(mapload)
+/turf/unsimulated/floor/asteroid/basalt/Initialize(mapload)
 	if (prob(20))
 		var/variant = rand(0,12)
 		icon_state = "basalt[variant]"
@@ -86,24 +85,26 @@
 				light_range = 2
 	. = ..()
 
-/turf/simulated/floor/asteroid/ash
+/turf/unsimulated/floor/asteroid/ash
 	name = "ash"
 	icon_state = "ash"
 	desc = "A fine grey ash. Looks pretty tightly packed."
 	smooth = SMOOTH_MORE | SMOOTH_BORDER | SMOOTH_NO_CLEAR_ICON
 	base_icon = 'icons/turf/smooth/ash.dmi'
 	base_icon_state = "ash"
-	footstep_sound = "sandstep"
+	footstep_sound = "sand"
+	does_footprint = TRUE
+	footprint_color = COLOR_ASH
+	track_distance = 6
 
-/turf/simulated/floor/asteroid/ash/Initialize()
+/turf/unsimulated/floor/asteroid/ash/Initialize()
 	. = ..()
 	if (prob(20))
 		add_overlay("asteroid[rand(0, 9)]", TRUE)
 
-/turf/simulated/floor/asteroid/ash/rocky
+/turf/unsimulated/floor/asteroid/ash/rocky
 	name = "rocky ash"
 	icon_state = "rockyash"
 	base_icon_state = "rockyash"
 	base_icon = 'icons/turf/smooth/rocky_ash.dmi'
 	desc = "A fine grey ash. Seems to contain medium-sized rocks."
-	footstep_sound = "gravelstep"

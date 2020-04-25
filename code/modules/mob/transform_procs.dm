@@ -108,7 +108,7 @@
 		src << sound(null, repeat = 0, wait = 0, volume = 85, channel = 1) // stop the jams for AIs)
 	var/mob/living/silicon/ai/O = new (loc, base_law_type,,1)//No MMI but safety is in effect.
 	O.invisibility = 0
-	O.aiRestorePowerRoutine = 0
+	O.ai_restore_power_routine = 0
 
 	if(mind)
 		mind.transfer_to(O)
@@ -168,10 +168,9 @@
 	O.cell.maxcharge = 7500
 	O.cell.charge = 7500
 
-
 	O.gender = gender
 	O.invisibility = 0
-
+	
 	if(mind)		//TODO
 		mind.transfer_to(O)
 		if(O.mind.assigned_role == "Cyborg")
@@ -201,25 +200,6 @@
 	return O
 
 //human -> alien
-/mob/living/carbon/human/proc/Alienize()
-	for(var/obj/item/W in src)
-		drop_from_inventory(W)
-	regenerate_icons()
-	canmove = 0
-	icon = null
-	invisibility = 101
-	for(var/t in organs)
-		qdel(t)
-
-	var/alien_caste = pick("Hunter","Sentinel","Drone")
-	var/mob/living/carbon/human/new_xeno = create_new_xenomorph(alien_caste,loc)
-
-	new_xeno.a_intent = I_HURT
-	new_xeno.key = key
-
-	to_chat(new_xeno, "<B>You are now an alien.</B>")
-	qdel(src)
-	return
 
 /mob/living/carbon/human/proc/slimeize(adult as num, reproduce as num)
 	if (transforming)
@@ -341,9 +321,6 @@
 	if(ispath(MP, /mob/living/simple_animal/space_worm))
 		return 0 //Unfinished. Very buggy, they seem to just spawn additional space worms everywhere and eating your own tail results in new worms spawning.
 
-	if(ispath(MP, /mob/living/simple_animal/construct/behemoth))
-		return 0 //I think this may have been an unfinished WiP or something. These constructs should really have their own class simple_animal/construct/subtype
-
 	if(ispath(MP, /mob/living/simple_animal/construct/armoured))
 		return 0 //Verbs do not appear for players. These constructs should really have their own class simple_animal/construct/subtype
 
@@ -368,8 +345,8 @@
 		return 1
 	if(ispath(MP, /mob/living/simple_animal/tomato))
 		return 1
-	if(ispath(MP, /mob/living/simple_animal/mouse))
-		return 1 //It is impossible to pull up the player panel for mice (Fixed! - Nodrak)
+	if(ispath(MP, /mob/living/simple_animal/rat))
+		return 1 //It is impossible to pull up the player panel for rats (Fixed! - Nodrak)
 	if(ispath(MP, /mob/living/simple_animal/hostile/bear))
 		return 1 //Bears will auto-attack mobs, even if they're player controlled (Fixed! - Nodrak)
 	if(ispath(MP, /mob/living/simple_animal/parrot))

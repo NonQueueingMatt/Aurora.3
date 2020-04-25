@@ -1,6 +1,5 @@
 
 //Hat Station 13
-
 /obj/item/clothing/head/collectable
 	name = "collectable hat"
 	desc = "A rare collectable hat."
@@ -10,8 +9,7 @@
 	desc = "an ultra rare hat. It commands a certain respect."
 	icon_state = "petehat"
 	sprite_sheets = list(
-		"Vox" = 'icons/mob/species/vox/head.dmi',
-		"Resomi" = 'icons/mob/species/resomi/head.dmi'
+		"Vox" = 'icons/mob/species/vox/head.dmi'
 		)
 
 /obj/item/clothing/head/collectable/slime
@@ -42,6 +40,7 @@
 	icon_state = "paper"
 	item_state = "paper"
 	body_parts_covered = 0
+	drop_sound = 'sound/items/drop/paper.ogg'
 
 /obj/item/clothing/head/collectable/tophat
 	name = "collectable top hat"
@@ -114,7 +113,7 @@
 /obj/item/clothing/head/collectable/hardhat
 	name = "collectable hard hat"
 	desc = "WARNING! Offers no real protection, or luminosity, but it is damn fancy!"
-	icon_state = "hardhat0_yellow"
+	icon_state = "hardhat_yellow"
 
 /obj/item/clothing/head/collectable/HoS
 	name = "collectable HoS hat"

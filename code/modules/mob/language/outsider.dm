@@ -1,35 +1,3 @@
-/datum/language/xenocommon
-	name = LANGUAGE_XENOMORPH
-	colour = "alien"
-	desc = "The common tongue of the xenomorphs."
-	speech_verb = "hisses"
-	ask_verb = "hisses"
-	exclaim_verb = "hisses"
-	key = "z"
-	flags = RESTRICTED
-	syllables = list("sss","sSs","SSS")
-	machine_understands = FALSE
-
-/datum/language/xenos
-	name = LANGUAGE_HIVEMIND
-	desc = "Xenomorphs have the strange ability to commune over a psychic hivemind."
-	speech_verb = "hisses"
-	ask_verb = "hisses"
-	exclaim_verb = "hisses"
-	colour = "alien"
-	key = "a"
-	flags = RESTRICTED | HIVEMIND
-
-/datum/language/xenos/check_special_condition(var/mob/other)
-
-	var/mob/living/carbon/M = other
-	if(!istype(M))
-		return 1
-	if(locate(/obj/item/organ/xenos/hivenode) in M.internal_organs)
-		return 1
-
-	return 0
-
 /datum/language/ling
 	name = LANGUAGE_CHANGELING
 	desc = "Although they are normally wary and suspicious of each other, changelings can commune over a distance."
@@ -47,27 +15,33 @@
 
 /datum/language/corticalborer
 	name = LANGUAGE_BORER
-	desc = "Cortical borers possess a strange link between their tiny minds."
+	desc = "A language Cortical Borers use to influence the minds of those nearby, or those they infest."
 	speech_verb = "sings"
 	ask_verb = "sings"
 	exclaim_verb = "sings"
 	colour = "alien"
+	key = "v"
+	flags = RESTRICTED
+
+/datum/language/corticalborer/hivemind
+	name = LANGUAGE_BORER_HIVEMIND
+	desc = "Cortical Borers possess a strange link between their tiny minds, allowing them to communicate telepathically."
 	key = "x"
 	flags = RESTRICTED | HIVEMIND
 
-/datum/language/corticalborer/broadcast(var/mob/living/speaker,var/message,var/speaker_mask)
+/datum/language/corticalborer/hivemind/broadcast(var/mob/living/speaker,var/message,var/speaker_mask)
 
 	var/mob/living/simple_animal/borer/B
 
-	if(istype(speaker,/mob/living/carbon))
+	if(istype(speaker, /mob/living/carbon))
 		var/mob/living/carbon/M = speaker
 		B = M.has_brain_worms()
-	else if(istype(speaker,/mob/living/simple_animal/borer))
+	else if(istype(speaker, /mob/living/simple_animal/borer))
 		B = speaker
 
 	if(B)
 		speaker_mask = B.truename
-	..(speaker,message,speaker_mask)
+	..(speaker, message, speaker_mask)
 
 /datum/language/vox
 	name = LANGUAGE_VOX

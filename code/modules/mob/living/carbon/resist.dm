@@ -1,22 +1,24 @@
-
 /mob/living/carbon/process_resist()
 
 	//drop && roll
 	if(on_fire && !buckled)
-		fire_stacks -= 1.2
+		var/obj/effect/decal/cleanable/foam/extinguisher_foam = locate() in src.loc
+		var/extra = 0
+		if(extinguisher_foam)
+			extra = extinguisher_foam.amount * 1.5
+		ExtinguishMob(1.2 + extra)
 		Weaken(3)
 		spin(32,2)
 		visible_message(
 			"<span class='danger'>[src] rolls on the floor, trying to put themselves out!</span>",
 			"<span class='notice'>You stop, drop, and roll!</span>"
 			)
-		sleep(30)
+		sleep(3 SECONDS)
 		if(fire_stacks <= 0)
 			visible_message(
 				"<span class='danger'>[src] has successfully extinguished themselves!</span>",
 				"<span class='notice'>You extinguish yourself.</span>"
 				)
-			ExtinguishMob()
 		return
 
 	..()
@@ -71,9 +73,9 @@
 		break_handcuffs()
 		return
 
-	var/obj/item/weapon/handcuffs/HC = handcuffed
+	var/obj/item/handcuffs/HC = handcuffed
 
-	//A default in case you are somehow handcuffed with something that isn't an obj/item/weapon/handcuffs type
+	//A default in case you are somehow handcuffed with something that isn't an obj/item/handcuffs type
 	var/breakouttime = 1200
 	var/displaytime = 2 //Minutes to display in the "this will take X minutes."
 	//If you are handcuffed with actual handcuffs... Well what do I know, maybe someone will want to handcuff you with toilet paper in the future...
@@ -117,7 +119,7 @@
 			buckled.user_unbuckle_mob(src)
 
 		if(violent_removal)
-			var/obj/item/organ/external/E = H.get_organ(pick("l_arm","r_arm"))
+			var/obj/item/organ/external/E = H.get_organ(pick(BP_L_ARM,BP_R_ARM))
 			var/dislocate_message = ""
 			if(E && !E.is_dislocated())
 				E.dislocate(1)
@@ -144,9 +146,9 @@
 		break_legcuffs()
 		return
 
-	var/obj/item/weapon/legcuffs/HC = legcuffed
+	var/obj/item/legcuffs/HC = legcuffed
 
-	//A default in case you are somehow legcuffed with something that isn't an obj/item/weapon/legcuffs type
+	//A default in case you are somehow legcuffed with something that isn't an obj/item/legcuffs type
 	var/breakouttime = 1200
 	var/displaytime = 2 //Minutes to display in the "this will take X minutes."
 	//If you are legcuffed with actual legcuffs... Well what do I know, maybe someone will want to legcuff you with toilet paper in the future...
@@ -190,7 +192,7 @@
 		)
 
 	if(do_after(src, 50))
-		if(!handcuffed || buckled)
+		if(!handcuffed)
 			return
 
 		visible_message(
@@ -204,7 +206,7 @@
 
 		qdel(handcuffed)
 		handcuffed = null
-		if(buckled && buckled.buckle_require_restraints)
+		if(buckled)
 			buckled.unbuckle_mob()
 		update_inv_handcuffed()
 

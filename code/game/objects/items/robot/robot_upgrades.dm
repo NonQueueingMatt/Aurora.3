@@ -26,7 +26,7 @@
 /obj/item/borg/upgrade/reset/action(var/mob/living/silicon/robot/R)
 	if(..()) return 0
 	R.uneq_all()
-	R.modtype = initial(R.modtype)
+	R.mod_type = initial(R.mod_type)
 	R.hands.icon_state = initial(R.hands.icon_state)
 
 	R.notify_ai(ROBOT_NOTIFICATION_MODULE_RESET, R.module.name)
@@ -64,11 +64,11 @@
 /obj/item/borg/upgrade/floodlight/action(var/mob/living/silicon/robot/R)
 	if(..()) return 0
 
-	if(R.intenselight)
+	if(R.intense_light)
 		to_chat(usr, "<span class='notice'>This cyborg's light was already upgraded </span>")
 		return 0
 	else
-		R.intenselight = 1
+		R.intense_light = 1
 		R.update_robot_light()
 		to_chat(R, "Lighting systems upgrade detected.")
 	return 1
@@ -111,42 +111,6 @@
 	R.speed--
 	return 1
 
-
-/obj/item/borg/upgrade/tasercooler
-	name = "robotic Rapid Taser Cooling Module"
-	desc = "Used to cool a mounted taser, increasing the potential current in it and thus its recharge rate."
-	icon_state = "cyborg_upgrade3"
-	require_module = 1
-
-
-/obj/item/borg/upgrade/tasercooler/action(var/mob/living/silicon/robot/R)
-	if(..()) return 0
-
-	if(!R.module || !(src.type in R.module.supported_upgrades))
-		to_chat(R, "<span class='notice'>Upgrade mounting error!  No suitable hardpoint detected!</span>")
-		to_chat(usr, "<span class='warning'> There's no mounting point for the module!</span>")
-		return 0
-
-	var/obj/item/weapon/gun/energy/taser/mounted/cyborg/T = locate() in R.module
-	if(!T)
-		T = locate() in R.module.contents
-	if(!T)
-		T = locate() in R.module.modules
-	if(!T)
-		to_chat(usr, "This robot has had its taser removed!")
-		return 0
-
-	if(T.recharge_time <= 2)
-		to_chat(R, "<span class='notice'>Maximum cooling achieved for this hardpoint!</span>")
-		to_chat(usr, "<span class='warning'>There's no room for another cooling unit!</span>")
-		return 0
-
-	else
-		T.recharge_time = max(2 , T.recharge_time - 4)
-
-	return 1
-
-
 /obj/item/borg/upgrade/syndicate/
 	name = "illegal equipment module"
 	desc = "Unlocks the hidden, deadlier functions of a robot"
@@ -160,13 +124,12 @@
 		return 0
 
 	R.emagged = 1
-	R.fakeemagged = 1
+	R.fake_emagged = 1
 	return 1
 
 /obj/item/borg/upgrade/combat
 	name = "combat cyborg module"
 	desc = "Unlocks the combat cyborg module"
-//	construction_cost = list(DEFAULT_WALL_MATERIAL=10000,"glass"=15000,"gold"= 5000,"diamond" = 1000)
 	icon_state = "cyborg_upgrade3"
 	require_module = 0
 

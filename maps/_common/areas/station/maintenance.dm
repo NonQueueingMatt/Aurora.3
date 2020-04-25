@@ -14,7 +14,7 @@
 	station_area = 1
 
 /area/maintenance/civ
-	name = "\improper Civilian Maintenance"
+	name = "Civilian Maintenance"
 	icon_state = "maintcentral"
 
 /area/maintenance/aft
@@ -77,9 +77,20 @@
 	name = "Bridge Maintenance"
 	icon_state = "maintcentral"
 
+/area/maintenance/bridge_elevator
+	name = "Bridge Elevator Maintenance"
+	icon_state = "maintcentral"
+
+/area/maintenance/bridge_elevator/surface
+	name = "Surface - Bridge Elevator Maintenance"
+
 /area/maintenance/arrivals
 	name = "Surface Maintenance"
 	icon_state = "maint_arrivals"
+
+/area/maintenance/store
+	name = "Commissary Maintenance"
+	icon_state = "maint_cargo"
 
 /area/maintenance/bar
 	name = "Bar Maintenance"
@@ -92,6 +103,9 @@
 /area/maintenance/cargo
 	name = "Cargo Maintenance"
 	icon_state = "maint_cargo"
+
+/area/maintenance/cargo/surface
+	name = "Cargo Maintenance - Surface"
 
 /area/maintenance/disposal
 	name = "Waste Disposal"
@@ -118,11 +132,11 @@
 	icon_state = "maint_engineering"
 
 /area/maintenance/evahallway
-	name = "\improper EVA Maintenance"
+	name = "EVA Maintenance"
 	icon_state = "maint_eva"
 
 /area/maintenance/solarmaint
-	name = "\improper Surface - Solar Maintenance"
+	name = "Surface - Solar Maintenance"
 	icon_state = "maint_eva"
 	base_turf = /turf/space
 
@@ -131,7 +145,7 @@
 	icon_state = "maint_dormitory"
 
 /area/maintenance/incinerator
-	name = "\improper Incinerator"
+	name = "Incinerator"
 	icon_state = "disposal"
 
 /area/maintenance/library
@@ -145,14 +159,22 @@
 /area/maintenance/medbay
 	name = "Medbay Maintenance"
 	icon_state = "maint_medbay"
-	
+
 /area/maintenance/medbay_interstitial
-	name = "\improper Medbay Interstitial Maintenance"
+	name = "Medbay Interstitial Maintenance"
 	icon_state = "maint_medbay"
 
 /area/maintenance/research_port
 	name = "Research Maintenance - Port"
 	icon_state = "maint_research_port"
+
+/area/maintenance/telecoms_ladder
+	name = "Telecoms Ladder Shaft"
+	icon_state = "tcomsatentrance"
+
+/area/maintenance/engineering_ladder
+	name = "Engineering Ladder Shaft"
+	icon_state = "maint_engineering"
 
 /area/maintenance/research_xenobiology
 	name = "Research Maintenance - Xenobiology"
@@ -174,25 +196,45 @@
 	name = "Security Maintenance - Starboard"
 	icon_state = "maint_security_starboard"
 
+/area/maintenance/security_interstitial
+	name = "Security Maintenance - Interstitial"
+	icon_state = "maint_security_starboard"
+
 /area/maintenance/storage
 	name = "Atmospherics"
 	icon_state = "green"
 
 /area/maintenance/interstitial_main
-	name = "\improper Construction Level"
+	name = "Construction Level"
 	icon_state = "maintcentral"
 
 /area/maintenance/interstitial_cargo
-	name = "\improper Cargo - Interstitial"
+	name = "Cargo - Interstitial"
 	icon_state = "maint_cargo"
 
 /area/maintenance/interstitial_bridge
-	name = "\improper Bridge - Interstitial"
+	name = "Bridge - Interstitial"
 	icon_state = "maintcentral"
 
 /area/maintenance/interstitial_construction_site
-	name = "\improper Construction Site"
+	name = "Construction Zone"
 	icon_state = "engineering_workshop"
+	flags = HIDE_FROM_HOLOMAP
+
+/area/maintenance/interstitial_construction_site/zone_2
+	name = "Secondary Construction Zone"
+
+/area/maintenance/interstitial_construction_site/office
+	name = "Construction Office"
+
+/area/maintenance/elevator
+	name = "Primary Elevator Shaft Maintenance"
+	sound_env = SMALL_ENCLOSED
+	icon_state = "green"
+
+/area/maintenance/vault
+	name = "Vault Maintenance"
+	icon_state = "green"
 
 // SUBSTATIONS (Subtype of maint, that should let them serve as shielded area during radstorm)
 
@@ -201,23 +243,31 @@
 	icon_state = "substation"
 	sound_env = SMALL_ENCLOSED
 
-/area/maintenance/substation/engineering // Probably will be connected to engineering SMES room, as wires cannot be crossed properly without them sharing powernets.
+/area/maintenance/substation/engineering // Engineering
 	name = "Engineering Substation"
 
-// No longer used:
+/area/maintenance/substation/engineering_sublevel // Engineering
+	name = "Engineering Sublevel Substation"
+
 /area/maintenance/substation/medical_science // Medbay and Science. Each has it's own separated machinery, but it originates from the same room.
 	name = "Medical Research Substation"
 
 /area/maintenance/substation/medical // Medbay
 	name = "Main Lvl. Medical Substation"
 
+/area/maintenance/substation/medical_sublevel // Medbay
+	name = "Medical Sublevel - Substation"
+
 /area/maintenance/substation/research // Research
 	name = "Main Lvl. Research Substation"
+
+/area/maintenance/substation/research_sublevel
+	name = "Research Sublevel - Substation"
 
 /area/maintenance/substation/civilian_east // Bar, kitchen, dorms, ...
 	name = "Surface Lvl. Civilian Substation"
 
-/area/maintenance/substation/civilian_west // Cargo, PTS, locker room, probably arrivals, ...)
+/area/maintenance/substation/civilian_west // PTS, locker room, probably arrivals, ...)
 	name = "Main Lvl. Civilian Substation"
 
 /area/maintenance/substation/command // AI and central cluster. This one will be between HoP office and meeting room (probably).
@@ -229,6 +279,9 @@
 /area/maintenance/substation/interstitial // Construction Level.
 	name = "Construction Level Substation"
 
+/area/maintenance/substation/supply // Cargo and Mining.
+	name = "Main Lvl. Supply Substation"
+
 //Solars
 
 /area/solar
@@ -238,28 +291,28 @@
 	station_area = 1
 
 	auxport
-		name = "\improper Roof Solar Array"
+		name = "Roof Solar Array"
 		icon_state = "panelsA"
 		base_turf = /turf/space
 
 	auxstarboard
-		name = "\improper Fore Starboard Solar Array"
+		name = "Fore Starboard Solar Array"
 		icon_state = "panelsA"
 
 	fore
-		name = "\improper Surface - Fore TComms Solar Array"
+		name = "Surface - Fore TComms Solar Array"
 		icon_state = "yellow"
 
 	aft
-		name = "\improper Aft Solar Array"
+		name = "Aft Solar Array"
 		icon_state = "aft"
 
 	starboard
-		name = "\improper Surface - Aft TComms Solar Array"
+		name = "Surface - Aft TComms Solar Array"
 		icon_state = "panelsS"
 
 	port
-		name = "\improper Surface - Port TComms Solar Array"
+		name = "Surface - Port TComms Solar Array"
 		icon_state = "panelsP"
 
 /area/maintenance/auxsolarport

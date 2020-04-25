@@ -81,14 +81,16 @@
 		a_ip = world.address
 
 	var/who
-	for(var/client/C in clients)
+	for(var/c in clients)
+		var/client/C = c
 		if(!who)
 			who = "[C]"
 		else
 			who += ", [C]"
 
 	var/adminwho
-	for(var/client/C in admins)
+	for(var/c in staff)
+		var/client/C = c
 		if(!adminwho)
 			adminwho = "[C]"
 		else
@@ -409,13 +411,13 @@
 					cidsearch  = "AND computerid = '[playercid]' "
 					mirror_cid = "AND mirrors.computerid = '[playercid]'"
 			else
-				if(adminckey && lentext(adminckey) >= 3)
+				if(adminckey && length(adminckey) >= 3)
 					adminsearch = "AND a_ckey LIKE '[adminckey]%' "
-				if(playerckey && lentext(playerckey) >= 3)
+				if(playerckey && length(playerckey) >= 3)
 					playersearch = "AND ckey LIKE '[playerckey]%' "
-				if(playerip && lentext(playerip) >= 3)
+				if(playerip && length(playerip) >= 3)
 					ipsearch  = "AND ip LIKE '[playerip]%' "
-				if(playercid && lentext(playercid) >= 7)
+				if(playercid && length(playercid) >= 7)
 					cidsearch  = "AND computerid LIKE '[playercid]%' "
 
 			if(dbbantype)

@@ -6,9 +6,10 @@
 	base_icon = "chair"
 	buckle_dir = 0
 	buckle_lying = 0 //force people to sit up in chairs when buckled
+	obj_flags = OBJ_FLAG_ROTATABLE_ANCHORED
 	var/propelled = 0 // Check for fire-extinguisher-driven chairs
 
-/obj/structure/bed/chair/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/obj/structure/bed/chair/attackby(obj/item/W as obj, mob/user as mob)
 	..()
 	if(!padding_material && istype(W, /obj/item/assembly/shock_kit))
 		var/obj/item/assembly/shock_kit/SK = W
@@ -23,12 +24,10 @@
 		SK.master = E
 		qdel(src)
 
-/obj/structure/bed/chair/attack_tk(mob/user as mob)
-	if(buckled_mob)
-		..()
-	else
-		rotate()
-	return
+/obj/structure/bed/chair/do_simple_ranged_interaction(var/mob/user)
+	if(!buckled_mob && user)
+		rotate(user)
+	return TRUE
 
 /obj/structure/bed/chair/post_buckle_mob()
 	update_icon()
@@ -41,7 +40,8 @@
 	var/cache_key = "[base_icon]-[material.name]-over"
 	if(isnull(stool_cache[cache_key]))
 		var/image/I = image('icons/obj/furniture.dmi', "[base_icon]_over")
-		I.color = material.icon_colour
+		if(apply_material_color)
+			I.color = material.icon_colour
 		I.layer = FLY_LAYER
 		stool_cache[cache_key] = I
 	add_overlay(stool_cache[cache_key])
@@ -50,7 +50,8 @@
 		var/padding_cache_key = "[base_icon]-padding-[padding_material.name]-over"
 		if(isnull(stool_cache[padding_cache_key]))
 			var/image/I =  image(icon, "[base_icon]_padding_over")
-			I.color = padding_material.icon_colour
+			if(apply_material_color)
+				I.color = padding_material.icon_colour
 			I.layer = FLY_LAYER
 			stool_cache[padding_cache_key] = I
 		add_overlay(stool_cache[padding_cache_key])
@@ -60,7 +61,8 @@
 		if(isnull(stool_cache[cache_key]))
 			var/image/I = image(icon, "[base_icon]_armrest")
 			I.layer = MOB_LAYER + 0.1
-			I.color = padding_material.icon_colour
+			if(apply_material_color)
+				I.color = padding_material.icon_colour
 			stool_cache[cache_key] = I
 		add_overlay(stool_cache[cache_key])
 
@@ -69,56 +71,37 @@
 	if(buckled_mob)
 		buckled_mob.set_dir(dir)
 
-/obj/structure/bed/chair/verb/rotate()
-	set name = "Rotate Chair"
-	set category = "Object"
-	set src in oview(1)
-
-	if(config.ghost_interaction)
-		src.set_dir(turn(src.dir, 90))
-		return
-	else
-		if(istype(usr,/mob/living/simple_animal/mouse))
-			return
-		if(!usr || !isturf(usr.loc))
-			return
-		if(usr.stat || usr.restrained())
-			return
-
-		src.set_dir(turn(src.dir, 90))
-		return
-
 // Leaving this in for the sake of compilation.
 /obj/structure/bed/chair/comfy
 	desc = "It's a chair. It looks comfy."
 	icon_state = "comfychair_preview"
 
 /obj/structure/bed/chair/comfy/brown/Initialize(mapload,var/newmaterial)
-	. = ..(mapload,"steel","leather")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_LEATHER)
 
 /obj/structure/bed/chair/comfy/red/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","carpet")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CARPET)
 
 /obj/structure/bed/chair/comfy/teal/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","teal")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CLOTH_TEAL)
 
 /obj/structure/bed/chair/comfy/black/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","black")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CLOTH_BLACK)
 
 /obj/structure/bed/chair/comfy/green/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","green")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CLOTH_GREEN)
 
 /obj/structure/bed/chair/comfy/purp/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","purple")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CLOTH_PURPLE)
 
 /obj/structure/bed/chair/comfy/blue/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","blue")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CLOTH_BLUE)
 
 /obj/structure/bed/chair/comfy/beige/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","beige")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CLOTH_BEIGE)
 
 /obj/structure/bed/chair/comfy/lime/Initialize(var/mapload,var/newmaterial)
-	. = ..(mapload,"steel","lime")
+	. = ..(mapload, MATERIAL_STEEL, MATERIAL_CLOTH_LIME)
 
 /obj/structure/bed/chair/office
 	anchored = 0
@@ -127,13 +110,15 @@
 /obj/structure/bed/chair/office/update_icon()
 	return
 
-/obj/structure/bed/chair/office/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/obj/structure/bed/chair/office/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W,/obj/item/stack) || W.iswirecutter())
 		return
 	..()
 
 /obj/structure/bed/chair/office/Move()
 	. = ..()
+	if(makes_rolling_sound)
+		playsound(src, 'sound/effects/roll.ogg', 100, 1)
 	if(buckled_mob)
 		var/mob/living/occupant = buckled_mob
 		occupant.buckled = null
@@ -185,6 +170,33 @@
 	icon_state = "bridge"
 	anchored = 1
 
+/obj/structure/bed/chair/office/bridge/legion
+	name = "legion pilot seat"
+	desc = "A comfortable seat for a pilot."
+	icon_state = "bridge_legion"
+
+/obj/structure/bed/chair/office/bridge/generic
+	icon_state = "bridge_generic"
+
+/obj/structure/bed/chair/office/bridge/pilot
+	name = "pilot seat"
+	desc = "A comfortable seat for a pilot."
+	icon_state = "pilot"
+
+/obj/structure/bed/chair/office/hover
+	name = "hoverchair"
+	desc = "Adjusts itself to the sitter's weight resulting in a most comfortable sitting experience. Like floating on a cloud."
+	icon_state = "hover_chair"
+	makes_rolling_sound = FALSE
+	can_dismantle = FALSE
+
+/obj/structure/bed/chair/office/hover/Initialize()
+	.=..()
+	set_light(1,1,LIGHT_COLOR_CYAN)
+
+/obj/structure/bed/chair/office/hover/command
+	icon_state = "hover_command"
+
 /obj/structure/bed/chair/office/Initialize()
 	. = ..()
 	var/image/I = image(icon, "[icon_state]_over")
@@ -192,6 +204,12 @@
 	add_overlay(I)
 
 // Chair types
+/obj/structure/bed/chair/plastic
+	color = "#CCCCCC"
+
+/obj/structure/bed/chair/plastic/Initialize(mapload)
+	. = ..(mapload, MATERIAL_PLASTIC)
+
 /obj/structure/bed/chair/wood
 	name = "wooden chair"
 	desc = "Old is never too old to not be in fashion."
@@ -200,7 +218,7 @@
 /obj/structure/bed/chair/wood/update_icon()
 	return
 
-/obj/structure/bed/chair/wood/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/obj/structure/bed/chair/wood/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W,/obj/item/stack) || W.iswirecutter())
 		return
 	..()
@@ -216,3 +234,42 @@
 
 /obj/structure/bed/chair/unmovable
 	can_dismantle = 0
+
+/obj/structure/bed/chair/shuttle
+	icon_state = "shuttlechair"
+	base_icon = "shuttlechair"
+	can_dismantle = FALSE
+	apply_material_color = FALSE
+	anchored = TRUE
+
+/obj/structure/bed/chair/shuttle/update_icon()
+	cut_overlays()
+
+	var/image/O = image(icon, "[icon_state]_over")
+	O.layer = FLY_LAYER
+	add_overlay(O)
+
+	var/list/stool_cache = SSicon_cache.stool_cache
+
+	var/cache_key = "[base_icon]_over"
+	if(isnull(stool_cache[cache_key]))
+		var/image/I = image('icons/obj/furniture.dmi', "[base_icon]_over")
+		if(apply_material_color)
+			I.color = material.icon_colour
+		I.layer = FLY_LAYER
+		stool_cache[cache_key] = I
+	add_overlay(stool_cache[cache_key])
+
+	if(buckled_mob)
+		icon_state = "[base_icon]_down"
+		cache_key = "[base_icon]-armrest"
+		if(isnull(stool_cache[cache_key]))
+			var/image/I = image(icon, "[base_icon]_armrest")
+			I.layer = MOB_LAYER + 0.1
+			if(apply_material_color)
+				I.color = padding_material.icon_colour
+			stool_cache[cache_key] = I
+		add_overlay(stool_cache[cache_key])
+
+	else
+		icon_state = initial(icon_state)

@@ -17,7 +17,7 @@
 				teleportlocs += AR.name
 				teleportlocs[AR.name] = AR
 
-		if(istype(AR, /area/turret_protected/aisat) || istype(AR, /area/derelict) || istype(AR, /area/tdome) || istype(AR, /area/shuttle/specops/centcom))
+		if(istype(AR, /area/turret_protected/aisat) || istype(AR, /area/tdome) || istype(AR, /area/shuttle/specops/centcom))
 			ghostteleportlocs += AR.name
 			ghostteleportlocs[AR.name] = AR
 
@@ -30,8 +30,6 @@
 	sortTim(ghostteleportlocs, /proc/cmp_text_asc)
 
 	setupgenetics()
-
-	shuttle_controller.setup_shuttle_docks()
 
 	if (config.fastboot)
 		admin_notice("<span class='notice'><b>Fastboot is enabled; some features may not be available.</b></span>", R_DEBUG)

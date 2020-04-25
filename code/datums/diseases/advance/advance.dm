@@ -14,7 +14,7 @@ var/list/archive_diseases = list()
 // The order goes from easy to cure to hard to cure.
 var/list/advance_cures = 	list(
 									"nutriment", "sugar", "orangejuice",
-									"spaceacillin", "kelotane", "ethanol",
+									"deltamivir", "kelotane", "ethanol",
 									"leporazine", "synaptizine", "lipozine",
 									"silver", "gold", "phoron"
 								)
@@ -185,7 +185,6 @@ var/list/advance_cures = 	list(
 
 	if(!symptoms || !symptoms.len)
 		CRASH("We did not have any symptoms before generating properties.")
-		return
 
 	for(var/datum/symptom/S in symptoms)
 

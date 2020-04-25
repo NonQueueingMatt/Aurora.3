@@ -7,9 +7,6 @@
 	flags = SS_NO_FIRE | SS_NO_DISPLAY
 
 /datum/controller/subsystem/misc_early/Initialize(timeofday)
-	// Create the data core, whatever that is.
-	data_core = new /datum/datacore()
-
 	// Setup the global HUD.
 	global_hud = new
 	global_huds = list(
@@ -23,9 +20,6 @@
 		global_hud.science,
 		global_hud.holomap
 	)
-
-	// This is kinda important. Set up details of what the hell things are made of.
-	populate_material_list()
 
 	// Create autolathe recipes, as above.
 	populate_lathe_recipes()

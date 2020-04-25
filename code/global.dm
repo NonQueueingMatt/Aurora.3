@@ -5,7 +5,6 @@
 
 
 // Items that ask to be called every cycle.
-var/global/datum/datacore/data_core = null
 var/global/list/processing_power_items   = list()
 var/global/list/med_hud_users            = list() // List of all entities using a medical HUD.
 var/global/list/sec_hud_users            = list() // List of all entities using a security HUD.
@@ -110,7 +109,6 @@ var/global/list/alphabet_uppercase = list("A","B","C","D","E","F","G","H","I","J
 
 // Used by robots and robot preferences.
 var/list/robot_module_types = list(
-	"Standard",
 	"Engineering",
 	"Construction",
 	"Medical",
@@ -119,7 +117,6 @@ var/list/robot_module_types = list(
 	"Custodial",
 	"Service",
 	"Clerical",
-	"Security",
 	"Research"
 )
 
@@ -134,9 +131,9 @@ var/static/list/scarySounds = list(
 	'sound/voice/hiss4.ogg',
 	'sound/voice/hiss5.ogg',
 	'sound/voice/hiss6.ogg',
-	'sound/effects/Glassbr1.ogg',
-	'sound/effects/Glassbr2.ogg',
-	'sound/effects/Glassbr3.ogg',
+	'sound/effects/glass_break1.ogg',
+	'sound/effects/glass_break2.ogg',
+	'sound/effects/glass_break3.ogg',
 	'sound/items/Welder.ogg',
 	'sound/items/Welder2.ogg',
 	'sound/machines/airlock.ogg',

@@ -224,10 +224,10 @@ var/datum/controller/subsystem/ticker/SSticker
 
 		//call a transfer shuttle vote
 		spawn(50)
-			if(!round_end_announced) // Spam Prevention. Now it should announce only once.
+			if(!round_end_announced && !config.continous_rounds) // Spam Prevention. Now it should announce only once.
 				to_world("<span class='danger'>The round has ended!</span>")
 				round_end_announced = 1
-			SSvote.autotransfer()
+				SSvote.autotransfer()
 
 	return 1
 
@@ -261,15 +261,15 @@ var/datum/controller/subsystem/ticker/SSticker
 
 	for (var/mob/living/silicon/ai/aiPlayer in mob_list)
 		if (aiPlayer.stat != 2)
-			to_world("<b>[aiPlayer.name] (Played by: [aiPlayer.key])'s laws at the end of the round were:</b>")
+			to_world("<b>[aiPlayer.name]'s laws at the end of the round were:</b>")
 		else
-			to_world("<b>[aiPlayer.name] (Played by: [aiPlayer.key])'s laws when it was deactivated were:</b>")
+			to_world("<b>[aiPlayer.name]'s laws when it was deactivated were:</b>")
 		aiPlayer.show_laws(1)
 
 		if (aiPlayer.connected_robots.len)
 			var/robolist = "<b>The AI's loyal minions were:</b> "
 			for(var/mob/living/silicon/robot/robo in aiPlayer.connected_robots)
-				robolist += "[robo.name][robo.stat?" (Deactivated) (Played by: [robo.key]), ":" (Played by: [robo.key]), "]"
+				robolist += "[robo.name][robo.stat?" (Deactivated), ":", "]"
 			to_world("[robolist]")
 
 	var/dronecount = 0
@@ -282,9 +282,9 @@ var/datum/controller/subsystem/ticker/SSticker
 
 		if (!robo.connected_ai)
 			if (robo.stat != 2)
-				to_world("<b>[robo.name] (Played by: [robo.key]) survived as an AI-less borg! Its laws were:</b>")
+				to_world("<b>[robo.name] survived as an AI-less borg! Its laws were:</b>")
 			else
-				to_world("<b>[robo.name] (Played by: [robo.key]) was unable to survive the rigors of being a cyborg without an AI. Its laws were:</b>")
+				to_world("<b>[robo.name] was unable to survive the rigors of being a cyborg without an AI. Its laws were:</b>")
 
 			if(robo) //How the hell do we lose robo between here and the world messages directly above this?
 				robo.laws.show_laws(world)
@@ -304,10 +304,10 @@ var/datum/controller/subsystem/ticker/SSticker
 		var/temprole = Mind.special_role
 		if(temprole)							//if they are an antagonist of some sort.
 			if(temprole in total_antagonists)	//If the role exists already, add the name to it
-				total_antagonists[temprole] += ", [Mind.name]([Mind.key])"
+				total_antagonists[temprole] += ", [Mind.name]"
 			else
 				total_antagonists.Add(temprole) //If the role doesnt exist in the list, create it and add the mob
-				total_antagonists[temprole] += ": [Mind.name]([Mind.key])"
+				total_antagonists[temprole] += ": [Mind.name]"
 
 	//Now print them all into the log!
 	log_game("Antagonists at round end were...")
@@ -410,7 +410,7 @@ var/datum/controller/subsystem/ticker/SSticker
 
 	if(can_start & GAME_FAILURE_NO_PLAYERS)
 		var/list/voted_not_ready = list()
-		for(var/mob/abstract/new_player/player in player_list)
+		for(var/mob/abstract/new_player/player in SSvote.round_voters)
 			if((player.client)&&(!player.ready))
 				voted_not_ready += player.ckey
 		message_admins("The following players voted for [mode.name], but did not ready up: [jointext(voted_not_ready, ", ")]")
@@ -454,7 +454,7 @@ var/datum/controller/subsystem/ticker/SSticker
 	create_characters() //Create player characters and transfer them
 	collect_minds()
 	equip_characters()
-	data_core.manifest()
+	SSrecords.build_records()
 
 	Master.RoundStart()
 	real_round_start_time = REALTIMEOFDAY
@@ -502,7 +502,7 @@ var/datum/controller/subsystem/ticker/SSticker
 	cinematic = new /obj/screen{
 		icon = 'icons/effects/station_explosion.dmi';
 		icon_state = "station_intact";
-		layer = 20;
+		layer = CINEMA_LAYER;
 		mouse_opacity = 0;
 		screen_loc = "1,0"
 	}
@@ -619,8 +619,8 @@ var/datum/controller/subsystem/ticker/SSticker
 			if(player.mind.assigned_role == "Captain")
 				captainless = FALSE
 			if(!player_is_antag(player.mind, only_offstation_roles = 1))
+				SSjobs.EquipAugments(player, player.client.prefs)
 				SSjobs.EquipRank(player, player.mind.assigned_role, 0)
-				UpdateFactionList(player)
 				equip_custom_items(player)
 
 		CHECK_TICK

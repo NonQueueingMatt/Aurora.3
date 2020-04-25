@@ -58,6 +58,7 @@ var/list/gamemode_cache = list()
 	var/allow_ai = 1					// allow ai job
 	var/hostedby = null
 	var/respawn_delay = 30
+	var/hacked_drones_limit = 5
 	var/guest_jobban = 1
 	var/usewhitelist = 0
 	var/kick_inactive = 0				//force disconnect for inactive players after this many minutes, if non-0
@@ -83,8 +84,8 @@ var/list/gamemode_cache = list()
 	var/allow_drone_spawn = 1				//assuming the admin allow them to.
 	var/drone_build_time = 1200				//A drone will become available every X ticks since last drone spawn. Default is 2 minutes.
 
-	var/disable_player_mice = 0
-	var/uneducated_mice = 0 //Set to 1 to prevent newly-spawned mice from understanding human speech
+	var/disable_player_rats = 0
+	var/uneducated_rats = 0 //Set to 1 to prevent newly-spawned mice from understanding human speech
 
 	var/usealienwhitelist = 0
 	var/limitalienplayers = 0
@@ -123,7 +124,7 @@ var/list/gamemode_cache = list()
 	var/default_brain_health = 400
 
 	//Paincrit knocks someone down once they hit 60 shock_stage, so by default make it so that close to 100 additional damage needs to be dealt,
-	//so that it's similar to HALLOSS. Lowered it a bit since hitting paincrit takes much longer to wear off than a halloss stun.
+	//so that it's similar to PAIN. Lowered it a bit since hitting paincrit takes much longer to wear off than a halloss stun.
 	var/organ_damage_spillover_multiplier = 0.5
 
 	var/bones_can_break = 0
@@ -166,6 +167,7 @@ var/list/gamemode_cache = list()
 	var/sql_stats = 0			//Do we record round statistics on the database (deaths, round reports, population, etcetera) or not?
 	var/sql_whitelists = 0		//Defined whether the server uses an SQL based whitelist system, or the legacy one with two .txts. Config option in config.txt
 	var/sql_saves = 0			//Defines whether the server uses an SQL based character and preference saving system. Config option in config.txt
+	var/sql_ccia_logs = 0		//Defines weather the server saves CCIA Logs to the database aswell
 
 	var/simultaneous_pm_warning_timeout = 100
 
@@ -183,7 +185,6 @@ var/list/gamemode_cache = list()
 
 	var/use_discord_pins = 0
 	var/python_path = "python" //Path to the python executable.  Defaults to "python" on windows and "/usr/bin/env python2" on unix
-	var/use_overmap = 0
 
 	// Event settings
 	var/expected_round_length = 3 * 60 * 60 * 10 // 3 hours
@@ -203,6 +204,7 @@ var/list/gamemode_cache = list()
 	var/ooc_allowed = 1
 	var/looc_allowed = 1
 	var/dooc_allowed = 1
+	var/dead_looc_allowed = TRUE
 	var/dsay_allowed = 1
 
 	var/starlight = 0	// Whether space turfs have ambient light or not
@@ -248,8 +250,7 @@ var/list/gamemode_cache = list()
 
 	//UDP GELF Logging
 	var/log_gelf_enabled = 0
-	var/log_gelf_ip = ""
-	var/log_gelf_port = ""
+	var/log_gelf_addr = ""
 
 	//IP Intel vars
 	var/ipintel_email
@@ -277,20 +278,30 @@ var/list/gamemode_cache = list()
 
 	var/iterative_explosives_z_threshold = 10
 	var/iterative_explosives_z_multiplier = 0.75
+	var/iterative_explosives_z_subtraction = 2
 
 	var/ticket_reminder_period = 0
 
 	var/rounds_until_hard_restart = -1 // Changes how often a hard restart will be executed.
 
-	var/ert_base_chance = 10
-	var/ert_green_inc = 1
-	var/ert_yellow_inc = 1
-	var/ert_blue_inc = 2
-	var/ert_red_inc = 3
-	var/ert_delta_inc = 10
-	var/ert_scaling_factor = 1
-	var/ert_scaling_factor_antag = 1
-	var/ert_scaling_factor_dead = 2
+	var/docs_load_docs_from
+	var/load_customsynths_from
+	var/docs_image_host
+
+	// Configurable hostname / port for the NTSL Daemon.
+	var/ntsl_hostname = "localhost"
+	var/ntsl_port = "1945"
+
+	// Is external Auth enabled
+	var/external_auth = FALSE
+
+	// fail2topic settings
+	var/fail2topic_rate_limit = 5 SECONDS
+	var/fail2topic_max_fails = 5
+	var/fail2topic_rule_name = "_DD_Fail2topic"
+	var/fail2topic_enabled = FALSE
+
+	var/time_to_call_emergency_shuttle = 36000  //how many time until the crew can call the transfer shuttle. One hour by default.
 
 /datum/configuration/New()
 	var/list/L = typesof(/datum/game_mode) - /datum/game_mode
@@ -466,11 +477,11 @@ var/list/gamemode_cache = list()
 				if ("allow_ai")
 					config.allow_ai = 1
 
-//				if ("authentication")
-//					config.enable_authentication = 1
-
 				if ("respawn_delay")
 					config.respawn_delay = text2num(value)
+
+				if("hacked_drones_limit")
+					config.hacked_drones_limit = text2num(value)
 
 				if ("servername")
 					config.server_name = value
@@ -517,6 +528,9 @@ var/list/gamemode_cache = list()
 
 				if ("disable_dead_ooc")
 					config.dooc_allowed = 0
+
+				if ("disable_dead_looc")
+					config.dead_looc_allowed = FALSE
 
 				if ("disable_dsay")
 					config.dsay_allowed = 0
@@ -675,11 +689,11 @@ var/list/gamemode_cache = list()
 				if("nl_finish_hour")
 					config.nl_finish = text2num(value)
 
-				if("disable_player_mice")
-					config.disable_player_mice = 1
+				if("disable_player_rats")
+					config.disable_player_rats = 1
 
-				if("uneducated_mice")
-					config.uneducated_mice = 1
+				if("uneducated_rats")
+					config.uneducated_rats = 1
 
 				if("use_discord_pins")
 					config.use_discord_pins = 1
@@ -705,9 +719,6 @@ var/list/gamemode_cache = list()
 
 				if("max_maint_drones")
 					config.max_maint_drones = text2num(value)
-
-				if("use_overmap")
-					config.use_overmap = 1
 
 				if("expected_round_length")
 					config.expected_round_length = MinutesToTicks(text2num(value))
@@ -773,6 +784,9 @@ var/list/gamemode_cache = list()
 				if("sql_saves")
 					config.sql_saves = 1
 
+				if("sql_ccia_logs")
+					config.sql_ccia_logs = 1
+
 				if("client_error_version")
 					config.client_error_version = text2num(value)
 
@@ -811,18 +825,14 @@ var/list/gamemode_cache = list()
 				if("api_rate_limit_whitelist")
 					config.api_rate_limit_whitelist = text2list(value, ";")
 
-
 				if("mc_ticklimit_init")
 					config.mc_init_tick_limit = text2num(value) || TICK_LIMIT_MC_INIT_DEFAULT
 
 				if("log_gelf_enabled")
 					config.log_gelf_enabled = text2num(value)
 
-				if("log_gelf_ip")
-					config.log_gelf_ip = value
-
-				if("log_gelf_port")
-					config.log_gelf_port = value
+				if("log_gelf_addr")
+					config.log_gelf_addr = value
 
 				if("ipintel_email")
 					if (value != "ch@nge.me")
@@ -855,6 +865,9 @@ var/list/gamemode_cache = list()
 				if("merchant_chance")
 					config.merchant_chance = text2num(value)
 
+				if("time_to_call_emergency_shuttle")
+					config.time_to_call_emergency_shuttle = text2num(value)
+
 				if("force_map")
 					override_map = value
 
@@ -863,6 +876,9 @@ var/list/gamemode_cache = list()
 
 				if ("explosion_z_mult")
 					iterative_explosives_z_multiplier = text2num(value)
+
+				if ("explosion_z_sub")
+					iterative_explosives_z_subtraction = text2num(value)
 
 				if("show_game_type_odd")
 					config.show_game_type_odd = 1
@@ -875,24 +891,29 @@ var/list/gamemode_cache = list()
 				if ("rounds_until_hard_restart")
 					rounds_until_hard_restart = text2num(value)
 
-				if ("ert_base_chance")
-					ert_base_chance = text2num(value)
-				if ("ert_green_inc")
-					ert_green_inc = text2num(value)
-				if ("ert_yellow_inc")
-					ert_yellow_inc = text2num(value)
-				if ("ert_blue_inc")
-					ert_blue_inc = text2num(value)
-				if ("ert_red_inc")
-					ert_red_inc = text2num(value)
-				if ("ert_delta_inc")
-					ert_delta_inc = text2num(value)
-				if ("ert_scaling_factor")
-					ert_scaling_factor = text2num(value)
-				if ("ert_scaling_factor_antag")
-					ert_scaling_factor_antag = text2num(value)
-				if ("ert_scaling_factor_dead")
-					ert_scaling_factor_dead = text2num(value)
+				if ("docs_load_docs_from")
+					docs_load_docs_from = value
+				if ("load_customsynths_from")
+					load_customsynths_from = value
+				if ("docs_image_host")
+					docs_image_host = value
+
+				if ("ntsl_hostname")
+					ntsl_hostname = value
+				if ("ntsl_port")
+					ntsl_port = value
+
+				if ("external_auth")
+					external_auth = TRUE
+
+				if ("fail2topic_rate_limit")
+					fail2topic_rate_limit = text2num(value) SECONDS
+				if ("fail2topic_max_fails")
+					fail2topic_max_fails = text2num(value)
+				if ("fail2topic_rule_name")
+					fail2topic_rule_name = value
+				if ("fail2topic_enabled")
+					fail2topic_enabled = text2num(value)
 
 				else
 					log_misc("Unknown setting in configuration: '[name]'")

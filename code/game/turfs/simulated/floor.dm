@@ -7,12 +7,6 @@
 	var/broken
 	var/burnt
 
-	// Plating data.
-	var/base_name = "plating"
-	var/base_desc = "The naked hull."
-	var/base_icon = 'icons/turf/flooring/plating.dmi'
-	var/base_icon_state = "plating"
-
 	// Flooring data.
 	var/flooring_override
 	var/initial_flooring
@@ -40,6 +34,7 @@
 	//Set the initial strings
 	name = flooring.name
 	desc = flooring.desc
+	footstep_sound = flooring.footstep_sound
 	if (mapload)
 		queue_icon_update()
 	else
@@ -77,3 +72,8 @@
 /turf/simulated/floor/levelupdate()
 	for(var/obj/O in src)
 		O.hide(O.hides_under_flooring() && src.flooring)
+
+/turf/simulated/floor/shuttle_ceiling
+	name = "hull plating"
+	icon = 'icons/turf/flooring/tiles.dmi'
+	icon_state = "reinforced_light"

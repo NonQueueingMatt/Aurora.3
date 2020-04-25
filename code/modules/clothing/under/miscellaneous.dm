@@ -11,6 +11,7 @@
 	icon_state = "harness"
 	worn_state = "harness"
 	item_state = "w_suit"
+	body_parts_covered = 0
 	species_restricted = null
 	sprite_sheets = list(
 		"Vaurca Breeder" = 'icons/mob/species/breeder/suit.dmi'
@@ -98,6 +99,12 @@
 	worn_state = "centcom"
 	displays_id = 0
 
+/obj/item/clothing/under/rank/fib
+	name = "\improper FIB agent uniform"
+	desc = "A formal uniform used by Federal Investigations Bureau agents."
+	icon_state = "fib_uniform"
+	worn_state = "fib_uniform"
+
 /obj/item/clothing/under/ert
 	name = "ERT tactical uniform"
 	desc = "A short-sleeved black uniform, paired with grey digital-camo cargo pants. It looks very tactical."
@@ -109,9 +116,8 @@
 /obj/item/clothing/under/ccpolice
 	name = "ERT civil protection uniform"
 	desc = "A sturdy navy uniform, carefully ironed and folded. Worn by specialist troopers on civil protection duties."
-	icon_state = "officerdnavyclothes"
-	item_state = "scratch"
-	worn_state = "officerdnavyclothes"
+	icon_state = "civilprotection"
+	worn_state = "civilprotection"
 
 /obj/item/clothing/under/rank/centcom_commander
 	desc = "Gold trim on space-black cloth, this uniform displays the rank of \"Commander.\ It has a patch denoting a Pheonix on the sleeves."
@@ -224,14 +230,6 @@
 	icon_state = "red_suit"
 	item_state = "r_suit"
 	worn_state = "red_suit"
-
-/obj/item/clothing/under/schoolgirl
-	name = "schoolgirl uniform"
-	desc = "It's just like one of my Japanese animes!"
-	icon_state = "schoolgirl"
-	item_state = "b_suit"
-	worn_state = "schoolgirl"
-	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 
 /obj/item/clothing/under/overalls
 	name = "laborer's overalls"
@@ -459,7 +457,7 @@
 
 /obj/item/clothing/under/dress/offworlder
 	name = "\improper CR dress"
-	desc = "A very tight form-fitting padded suit that looks extremely comfortable to wear. This variant seems to have a poofy skirt and longer sleeves than normal."
+	desc = "A very tight form-fitting padded suit that looks extremely comfortable to wear, made of strong woven spider-silk. This variant seems to be tailored to resemble a dress, revealing much more skin."
 	icon_state = "crdress"
 	worn_state = "crdress"
 
@@ -583,20 +581,6 @@
 	item_state = "blue_blazer"
 	worn_state = "blue_blazer"
 
-/obj/item/clothing/under/dominia
-	name = "dominia suit"
-	desc = "This is a suit in the style of Dominia nobility. It's the latest fashion across Dominian space."
-	icon_state = "domsuit"
-
-/obj/item/clothing/under/dominia/black
-	icon_state = "domsuit2"
-
-/obj/item/clothing/under/dom_thermal
-	name = "lyodsuit"
-	desc = "An imitation Lyodsuit from Dominia. Though it is not able to protect against extreme cold like a true lyodsuit it's lightweight and high quality fabric make it extremely comfortable to wear. \
-	Fashionable amongst the middle and lower classes of Dominia"
-	icon_state = "dom_thermal"
-
 //stripper
 /obj/item/clothing/under/stripper
 	body_parts_covered = 0
@@ -604,26 +588,13 @@
 /obj/item/clothing/under/stripper/stripper_pink
 	name = "pink swimsuit"
 	desc = "A rather skimpy pink swimsuit."
-	icon_state = "stripper_p_under"
+	icon_state = "stripper_p"
 	siemens_coefficient = 1
 
 /obj/item/clothing/under/stripper/stripper_green
 	name = "green swimsuit"
 	desc = "A rather skimpy green swimsuit."
-	icon_state = "stripper_g_under"
-	siemens_coefficient = 1
-
-/obj/item/clothing/suit/stripper/stripper_pink
-	name = "pink skimpy dress"
-	desc = "A rather skimpy pink dress."
-	icon_state = "stripper_p_over"
-	siemens_coefficient = 1
-
-/obj/item/clothing/suit/stripper/stripper_green
-	name = "green skimpy dress"
-	desc = "A rather skimpy green dress."
-	icon_state = "stripper_g_over"
-	item_state = "stripper_g"
+	icon_state = "stripper_g"
 	siemens_coefficient = 1
 
 /obj/item/clothing/under/stripper/mankini
@@ -712,8 +683,109 @@
 	worn_state = "taucetilegion"
 	siemens_coefficient = 0.7
 
+/obj/item/clothing/under/legion/sentinel
+	name = "Tau Ceti Foreign Legion sentinel uniform."
+	desc = "A blue uniform with purple trimming, indicating that the wearer is a sentinel of the TCFL."
+	worn_state = "taucetilegion_sentinel"
+
+/obj/item/clothing/under/legion/legate
+	name = "Legate uniform"
+	desc = "A stark red uniform worn by senior officers of the Tau Ceti Foreign Legion."
+	icon_state = "taucetilegion_legate"
+	worn_state = "taucetilegion_legate"
+
+/obj/item/clothing/under/legion/pilot
+	name = "Tau Ceti Foreign Legion flightsuit"
+	desc = "The uniform worn by Tau Ceti Foreign Legion pilots."
+	icon_state = "taucetilegion_pilot"
+	worn_state = "taucetilegion_pilot"
+
 /obj/item/clothing/under/offworlder
 	name = "\improper CR suit"
 	desc = "A very tight form-fitting padded suit that looks extremely comfortable to wear."
 	icon_state = "crsuit"
 	worn_state = "crsuit"
+
+/obj/item/clothing/under/tactical
+	name = "tactical jumpsuit"
+	desc = "It's made of a slightly sturdier material than standard jumpsuits, to allow for robust protection."
+	icon_state = "swatunder"
+	//item_state = "swatunder"
+	worn_state = "swatunder"
+	armor = list(melee = 10, bullet = 5, laser = 5,energy = 0, bomb = 0, bio = 0, rad = 0)
+	siemens_coefficient = 0.7
+
+/obj/item/clothing/under/rank/dispatch
+	name = "dispatcher's uniform"
+	desc = "A dress shirt and khakis with a security patch sewn on."
+	icon_state = "dispatch"
+	worn_state = "dispatch"
+	armor = list(melee = 10, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS
+	siemens_coefficient = 0.7
+
+/obj/item/clothing/under/lance
+	name = "ceres lance fatigues"
+	desc = "A set of drab fatigues meant to be worn by the Ceres' Lance Regiment, with their emblem found on the shoulder."
+	icon_state = "lance_fatigues"
+	item_state = "lance_fatigues"
+	worn_state = "lance_fatigues"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
+	armor = list(melee = 10, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0)
+	siemens_coefficient = 0.7
+
+/obj/item/clothing/under/dress/lance_dress
+	name = "lance dress uniform"
+	desc = "A dark black uniform indicative of a Ceres' Lance official with a badge atop the chest. This one seems tailored  to take on a more feminine look, with a long skirt."
+	icon_state = "lance_dress_f"
+	item_state = "lance_dress_f"
+	worn_state = "lance_dress_f"
+
+
+/obj/item/clothing/under/dress/lance_dress/male
+	name = "lance dress uniform"
+	desc = "A dark black uniform indicative of a Ceres' Lance official with a badge atop the chest."
+	icon_state = "lance_dress_m"
+	item_state = "lance_dress_m"
+	worn_state = "lance_dress_m"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
+
+
+/obj/item/clothing/under/dress/bluedress
+	name = "blue dress"
+	desc = "A plain blue dress with a white belt."
+	icon_state = "bluedress"
+	item_state = "bluedress_s"
+	worn_state = "bluedress"
+
+
+/obj/item/clothing/under/dress/darkreddress
+	name = "dark red dress"
+	desc = "A short, red dress with a black belt. Fancy."
+	icon_state = "darkreddress"
+	item_state = "darkreddress_s"
+	worn_state = "darkreddress"
+
+
+/obj/item/clothing/under/cropdress
+	name = "crop dress"
+	desc = "A red skirt and longsleeved button-up crop top."
+	icon_state = "cropdress"
+	item_state = "cropdress_s"
+	worn_state = "cropdress"
+
+
+/obj/item/clothing/under/formalblouse
+	name = "formal blouse"
+	desc = "A formal, office-style blouse, with a black skirt in addition."
+	icon_state = "formalblouse"
+	item_state = "formalblouse_s"
+	worn_state = "formalblouse"
+
+
+/obj/item/clothing/under/croptop
+	name = "crop top"
+	desc = "Light shirt which shows the midsection of the wearer."
+	icon_state = "croptop"
+	item_state = "croptop_s"
+	worn_state = "croptop"

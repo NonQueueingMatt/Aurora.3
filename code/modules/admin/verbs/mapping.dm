@@ -1,7 +1,7 @@
 //- Are all the floors with or without air, as they should be? (regular or airless)
 //- Does the area have an APC?
 //- Does the area have an Air Alarm?
-//- Does the area have a Request Console?
+//- Does the area have a Requests Console?
 //- Does the area have lights?
 //- Does the area have a light switch?
 //- Does the area have enough intercoms?
@@ -40,8 +40,6 @@ var/intercom_range_display_status = 0
 /client/proc/do_not_use_these()
 	set category = "Mapping"
 	set name = "-None of these are for ingame use!!"
-
-	..()
 
 /client/proc/camera_view()
 	set category = "Mapping"
@@ -97,7 +95,7 @@ var/intercom_range_display_status = 0
 			if(!(locate(/obj/structure/grille,T)))
 				var/window_check = 0
 				for(var/obj/structure/window/W in T)
-					if (W.dir == turn(C1.dir,180) || W.dir in list(5,6,9,10) )
+					if (W.dir == turn(C1.dir,180) || (W.dir in list(5,6,9,10)))
 						window_check = 1
 						break
 				if(!window_check)
@@ -410,7 +408,7 @@ var/global/movement_disabled_exception //This is the client that calls the proc,
 
 	for(var/obj/machinery/door/airlock/A in world)
 		var/turf/T = get_turf(A)
-		if(istype(T, /turf/space) || istype(T, /turf/simulated/floor/asteroid) || isopenturf(T) || T.density)
+		if(istype(T, /turf/space) || istype(T, /turf/unsimulated/floor/asteroid) || isopenturf(T) || T.density)
 			to_chat(usr, "Airlock [A] with bad turf at ([A.x],[A.y],[A.z]) in [T.loc].")
 
 /client/proc/get_bad_fdoors()
