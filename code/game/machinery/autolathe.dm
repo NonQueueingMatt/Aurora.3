@@ -1,13 +1,15 @@
+#define UIDEBUG
+
 /obj/machinery/autolathe
-	name = "autolathe"
-	desc = "A large device loaded with various item schematics. It uses a combination of steel and glass to fabricate items."
+	name = "microlathe"
+	desc = "A large machine resembling a 3D printer combined with an advanced microlathe of Nanotrasen design."
 	icon_state = "autolathe"
 	density = TRUE
 	anchored = TRUE
 	use_power = TRUE
 	idle_power_usage = 10
 	active_power_usage = 2000
-	clicksound = "keyboard"
+	clicksound = 'sound/machines/buttonbeep.ogg'
 	clickvol = 30
 
 	var/list/machine_recipes
@@ -19,12 +21,12 @@
 	var/disabled = FALSE
 	var/shocked = FALSE
 	var/busy = FALSE
-	var/datum/autolathe/recipe/build_item
 
 	var/mat_efficiency = 1
 	var/build_time = 50
 
 	var/datum/wires/autolathe/wires
+	var/datum/autolathe/recipe/build_item
 
 	component_types = list(
 		/obj/item/circuitboard/autolathe,
@@ -34,7 +36,7 @@
 	)
 
 /obj/machinery/autolathe/mounted
-	name = "\improper mounted autolathe"
+	name = "\improper mounted microlathe"
 	density = FALSE
 	anchored = FALSE
 	idle_power_usage = FALSE
@@ -53,84 +55,45 @@
 
 /obj/machinery/autolathe/proc/update_recipe_list()
 	if(!machine_recipes)
-		machine_recipes = autolathe_recipes
+		machine_recipes = SSmaterials.autolathe_recipes
 
-/obj/machinery/autolathe/interact(mob/user)
-	update_recipe_list()
-
-	if(..() || (disabled && !panel_open))
-		to_chat(user, span("danger", "\The [src] is disabled!"))
+/obj/machinery/autolathe/attack_hand(mob/user)
+	if(stat & (NOPOWER|BROKEN))
+		to_chat(user, SPAN_WARNING("\The [src] doesn't respond to your commands and its LEDs have gone dark."))
 		return
+	user.set_machine(src)
+	ui_interact(user)
 
-	if(shocked)
-		shock(user, 50)
+/obj/machinery/autolathe/ui_interact(mob/user)
+	update_recipe_list()
+	var/datum/vueui/ui = SSvueui.get_open_ui(user, src)
+	if (!ui)
+		ui = new(user, src, "machines-autolathe", 1000, 700, "Nanotrasen Microlathe MK2")
+		ui.data = vueui_data_change(list("current_cat"="All"), user, ui)
+	ui.open()
 
-	var/dat = "<center><h1>Autolathe Control Panel</h1><hr/>"
-
-	if(!disabled)
-		dat += "<table width = '100%'>"
-		var/material_top = "<tr>"
-		var/material_bottom = "<tr>"
-
-		for(var/material in stored_material)
-			material_top += "<td width = '25%' align = center><b>[material]</b></td>"
-			material_bottom += "<td width = '25%' align = center>[stored_material[material]]<b>/[storage_capacity[material]]</b></td>"
-
-		dat += "[material_top]</tr>[material_bottom]</tr></table><hr>"
-		dat += "<h2>Printable Designs</h2><h3>Showing: <a href='?src=\ref[src];change_category=1'>[show_category]</a>.</h3></center><table width = '100%'>"
-
-		var/index = 0
-		for(var/datum/autolathe/recipe/R in machine_recipes)
-			index++
-			if(R.hidden && !hacked || (show_category != "All" && show_category != R.category))
-				continue
-			var/can_make = TRUE
-			var/material_string = ""
-			var/multiplier_string = ""
-			var/max_sheets
-			var/comma
-			if(!R.resources || !R.resources.len)
-				material_string = "No resources required.</td>"
-			else
-				//Make sure it's buildable and list requires resources.
-				for(var/material in R.resources)
-					var/sheets = round(stored_material[material]/round(R.resources[material]*mat_efficiency))
-					if(isnull(max_sheets) || max_sheets > sheets)
-						max_sheets = sheets
-					if(!isnull(stored_material[material]) && stored_material[material] < round(R.resources[material]*mat_efficiency))
-						can_make = FALSE
-					if(!comma)
-						comma = TRUE
-					else
-						material_string += ", "
-					material_string += "[round(R.resources[material] * mat_efficiency)] [material]"
-				material_string += ".<br></td>"
-				//Build list of multipliers for sheets.
-				if(R.is_stack)
-					if(max_sheets)
-						var/obj/item/stack/R_stack = R.path
-						max_sheets = min(max_sheets, initial(R_stack.max_amount))
-						multiplier_string += "<br>"
-						for(var/i = 5; i < max_sheets; i *= 2) //5,10,20,40...
-							multiplier_string += "<a href='?src=\ref[src];make=[index];multiplier=[i]'>\[x[i]\]</a>"
-						multiplier_string += "<a href='?src=\ref[src];make=[index];multiplier=[max_sheets]'>\[x[max_sheets]\]</a>"
-
-			dat += "<tr><td width = 180>[R.hidden ? "<font color = 'red'>*</font>" : ""]<b>[can_make ? "<a href='?src=\ref[src];make=[index];multiplier=1'>" : ""][R.name][can_make ? "</a>" : ""]</b>[R.hidden ? "<font color = 'red'>*</font>" : ""][multiplier_string]</td><td align = right>[material_string]</tr>"
-
-		dat += "</table><hr>"
-	//Hacking.
-	if(panel_open)
-		dat += "<h2>Maintenance Panel</h2>"
-		dat += wires.GetInteractWindow()
-
-		dat += "<hr>"
-
-	user << browse(dat, "window=autolathe")
-	onclose(user, "autolathe")
+/obj/machinery/autolathe/vueui_data_change(var/list/data, var/mob/user, var/datum/vueui/ui)
+	if(!data)
+		. = data = list("current_cat" = "All")
+	data["recipes"] = list()
+	for(var/N in machine_recipes)
+		var/datum/autolathe/recipe/R = machine_recipes[N]
+		data["recipes"][N] = list()
+		data["recipes"][N]["name"] = R.name
+		var/price
+		if(R.resources)
+			var/list/resource_list = list()
+			for(var/M in R.resources)
+				resource_list += "[R.resources[M]] [M]"
+			price = english_list(resource_list)
+		else if(R.is_stack) //stack or a free recipe, the latter doesn't quite make sense, so let's exclude it
+			price = "N/A"
+		data["recipes"][N]["matter"] = price
+		data["recipes"][N]["category"] = R.category
 
 /obj/machinery/autolathe/attackby(obj/item/O, mob/user)
 	if(busy)
-		to_chat(user, span("notice", "\The [src] is busy. Please wait for the completion of previous operation."))
+		to_chat(user, SPAN_NOTICE("\The [src] is already busy printing something."))
 		return
 
 	if(default_deconstruction_screwdriver(user, O))
@@ -209,10 +172,6 @@
 	updateUsrDialog()
 	return
 
-/obj/machinery/autolathe/attack_hand(mob/user)
-	user.set_machine(src)
-	interact(user)
-
 /obj/machinery/autolathe/Topic(href, href_list)
 	if(..())
 		return
@@ -223,12 +182,6 @@
 	if(busy)
 		to_chat(usr, span("notice", "The autolathe is busy. Please wait for the completion of previous operation."))
 		return
-
-	if(href_list["change_category"])
-		var/choice = input("Which category do you wish to display?") as null|anything in autolathe_categories+"All"
-		if(!choice)
-			return
-		show_category = choice
 
 	if(href_list["make"] && machine_recipes)
 		var/index = text2num(href_list["make"])
