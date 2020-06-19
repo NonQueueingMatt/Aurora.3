@@ -61,66 +61,32 @@
 		sleeping = 0
 		willfully_sleeping = FALSE
 
-/mob/living/carbon/standard_weapon_hit_effects(obj/item/I, mob/living/user, var/effective_force, var/blocked, var/hit_zone)
-	var/t_him = "it"
-	if (src.gender == MALE)
-		t_him = "him"
-	else if (src.gender == FEMALE)
-		t_him = "her"
-	var/show_ssd
-	var/mob/living/carbon/human/H
-	if(ishuman(src))
-		H = src
-		show_ssd = H.species.show_ssd
-	if(H && show_ssd && !client && !teleop)
-		if(H.bg)
-			if(H.health / H.maxHealth < 0.5)
-				H.bg.awaken_impl(TRUE)
-				sleeping = 0
-				willfully_sleeping = FALSE
-			else
-				to_chat(H, span("danger", "You sense great disturbance to your physical body!"))
-		else if(!vr_mob)
-			user.visible_message("<span class='danger'>[user] attacks [src] with [I] waking [t_him] up!</span>", \
-					    "<span class='danger'>You attack [src] with [I], but they do not respond... Maybe they have S.S.D?</span>")
-	else if(client && willfully_sleeping)
-		user.visible_message("<span class='danger'>[user] attacked [src] with [I] waking [t_him] up!</span>", \
-				    "<span class='danger'>You attack [src] with [I], waking [t_him] up!</span>")
-		sleeping = 0
-		willfully_sleeping = FALSE
 
-
-	if(!effective_force || blocked >= 100)
+/mob/living/carbon/standard_weapon_hit_effects(obj/item/I, mob/living/user, var/effective_force, var/hit_zone)
+	if(!effective_force)
 		return 0
 
 	//Hulk modifier
-	if(HULK in user.mutations)
+	if(MUTATION_HULK in user.mutations)
 		effective_force *= 2
 
 	//Apply weapon damage
 	var/damage_flags = I.damage_flags()
-	if(prob(blocked)) //armour provides a chance to turn sharp/edge weapon attacks into blunt ones
-		damage_flags &= ~DAM_SHARP
-		damage_flags &= ~DAM_EDGE
-
-	apply_damage(effective_force, I.damtype, hit_zone, blocked, used_weapon=I, damage_flags = damage_flags)
+	var/created_wound = apply_damage(effective_force, I.damtype, hit_zone, damage_flags, used_weapon=I)
 
 	//Melee weapon embedded object code.
-	if (I && I.damtype == BRUTE && !I.anchored && !is_robot_module(I))
+	if(created_wound && I && I.can_embed() && I.damtype == BRUTE && !I.anchored && !is_robot_module(I))
+		var/weapon_sharp = (damage_flags & DAM_SHARP)
 		var/damage = effective_force //just the effective damage used for sorting out embedding, no further damage is applied here
-		if (blocked)
-			damage *= BLOCKED_MULT(blocked)
+		damage *= 1 - get_blocked_ratio(hit_zone, I.damtype, I.damage_flags(), I.armor_penetration, I.force)
 
-		if (I.can_embed)//If this weapon is allowed to embed in people
-			//blunt objects should really not be embedding in things unless a huge amount of force is involved
-			var/sharp = damage_flags & DAM_SHARP
-			var/edge = damage_flags & DAM_EDGE
-			var/embed_chance = sharp? damage/I.w_class : damage/(I.w_class*3)
-			var/embed_threshold = edge? 5*I.w_class : 15*I.w_class
+		//blunt objects should really not be embedding in things unless a huge amount of force is involved
+		var/embed_chance = weapon_sharp? damage/I.w_class : damage/(I.w_class*3)
+		var/embed_threshold = weapon_sharp? 5*I.w_class : 15*I.w_class
 
-			//Sharp objects will always embed if they do enough damage.
-			if((sharp && damage > (10*I.w_class)) || (damage > embed_threshold && prob(embed_chance)))
-				src.embed(I, hit_zone)
+		//Sharp objects will always embed if they do enough damage.
+		if((weapon_sharp && damage > (10*I.w_class)) || (damage > embed_threshold && prob(embed_chance)))
+			src.embed(I, hit_zone)
 
 	return 1
 

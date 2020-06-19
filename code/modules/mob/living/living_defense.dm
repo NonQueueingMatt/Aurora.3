@@ -1,66 +1,23 @@
+/mob/living/proc/modify_damage_by_armor(def_zone, damage, damage_type, damage_flags, mob/living/victim, armor_pen, silent = FALSE)
+	var/list/armors = get_armors_by_zone(def_zone, damage_type, damage_flags)
+	. = args.Copy(2)
+	for(var/armor in armors)
+		var/datum/component/armor/armor_datum = armor
+		. = armor_datum.apply_damage_modifications(arglist(.))
 
-/*
-	run_armor_check() args
-	def_zone - What part is getting hit, if null will check entire body
-	attack_flag - The type of armour to be checked
-	armour_pen - reduces the effectiveness of armour
-	absorb_text - shown if the armor check is 100% successful
-	soften_text - shown if the armor check is more than 0% successful and less than 100%
-	Returns
-	a blocked amount between 0 - 100, representing the success of the armor check.
-*/
-#define MOB_FIRE_LIGHT_RANGE  3  //These control the intensity and range of light given off by a mob which is on fire
-#define MOB_FIRE_LIGHT_POWER  2
+/mob/living/get_blocked_ratio(def_zone, damage_type, damage_flags, armor_pen, damage)
+	var/list/armors = get_armors_by_zone(def_zone, damage_type, damage_flags)
+	. = 0
+	for(var/armor in armors)
+		var/datum/component/armor/armor_datum = armor
+		. = 1 - (1 - .) * (1 - armor_datum.get_blocked(damage_type, damage_flags, armor_pen, damage)) // multiply the amount we let through
+	. = min(1, .)
 
-/mob/living/proc/run_armor_check(var/def_zone = null, var/attack_flag = "melee", var/armour_pen = 0, var/absorb_text = null, var/soften_text = null)
-	if(armour_pen >= 100)
-		return 0 //might as well just skip the processing
-
-	var/armor = getarmor(def_zone, attack_flag)
-
-	if(armour_pen >= armor)
-		return 0 //effective_armor is going to be 0, fullblock is going to be 0, blocked is going to 0, let's save ourselves the trouble
-
-	var/effective_armor = (armor - armour_pen)/100
-	var/fullblock = (effective_armor*effective_armor) * ARMOR_BLOCK_CHANCE_MULT
-
-	if(fullblock >= 1 || prob(fullblock*100))
-		if(absorb_text)
-			show_message("<span class='warning'>[absorb_text]</span>")
-		else
-			show_message("<span class='warning'>Your armor absorbs the blow!</span>")
-		return 100
-
-	//this makes it so that X armour blocks X% damage, when including the chance of hard block.
-	//I double checked and this formula will also ensure that a higher effective_armor
-	//will always result in higher (non-fullblock) damage absorption too, which is also a nice property
-	//In particular, blocked will increase from 0 to 50 as effective_armor increases from 0 to 0.999 (if it is 1 then we never get here because ofc)
-	//and the average damage absorption = (blocked/100)*(1-fullblock) + 1.0*(fullblock) = effective_armor
-	var/blocked = (effective_armor - fullblock)/(1 - fullblock)*100
-
-	if(blocked > 20)
-		//Should we show this every single time?
-		if(soften_text)
-			show_message("<span class='warning'>[soften_text]</span>")
-		else
-			show_message("<span class='warning'>Your armor softens the blow!</span>")
-
-	return round(blocked, 1)
-
-//Adds two armor values together.
-//If armor_a and armor_b are between 0-100 the result will always also be between 0-100.
-/proc/add_armor(var/armor_a, var/armor_b)
-	if(armor_a >= 100 || armor_b >= 100)
-		return 100 //adding to infinite protection doesn't make it any bigger
-
-	var/protection_a = 1/(BLOCKED_MULT(armor_a)) - 1
-	var/protection_b = 1/(BLOCKED_MULT(armor_b)) - 1
-	return 100 - 1/(protection_a + protection_b + 1)*100
-
-//if null is passed for def_zone, then this should return something appropriate for all zones (e.g. area effect damage)
-/mob/living/proc/getarmor(var/def_zone, var/type)
-	return 0
-
+/mob/living/proc/get_armors_by_zone(def_zone, damage_type, damage_flags)
+	. = list()
+	var/natural_armor = GetComponent(/datum/component/armor)
+	if(natural_armor)
+		. += natural_armor
 
 /mob/living/bullet_act(var/obj/item/projectile/P, var/def_zone, var/used_weapon = null)
 
@@ -88,18 +45,15 @@
 		return
 
 	//Armor
-	var/absorb = run_armor_check(def_zone, P.check_armour, P.armor_penetration)
+	var/damage = P.damage
+	var/flags = P.damage_flags()
 	var/damaged
-	if(prob(absorb))
-		if(P.damage_flags & DAM_SHARP || P.damage_flags & DAM_SHARP || P.damage_flags & DAM_LASER)
-			P.damage_flags &= ~DAM_SHARP
-			P.damage_flags &= ~DAM_EDGE
-			P.damage_flags &= ~DAM_LASER
-
 	if(!P.nodamage)
-		damaged = apply_damage(P.damage, P.damage_type, def_zone, absorb, 0, P, damage_flags = P.damage_flags, used_weapon = "\a [P.name]")
+		damaged = apply_damage(damage, P.damage_type, def_zone, flags, P, P.armor_penetration)
 		bullet_impact_visuals(P, def_zone, damaged)
-	P.on_hit(src, absorb, def_zone)
+	if(damaged || P.nodamage) // Run the block computation if we did damage or if we only use armor for effects (nodamage)
+		. = get_blocked_ratio(def_zone, P.damage_type, flags, P.armor_penetration, P.damage)
+	P.on_hit(src, ., def_zone)
 	return absorb
 
 /mob/living/proc/aura_check(var/type)

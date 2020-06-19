@@ -383,7 +383,10 @@ This function restores all organs.
 		zone = BP_HEAD
 	return organs_by_name[zone]
 
-/mob/living/carbon/human/apply_damage(var/damage = 0, var/damagetype = BRUTE, var/def_zone = null, var/blocked = 0, var/obj/used_weapon = null, var/damage_flags)
+/mob/living/carbon/human/apply_damage(var/damage = 0, var/damagetype = BRUTE, var/def_zone = null, var/damage_flags = 0, var/obj/used_weapon = null, var/armor_pen, var/silent = FALSE, var/obj/item/organ/external/given_organ = null)
+	if(!istype(organ))
+		return 0
+
 	//visible_message("Hit debug. [damage] | [damagetype] | [def_zone] | [blocked] | [sharp] | [used_weapon]")
 	if (invisibility == INVISIBILITY_LEVEL_TWO && back && (istype(back, /obj/item/rig)))
 		if(damage > 0)
@@ -395,46 +398,39 @@ This function restores all organs.
 		if(!stat && damagetype == PAIN && (can_feel_pain()))
 			if((damage > 25 && prob(20)) || (damage > 50 && prob(60)))
 				emote("scream")
-
-		..(damage, damagetype, def_zone, blocked)
-		return 1
+	
+		return ..(damage, damagetype, def_zone, blocked)
 
 	//Handle BRUTE and BURN damage
 	handle_suit_punctures(damagetype, damage, def_zone)
 
-	if(blocked >= 100)
+	var/list/after_armor = modify_damage_by_armor(def_zone, damage, damagetype, damage_flags, src, armor_pen, silent)
+	damage = after_armor[1]
+	damagetype = after_armor[2]
+	damage_flags = after_armor[3]
+	if(!damage)
 		return 0
-
-	var/obj/item/organ/external/organ = null
-	if(isorgan(def_zone))
-		organ = def_zone
-	else
-		if(!def_zone)	def_zone = ran_zone(def_zone)
-		organ = get_organ(check_zone(def_zone))
-	if(!organ)
-		return 0
-
-	if(blocked)
-		damage *= BLOCKED_MULT(blocked)
 
 	if(damage > 15 && prob(damage*4) && organ.can_feel_pain())
 		make_adrenaline(round(damage/10))
 
 	switch(damagetype)
-
 		if(BRUTE)
 			damageoverlaytemp = 20
 			if(damage > 0)
 				damage *= species.brute_mod
 			if(organ.take_damage(damage, 0, damage_flags, used_weapon))
 				UpdateDamageIcon()
-
 		if(BURN)
 			damageoverlaytemp = 20
 			if(damage > 0)
 				damage *= species.burn_mod
 			if(organ.take_damage(0, damage, damage_flags, used_weapon))
 				UpdateDamageIcon()
+		if(PAIN)
+			organ.add_pain(damage)
+		if(CLONE)
+			organ.add_genetic_damage(damage)
 
 	// Will set our damageoverlay icon to the next level, which will then be set back to the normal level the next mob.Life().
 	updatehealth()

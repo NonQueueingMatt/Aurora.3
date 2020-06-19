@@ -82,27 +82,37 @@ emp_act
 
 	..(stun_amount, agony_amount, def_zone)
 
-/mob/living/carbon/human/getarmor(var/def_zone, var/type)
-	var/armorval = 0
-	var/total = 0
+/mob/living/carbon/human/get_blocked_ratio(def_zone, damage_type, damage_flags, armor_pen, damage)
+	if(!def_zone && (damage_flags & DAM_DISPERSED))
+		var/tally
+		for(var/zone in organ_rel_size)
+			tally += organ_rel_size[zone]
+		for(var/zone in organ_rel_size)
+			def_zone = zone
+			. += .() * organ_rel_size/tally
+		return
+	return ..()
 
-	if(def_zone)
-		if(isorgan(def_zone))
-			return getarmor_organ(def_zone, type)
-		var/obj/item/organ/external/affecting = get_organ(def_zone)
-		if(affecting)
-			return getarmor_organ(affecting, type)
-		//If a specific bodypart is targetted, check how that bodypart is protected and return the value.
-
-	//If you don't specify a bodypart, it checks ALL your bodyparts for protection, and averages out the values
-	for(var/organ_name in organs_by_name)
-		if (organ_name in organ_rel_size)
-			var/obj/item/organ/external/organ = organs_by_name[organ_name]
-			if(organ)
-				var/weight = organ_rel_size[organ_name]
-				armorval += getarmor_organ(organ, type) * weight
-				total += weight
-	return (armorval/max(total, 1))
+/mob/living/carbon/human/get_armors_by_zone(obj/item/organ/external/def_zone, damage_type, damage_flags)
+	. = ..()
+	if(!def_zone)
+		def_zone = ran_zone()
+	if(!istype(def_zone))
+		def_zone = get_organ(check_zone(def_zone))
+	if(!def_zone)
+		return
+	var/list/protective_gear = list(head, wear_mask, wear_suit, w_uniform, gloves, shoes)
+	for(var/obj/item/clothing/gear in protective_gear)
+		if(gear.accessories.len)
+			for(var/obj/item/clothing/accessory/bling in gear.accessories)
+				if(bling.body_parts_covered & def_zone.body_part)
+					var/armor = get_extension(bling, /datum/extension/armor)
+					if(armor)
+						. += armor
+		if(gear.body_parts_covered & def_zone.body_part)
+			var/armor = get_extension(gear, /datum/extension/armor)
+			if(armor)
+				. += armor
 
 //this proc returns the Siemens coefficient of electrical resistivity for a particular external organ.
 /mob/living/carbon/human/proc/get_siemens_coefficient_organ(var/obj/item/organ/external/def_zone)
@@ -127,22 +137,7 @@ emp_act
 			results.Add(C)
 	return results
 
-//this proc returns the armour value for a particular external organ.
-/mob/living/carbon/human/proc/getarmor_organ(var/obj/item/organ/external/def_zone, var/type)
-	if(!type || !def_zone) return 0
-	var/protection = 0
-	var/list/protective_gear = list(head, wear_mask, wear_suit, w_uniform, gloves, shoes)
-	for(var/obj/item/clothing/gear in protective_gear)
-		if(!isnull(gear.armor) && gear.body_parts_covered & def_zone.body_part)
-			protection = add_armor(protection, gear.armor[type])
-		for(var/obj/item/clothing/accessory/A in gear.accessories)
-			if(!isnull(A.armor) && A.body_parts_covered & def_zone.body_part)
-				protection = add_armor(protection, A.armor[type])
-
-	return protection
-
 /mob/living/carbon/human/proc/check_head_coverage()
-
 	var/list/body_parts = list(head, wear_mask, wear_suit, w_uniform)
 	for(var/bp in body_parts)
 		if(!bp)	continue
@@ -245,10 +240,7 @@ emp_act
 
 	visible_message("<span class='danger'>[src] has been [LAZYPICK(I.attack_verb, "attacked")] in the [affecting.name] with [I] by [user]!</span>")
 
-	var/blocked = run_armor_check(hit_zone, "melee", I.armor_penetration, "Your armor has protected your [affecting.name].", "Your armor has softened the blow to your [affecting.name].")
-	standard_weapon_hit_effects(I, user, effective_force, blocked, hit_zone)
-
-	return blocked
+	return standard_weapon_hit_effects(I, user, effective_force, hit_zone)
 
 /mob/living/carbon/human/standard_weapon_hit_effects(obj/item/I, mob/living/user, var/effective_force, var/blocked, var/hit_zone)
 	var/obj/item/organ/external/affecting = get_organ(hit_zone)

@@ -274,15 +274,7 @@
 							wearer.update_inv_head()
 							if(helmet)
 								helmet.update_light(wearer)
-
-					//sealed pieces become airtight, protecting against diseases
-					if (!seal_target)
-						LAZYINITLIST(piece.armor)
-						piece.armor["bio"] = 100
-					else
-						LAZYINITLIST(piece.armor)
-						piece.armor["bio"] = LAZYACCESS(src.armor, "bio") || 0
-
+						//todomatt: bio??
 				else
 					failed_to_seal = 1
 
@@ -293,8 +285,12 @@
 
 	if(failed_to_seal)
 		for(var/obj/item/piece in list(helmet,boots,gloves,chest))
-			if(!piece) continue
+			if(!piece)
+				continue
 			piece.icon_state = "[initial(icon_state)][!seal_target ? "" : "_sealed"]"
+			if(islist(armor))
+				var/datum/component/armor
+				set_extension(piece, armor_type, armor, armor_degradation_speed
 		canremove = !seal_target
 		if(airtight)
 			update_component_sealed()
