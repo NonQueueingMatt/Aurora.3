@@ -290,7 +290,7 @@
 			piece.icon_state = "[initial(icon_state)][!seal_target ? "" : "_sealed"]"
 			if(islist(armor))
 				var/datum/component/armor
-				set_extension(piece, armor_type, armor, armor_degradation_speed
+				set_extension(piece, armor_type, armor, armor_degradation_speed)
 		canremove = !seal_target
 		if(airtight)
 			update_component_sealed()

@@ -2,7 +2,6 @@ var/eventchance = 10 // Percent chance per 5 minutes.
 var/hadevent    = 0
 
 /proc/high_radiation_event()
-
 	for(var/mob/living/carbon/human/H in living_mob_list)
 		var/turf/T = get_turf(H)
 		if(!T)
@@ -10,9 +9,9 @@ var/hadevent    = 0
 		if(isNotStationLevel(T.z))
 			continue
 
-		H.apply_effect((rand(15,75)),IRRADIATE, blocked = H.getarmor(null, "rad"))
+		H.apply_damage((rand(15,75)), IRRADIATE, damage_flags = DAM_DISPERSED)
 		if (prob(5))
-			H.apply_effect((rand(90,150)),IRRADIATE, blocked = H.getarmor(null, "rad"))
+			H.apply_damage(rand(90, 150), IRRADIATE, damage_flags = DAM_DISPERSED)
 		if (prob(25))
 			if (prob(75))
 				randmutb(H)

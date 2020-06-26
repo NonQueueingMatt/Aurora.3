@@ -384,8 +384,26 @@ This function restores all organs.
 	return organs_by_name[zone]
 
 /mob/living/carbon/human/apply_damage(var/damage = 0, var/damagetype = BRUTE, var/def_zone = null, var/damage_flags = 0, var/obj/used_weapon = null, var/armor_pen, var/silent = FALSE, var/obj/item/organ/external/given_organ = null)
-	if(!istype(organ))
-		return 0
+	
+	var/obj/item/organ/external/organ = given_organ
+	if(!organ)
+		if(isorgan(def_zone))
+			organ = def_zone
+		else
+			if(!def_zone)
+				if(damage_flags & DAM_DISPERSED)
+					var/old_damage = damage
+					var/tally
+					silent = TRUE // Will damage a lot of organs, probably, so avoid spam.
+					for(var/zone in organ_rel_size)
+						tally += organ_rel_size[zone]
+					for(var/zone in organ_rel_size)
+						damage = old_damage * organ_rel_size[zone]/tally
+						def_zone = zone
+						. = .() || .
+					return
+				def_zone = ran_zone(def_zone)
+			organ = get_organ(check_zone(def_zone))
 
 	//visible_message("Hit debug. [damage] | [damagetype] | [def_zone] | [blocked] | [sharp] | [used_weapon]")
 	if (invisibility == INVISIBILITY_LEVEL_TWO && back && (istype(back, /obj/item/rig)))
