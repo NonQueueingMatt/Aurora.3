@@ -34,7 +34,7 @@
 	return 0
 
 /obj/item/material/sword/perform_technique(var/mob/living/carbon/human/target, var/mob/living/carbon/human/user, var/target_zone)
-	var/armor_reduction = target.run_armor_check(target_zone,"melee")
+	var/armor_reduction = target.get_blocked_ratio(target_zone, BRUTE, damage_flags = DAM_SHARP, damage = 20)
 	var/obj/item/organ/external/affecting = target.get_organ(target_zone)
 	if(!affecting)
 		return
@@ -55,7 +55,7 @@
 				target.drop_l_hand()
 			return TRUE
 
-	if(target_zone == "r_feet" || target_zone == "l_feet" || target_zone == BP_R_LEG || target_zone == BP_L_LEG)
+	if(target_zone == BP_R_FOOT || target_zone == BP_L_FOOT || target_zone == BP_R_LEG || target_zone == BP_L_LEG)
 		if(prob(60 - armor_reduction))
 			target.Weaken(5)
 			return TRUE

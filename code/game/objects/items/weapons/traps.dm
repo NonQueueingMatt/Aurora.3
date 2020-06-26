@@ -100,14 +100,13 @@
 
 	if(!ignore_armor)
 		//armour
-		var/blocked = L.run_armor_check(target_zone, "melee")
 		if(blocked >= 100)
 			return
-		var/success = L.apply_damage(30, BRUTE, target_zone, blocked, src)
+		var/success = L.apply_damage(30, BRUTE, target_zone, DAM_SHARP, src)
 		if(!success)
 			return FALSE
 	else
-		var/success = L.apply_damage(30, BRUTE, target_zone, 0, src)
+		var/success = L.apply_damage(30, BRUTE, target_zone, DAM_SHARP, src)
 		if(!success)
 			return FALSE
 

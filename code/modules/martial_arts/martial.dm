@@ -128,11 +128,8 @@
 				var/obj/item/clothing/gloves/force/X = A.gloves
 				real_damage *= X.amplification
 
-	var/armour = D.run_armor_check(hit_zone, "melee")
-
-	attack.apply_effects(A, D, armour, rand_damage, hit_zone)
-
-	D.apply_damage(real_damage, hit_dam_type, hit_zone, armour, damage_flags = damage_flags)
+	attack.apply_effects(A, D, attack_damage = rand_damage, zone = hit_zone)
+	D.apply_damage(real_damage, hit_dam_type, hit_zone, damage_flags = damage_flags)
 
 	return 1
 

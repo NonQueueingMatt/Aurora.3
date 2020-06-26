@@ -51,9 +51,9 @@
 					H.adjustToxLoss(-damage)
 				to_chat(H, "<span class='notice'>You can feel flow of energy which makes you regenerate.</span>")
 
-			H.apply_effect((rand(15,30)),IRRADIATE,blocked = H.getarmor(null, "rad"))
+			H.apply_damage((rand(15,30)), IRRADIATE, damage_flags = DAM_DISPERSED)
 			if(prob(4))
-				H.apply_effect((rand(20,60)),IRRADIATE,blocked = H.getarmor(null, "rad"))
+				H.apply_effect((rand(20,60)), IRRADIATE, damage_flags = DAM_DISPERSED)
 				if (prob(75))
 					randmutb(H) // Applies bad mutation
 					domutcheck(H,null,MUTCHK_FORCED)
