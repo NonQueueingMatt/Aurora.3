@@ -159,7 +159,7 @@
 	sound_to(player, 'sound/effects/pop.ogg')
 	player.client.changes()
 
-/obj/screen/new_player/selection/poll/Click()
+/obj/screen/new_player/selection/polls/Click()
 	var/mob/abstract/new_player/player = usr
 	sound_to(player, 'sound/effects/pop.ogg')
 	player.handle_player_polling()

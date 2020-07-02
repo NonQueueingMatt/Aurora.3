@@ -227,8 +227,8 @@
 		to_chat(user, "<span class='warning'>Access denied.  Please wait for authorities to arrive, or for the alert to clear.</span>")
 		return
 	else
-		user.visible_message("[user] [density ? "open" : "close"]s \an [src].",\
-		"You [density ? "open" : "close"] \the [src].",\
+		user.visible_message("<b>[user]</b> [density ? "open" : "close"]s \an [src].",\
+		SPAN_NOTICE("You [density ? "open" : "close"] \the [src]."),\
 		"You hear a beep, and a door opening.")
 
 	var/needs_to_close = 0

@@ -86,7 +86,7 @@
 /obj/item/device/orbital_dropper/proc/orbital_drop(var/turf/target, var/user)
 	if(!map)
 		return
-	log_and_message_admins("[key_name_admin(src)] has used a [src] at <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[target.x];Y=[target.y];Z=[target.z]'>JMP</a>.")
+	log_and_message_admins("[key_name_admin(user])] has used [src] at <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[target.x];Y=[target.y];Z=[target.z]'>JMP</a>.")
 	map.load(target, TRUE) //Target must be the center!
 	
 
