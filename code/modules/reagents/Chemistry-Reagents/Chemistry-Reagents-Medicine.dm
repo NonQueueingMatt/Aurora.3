@@ -135,6 +135,13 @@
 	overdose = REAGENTS_OVERDOSE * 0.5
 	strength = 12
 
+/datum/reagent/dexalin/beta
+	name = "Dexalin β"
+	description = "Dexalin Plus is used in the treatment of oxygen deprivation. It is highly effective, and is twice as powerful and lasts twice as long when inhaled."
+	color = "#0040FF"
+	overdose = REAGENTS_OVERDOSE * 0.3
+	strength = 3
+
 /datum/reagent/tricordrazine
 	name = "Tricordrazine"
 	description = "Tricordrazine is a highly potent stimulant, originally derived from cordrazine. Can be used to treat a wide range of injuries, however it does not work when inhaled. Has different healing properties depending on the chemical's temperature."
@@ -339,17 +346,31 @@
 	overdose = 10
 	scannable = 1
 	taste_description = "bitterness"
+	var/removed_mod = 1
 
 /datum/reagent/peridaxon/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		H.add_chemical_effect(CE_CLUMSY, 1)
+		apply_side_effects(H)
 		for(var/obj/item/organ/internal/I in H.internal_organs)
 			if(I.organ_tag == BP_BRAIN)
 				if(I.damage >= I.min_bruised_damage)
 					continue
 			if((I.damage > 0) && (I.robotic != 2)) //Peridaxon heals only non-robotic organs
-				I.damage = max(I.damage - removed, 0)
+				I.damage = max(I.damage - removed * removed_mod, 0)
+
+/datum/reagent/peridaxon/proc/apply_side_effects(var/mob/living/carbon/human/H)
+	H.add_chemical_effect(CE_CLUMSY, 1)
+
+/datum/reagent/peridaxon/beta
+	name = "Peridaxon β"
+	color = "#B19CD9"
+	taste_description = "horrible bitterness"
+	removed_mod = 0.5
+
+/datum/reagent/peridaxon/beta/apply_side_effects(var/mob/living/carbon/human/H)
+	H.add_chemical_effect(CE_CLUMSY, 1)
+	H.add_chemical_effect(CE_HALLUCINATE, 2)
 
 /datum/reagent/ryetalyn
 	name = "Ryetalyn"

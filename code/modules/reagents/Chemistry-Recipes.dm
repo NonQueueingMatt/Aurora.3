@@ -267,6 +267,14 @@
 	catalysts = list(/datum/reagent/toxin/phoron = 5)
 	result_amount = 1
 
+/datum/chemical_reaction/peridaxon_beta
+	name = "Peridaxon β"
+	id = "peridaxonb"
+	result = /datum/reagent/peridaxon/beta
+	required_reagents = list(/datum/reagent/bicaridine = 5, /datum/reagent/cryoxadone = 6)
+	catalysts = list(/datum/reagent/dylovene = 5)
+	result_amount = 2
+
 /datum/chemical_reaction/virus_food
 	name = "Virus Food"
 	id = "virusfood"
@@ -311,6 +319,13 @@
 	catalysts = list(/datum/reagent/toxin/phoron = 1)
 	inhibitors = list(/datum/reagent/water = 1) // Messes with cryox
 	result_amount = 1
+
+/datum/chemical_reaction/dexalinb
+	name = "Dexalin β"
+	id = "dexalinb"
+	result = /datum/reagent/dexalin/beta
+	required_reagents = list(/datum/reagent/acetone = 5, /datum/reagent/dylovene = 5, /datum/reagent/norepinephrine = 10)
+	result_amount = 2
 
 /datum/chemical_reaction/dermaline
 	name = "Dermaline"
