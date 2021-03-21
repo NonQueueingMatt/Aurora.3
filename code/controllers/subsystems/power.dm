@@ -22,7 +22,7 @@
 	var/list/powernets = list()
 
 /datum/controller/subsystem/power/stat_entry()
-	..("PN:[powernets.len]")
+	return ..("PN:[powernets.len]")
 
 /datum/controller/subsystem/power/New()
 	NEW_SS_GLOBAL(SSpower)

@@ -21,7 +21,7 @@
 	NEW_SS_GLOBAL(SSplants)
 
 /datum/controller/subsystem/plants/stat_entry()
-	..("P:[processing.len]")
+	return ..("P:[processing.len]")
 
 /datum/controller/subsystem/plants/Initialize(timeofday)
 	// Build the icon lists.

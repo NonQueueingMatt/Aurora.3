@@ -13,7 +13,7 @@
 	NEW_SS_GLOBAL(SSocclusion)
 
 /datum/controller/subsystem/ao/stat_entry()
-	..("P:[queue.len]")
+	return ..("P:[queue.len]")
 
 /datum/controller/subsystem/ao/Initialize()
 	fire(FALSE, TRUE)

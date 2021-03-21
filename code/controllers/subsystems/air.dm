@@ -126,7 +126,7 @@ Class Procs:
 	out += "AFZ:[active_fire_zones.len] "
 	out += "AH:[active_hotspots.len] "
 	out += "AE:[active_edges.len]"
-	..(out)
+	return ..(out)
 
 /datum/controller/subsystem/air/New()
 	NEW_SS_GLOBAL(SSair)

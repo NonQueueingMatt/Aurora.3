@@ -13,7 +13,7 @@ var/datum/controller/subsystem/listener/SSlistener
 	listeners = SSlistener.listeners
 
 /datum/controller/subsystem/listener/stat_entry()
-	..("L:[listeners.len]")
+	return ..("L:[listeners.len]")
 
 /datum/controller/subsystem/listener/proc/register(listener/L)
 	LAZYINITLIST(listeners[L.channel])

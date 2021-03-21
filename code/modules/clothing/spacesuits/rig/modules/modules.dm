@@ -254,7 +254,7 @@
 		to_chat(holder.wearer, wearer_text)
 		return
 
-/mob/living/carbon/human/Stat()
+/mob/living/carbon/human/get_status_tab_items()
 	. = ..()
 
 	if(. && istype(back,/obj/item/rig))
@@ -262,13 +262,13 @@
 		SetupStat(R)
 
 /mob/proc/SetupStat(var/obj/item/rig/R)
-	if(R && !R.canremove && R.installed_modules.len && statpanel("Hardsuit Modules"))
+	if(R && !R.canremove && R.installed_modules.len)
 		var/cell_status = R.cell ? "[R.cell.charge]/[R.cell.maxcharge]" : "ERROR"
-		stat("Suit charge", cell_status)
+		. += "Suit Charge : [cell_status]"
 		for(var/obj/item/rig_module/module in R.installed_modules)
 			for(var/stat_rig_module/SRM in module.stat_modules)
 				if(SRM.CanUse())
-					stat(SRM.module.interface_name,SRM)
+					. += "[SRM.module.interface_name] [SRM]"
 
 /stat_rig_module
 	parent_type = /atom/movable

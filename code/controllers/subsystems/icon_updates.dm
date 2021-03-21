@@ -13,7 +13,7 @@
 	NEW_SS_GLOBAL(SSicon_update)
 
 /datum/controller/subsystem/icon/stat_entry()
-	..("QU:[queue.len]")
+	return ..("QU:[queue.len]")
 
 /datum/controller/subsystem/icon/Initialize()
 	fire(FALSE, TRUE)

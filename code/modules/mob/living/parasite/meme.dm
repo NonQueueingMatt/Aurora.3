@@ -650,12 +650,3 @@ var/controlling
 
 	to_chat(usr, "<b>Meme Points: [src.meme_points]/[MAXIMUM_MEME_POINTS]</b>")
 
-// Stat panel to show meme points, copypasted from alien
-/mob/living/parasite/meme/Stat()
-	..()
-	statpanel("Status")
-	if (client && client.holder)
-		stat(null, "([x], [y], [z])")
-
-	if (client && client.statpanel == "Status")
-		stat(null, "Meme Points: [src.meme_points]")

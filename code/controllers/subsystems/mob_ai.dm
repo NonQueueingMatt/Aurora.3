@@ -13,7 +13,7 @@
 	NEW_SS_GLOBAL(SSmob_ai)
 
 /datum/controller/subsystem/mob_ai/stat_entry()
-	..("P:[processing.len]")
+	return ..("P:[processing.len]")
 
 /datum/controller/subsystem/mob_ai/fire(resumed = FALSE)
 	if (!resumed)

@@ -158,7 +158,7 @@
 	var/list/out = list()
 	out += "AM:[all_machines.len] PM:[processing_machines.len] PI:[processing_power_items.len]"
 	out += "LT:{T:[processes_this_tick]|P:[powerusers_this_tick]}"
-	..(out.Join("\n\t"))
+	return ..(out.Join("\n\t"))
 
 /datum/controller/subsystem/machinery/proc/setup_template_powernets(list/cables)
 	for(var/A in cables)

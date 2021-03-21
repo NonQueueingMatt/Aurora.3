@@ -44,4 +44,4 @@ var/datum/controller/subsystem/alarm/SSalarm
 	return active_alarm_cache.len
 
 /datum/controller/subsystem/alarm/stat_entry()
-	..("A:[active_alarm_cache.len]")
+	return ..("A:[active_alarm_cache.len]")

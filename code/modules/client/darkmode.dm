@@ -22,6 +22,8 @@ Thanks to spacemaniac and mcdonald for help with the JS side of this.
 	winset(src, "info", "text-color = [COLOR_DARKMODE_TEXT];text-color = #000000")
 	winset(src, "browseroutput", "background-color = [COLOR_DARKMODE_BACKGROUND];background-color = none")
 	winset(src, "browseroutput", "text-color = [COLOR_DARKMODE_TEXT];text-color = #000000")
+	winset(src, "statbrowser", "background-color = [COLOR_DARKMODE_BACKGROUND];background-color = none")
+	winset(src, "statbrowser", "text-color = [COLOR_DARKMODE_TEXT];text-color = #000000")
 	winset(src, "outputwindow", "background-color = [COLOR_DARKMODE_BACKGROUND];background-color = none")
 	winset(src, "outputwindow", "text-color = [COLOR_DARKMODE_TEXT];text-color = #000000")
 	winset(src, "rpanewindow", "background-color = [COLOR_DARKMODE_BACKGROUND];background-color = none")
@@ -71,6 +73,8 @@ Thanks to spacemaniac and mcdonald for help with the JS side of this.
 	winset(src, "asset_cache_browser", "background-color = [COLOR_DARKMODE_BACKGROUND];background-color = none")
 	winset(src, "asset_cache_browser", "background-color = [COLOR_DARKMODE_BACKGROUND];background-color = none")
 
+	src << output(null, "statbrowser:set_light_theme")
+
 /client/proc/force_dark_theme() //Inversely, if theyre using white theme and want to swap to the superior dark theme, let's get WINSET() ing
 	//Main windows
 	winset(src, "infowindow", "background-color = none;background-color = [COLOR_DARKMODE_BACKGROUND]")
@@ -81,6 +85,8 @@ Thanks to spacemaniac and mcdonald for help with the JS side of this.
 	winset(src, "info", "text-color = #000000;text-color = [COLOR_DARKMODE_TEXT]")
 	winset(src, "browseroutput", "background-color = none;background-color = [COLOR_DARKMODE_BACKGROUND]")
 	winset(src, "browseroutput", "text-color = #000000;text-color = [COLOR_DARKMODE_TEXT]")
+	winset(src, "statbrowser", "background-color = none;background-color = [COLOR_DARKMODE_DARKBACKGROUND]")
+	winset(src, "statbrowser", "text-color = #000000;text-color = [COLOR_DARKMODE_TEXT]")
 	winset(src, "outputwindow", "background-color = none;background-color = [COLOR_DARKMODE_BACKGROUND]")
 	winset(src, "outputwindow", "text-color = #000000;text-color = [COLOR_DARKMODE_TEXT]")
 	winset(src, "rpanewindow", "background-color = none;background-color = [COLOR_DARKMODE_BACKGROUND]")
@@ -129,4 +135,6 @@ Thanks to spacemaniac and mcdonald for help with the JS side of this.
 	winset(src, "saybutton", "text-color = #000000;text-color = [COLOR_DARKMODE_TEXT]")
 	winset(src, "asset_cache_browser", "background-color = none;background-color = [COLOR_DARKMODE_BACKGROUND]")
 	winset(src, "asset_cache_browser", "text-color = #000000;text-color = [COLOR_DARKMODE_TEXT]")
+
+	src << output(null, "statbrowser:set_dark_theme")
 

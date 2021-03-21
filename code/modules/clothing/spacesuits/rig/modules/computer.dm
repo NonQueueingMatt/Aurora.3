@@ -67,7 +67,7 @@
 		else
 			integrated_ai.get_rig_stats = 0
 
-/mob/living/Stat()
+/mob/living/get_status_tab_items()
 	. = ..()
 	if(. && get_rig_stats)
 		var/obj/item/rig/rig = get_rig()

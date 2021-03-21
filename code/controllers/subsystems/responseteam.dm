@@ -32,7 +32,7 @@
 
 /datum/controller/subsystem/responseteam/stat_entry()
 	var/out = "CC:[can_call_ert]"
-	..(out)
+	return ..(out)
 
 /datum/controller/subsystem/responseteam/proc/pick_random_team()
 	var/list/datum/responseteam/possible_teams = list()

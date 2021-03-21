@@ -408,7 +408,7 @@ var/datum/controller/subsystem/explosives/SSexplosives
 		wake()
 
 /datum/controller/subsystem/explosives/stat_entry()
-	..("P:[work_queue.len]")
+	return ..("P:[work_queue.len]")
 
 // The data datum for explosions.
 /datum/explosiondata

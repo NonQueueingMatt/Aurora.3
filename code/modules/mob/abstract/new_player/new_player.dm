@@ -27,32 +27,31 @@ INITIALIZE_IMMEDIATE(/mob/abstract/new_player)
 	QDEL_NULL(late_choices_ui)
 	return ..()
 
-/mob/abstract/new_player/Stat()
-	..()
+/mob/abstract/new_player/get_status_tab_items()
+	. = ..()
 
-	if(statpanel("Lobby"))
-		stat("Game ID:", game_id)
+	. += "Game ID: [game_id]"
 
-		if(SSticker.hide_mode == ROUNDTYPE_SECRET)
-			stat("Game Mode:", "Secret")
-		else if (SSticker.hide_mode == ROUNDTYPE_MIXED_SECRET)
-			stat("Game Mode:", "Mixed Secret")
+	if(SSticker.hide_mode == ROUNDTYPE_SECRET)
+		. += "Game Mode: Secret"
+	else if (SSticker.hide_mode == ROUNDTYPE_MIXED_SECRET)
+		. += "Game Mode: Mixed Secret"
+	else
+		. += "Game Mode: [master_mode]" // Old setting for showing the game mode
+
+	if(SSticker.current_state == GAME_STATE_PREGAME)
+		if (SSticker.lobby_ready)
+			. += "Time To Start: [SSticker.pregame_timeleft][round_progressing ? "" : " (DELAYED)"]"
 		else
-			stat("Game Mode:", "[master_mode]") // Old setting for showing the game mode
-
-		if(SSticker.current_state == GAME_STATE_PREGAME)
-			if (SSticker.lobby_ready)
-				stat("Time To Start:", "[SSticker.pregame_timeleft][round_progressing ? "" : " (DELAYED)"]")
-			else
-				stat("Time To Start:", "Waiting for Server")
-			stat("Players: [totalPlayers]", "Players Ready: [totalPlayersReady]")
-			totalPlayers = 0
-			totalPlayersReady = 0
-			for(var/mob/abstract/new_player/player in player_list)
-				totalPlayers++
-				if(player.ready)
-					stat("[copytext_char(player.client.prefs.real_name, 1, 18)]", ("[player.client.prefs.return_chosen_high_job(TRUE)]"))
-					totalPlayersReady++
+			. += "Time To Start: Waiting for Server"
+		. += "Players: [totalPlayers], Players Ready: [totalPlayersReady]"
+		totalPlayers = 0
+		totalPlayersReady = 0
+		for(var/mob/abstract/new_player/player in player_list)
+			totalPlayers++
+			if(player.ready)
+				. += "[copytext_char(player.client.prefs.real_name, 1, 18)] [player.client.prefs.return_chosen_high_job(TRUE)]"
+				totalPlayersReady++
 
 /mob/abstract/new_player/Topic(href, href_list[])
 	if(!client)	return 0

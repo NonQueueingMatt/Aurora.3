@@ -21,7 +21,7 @@ var/datum/controller/subsystem/atlas/SSatlas
 	var/z_levels = 0	// Each bit represents a connection between adjacent levels.  So the first bit means levels 1 and 2 are connected.
 
 /datum/controller/subsystem/atlas/stat_entry()
-	..("W:{X:[world.maxx] Y:[world.maxy] Z:[world.maxz]} ZL:[z_levels]")
+	return ..("W:{X:[world.maxx] Y:[world.maxy] Z:[world.maxz]} ZL:[z_levels]")
 
 /datum/controller/subsystem/atlas/New()
 	NEW_SS_GLOBAL(SSatlas)

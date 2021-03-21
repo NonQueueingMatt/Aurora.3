@@ -70,7 +70,7 @@
 	enable()
 
 /datum/controller/subsystem/zcopy/stat_entry()
-	..("Q:{T:[queued_turfs.len - (qt_idex - 1)]|O:[queued_overlays.len - (qo_idex - 1)]} T:{T:[openspace_turfs.len]|O:[openspace_overlays.len]}")
+	return ..("Q:{T:[queued_turfs.len - (qt_idex - 1)]|O:[queued_overlays.len - (qo_idex - 1)]} T:{T:[openspace_turfs.len]|O:[openspace_overlays.len]}")
 
 /datum/controller/subsystem/zcopy/Initialize(timeofday)
 	starlight_enabled = config.starlight && config.openturf_starlight_permitted

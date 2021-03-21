@@ -58,17 +58,16 @@
 
 /client/Stat()
 	. = ..()
-	if(usr && statpanel("Examine"))
-		stat(null,"[description_holders["icon"]]    <font size='5'>[description_holders["name"]]</font>") //The name, written in big letters.
-		stat(null,"[description_holders["desc"]]") //the default examine text.
-		if(description_holders["info"])
-			stat(null,"<font color='#084B8A'><b>[description_holders["info"]]</b></font>") //Blue, informative text.
-		if(description_holders["fluff"])
-			stat(null,"<font color='#298A08'><b>[description_holders["fluff"]]</b></font>") //Yellow, fluff-related text.
-		if(description_holders["antag"])
-			stat(null,"<font color='#8A0808'><b>[description_holders["antag"]]</b></font>") //Red, malicious antag-related text
-		if(description_holders["cult"])
-			stat(null,"<font color='#9A0AAD'><b>[description_holders["cult"]]</b></font>") // Spooky purple text, telling cultists how they can use certain items
+	. += "[description_holders["icon"]] <font size='5'>[description_holders["name"]]</font>" //The name, written in big letters.
+	. += "[description_holders["desc"]]" //the default examine text.
+	if(description_holders["info"])
+		. += "<font color='#084B8A'><b>[description_holders["info"]]</b></font>" //Blue, informative text.
+	if(description_holders["fluff"])
+		. += "<font color='#298A08'><b>[description_holders["fluff"]]</b></font>" //Yellow, fluff-related text.
+	if(description_holders["antag"])
+		. += "<font color='#8A0808'><b>[description_holders["antag"]]</b></font>" //Red, malicious antag-related text
+	if(description_holders["cult"]) 
+		. += "<font color='#9A0AAD'><b>[description_holders["cult"]]</b></font>" // Spooky purple text, telling cultists how they can use certain items
 
 //override examinate verb to update description holders when things are examined
 /mob/examinate(atom/A as mob|obj|turf in view())

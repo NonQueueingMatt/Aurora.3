@@ -9,24 +9,32 @@
 
 /mob/LateLogin()
 	..()
+	src << browse(file('html/statbrowser.html'), "window=statbrowser")
 	if(spell_masters)
 		for(var/obj/screen/movable/spell_master/spell_master in spell_masters)
 			spell_master.toggle_open(1)
 			client.screen -= spell_master
 
-/mob/Stat()
-	. = ..()
-	if(. && LAZYLEN(spell_list))
+/*/mob/proc/get_action_buttons()
+	. = list()
+	if(mind)
+		. += add_spells_to_statpanel(mind.spell_list)
+	. += add_spells_to_statpanel(mob_spell_list)*/
+
+/mob/proc/add_spells_to_statpanel()
+	var/list/L = list()
+	if(LAZYLEN(spell_list))
 		for(var/spell/S in spell_list)
-			if((!S.connected_button) || !statpanel(S.panel))
+			if(!S.connected_button)
 				continue //Not showing the noclothes spell
 			switch(S.charge_type)
 				if(Sp_RECHARGE)
-					statpanel(S.panel,"[S.charge_counter/10.0]/[S.charge_max/10]",S.connected_button)
+					L[++L.len] = list(S.panel,"[S.charge_counter/10.0]/[S.charge_max/10]", ref(S))
 				if(Sp_CHARGES)
-					statpanel(S.panel,"[S.charge_counter]/[S.charge_max]",S.connected_button)
+					L[++L.len] = list(S.panel,"[S.charge_counter]/[S.charge_max]", ref(S))
 				if(Sp_HOLDVAR)
-					statpanel(S.panel,"[S.holder_var_type] [S.holder_var_amount]",S.connected_button)
+					L[++L.len] = list(S.panel,"[S.holder_var_type] [S.holder_var_amount]", ref(S))
+	return L
 
 /hook/clone/proc/restore_spells(var/mob/H)
 	if(H.mind && H.mind.learned_spells)

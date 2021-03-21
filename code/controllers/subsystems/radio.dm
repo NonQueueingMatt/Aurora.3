@@ -109,7 +109,7 @@ var/datum/controller/subsystem/radio/SSradio
 	NEW_SS_GLOBAL(SSradio)
 
 /datum/controller/subsystem/radio/stat_entry()
-	..("F:[frequencies.len]")
+	return ..("F:[frequencies.len]")
 
 /datum/controller/subsystem/radio/proc/add_object(obj/device, new_frequency, filter = null)
 	var/f_text = num2text(new_frequency)

@@ -13,7 +13,7 @@
 	NEW_SS_GLOBAL(SSassets)
 
 /datum/controller/subsystem/assets/stat_entry()
-	..("C:[target_clients.len]")
+	return ..("C:[target_clients.len]")
 
 /datum/controller/subsystem/assets/Initialize(timeofday)
 	for(var/type in typesof(/datum/asset))

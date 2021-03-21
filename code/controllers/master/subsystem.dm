@@ -178,22 +178,20 @@
 	return time
 
 //hook for printing stats to the "MC" statuspanel for admins to see performance and related stats etc.
-/datum/controller/subsystem/stat_entry(msg)
+/datum/controller/subsystem/proc/stat_entry_legacy()
 	if(!statclick)
 		statclick = new/obj/effect/statclick/debug(null, "Initializing...", src)
 
-	var/title = name
-	if (Master.initializing)
-		msg = "[stat_entry_init()]\t[msg]"
-		var/letter = init_state_letter()
-		if (letter)
-			title =  "\[[letter]] [title]"
-	else
-		msg = "[stat_entry_run()]\t[msg]"
-		if (can_fire && !suspended && !(flags & SS_NO_FIRE))
-			title = "\[[state_letter()]] [title]"
+	var/msg = stat_entry()
 
-	stat(title, statclick.update(msg))
+	stat(name, statclick.update(msg))
+
+/datum/controller/subsystem/stat_entry(msg)
+	if(can_fire && !(flags & SS_NO_FIRE))
+		msg = "[round(cost,1)]ms|[round(tick_usage,1)]%([round(tick_overrun,1)]%)|[round(ticks,0.1)]\t[msg]"
+	else
+		msg = "OFFLINE\t[msg]"
+	return msg
 
 // Generates the message shown before a subsystem during MC initialization.
 /datum/controller/subsystem/proc/stat_entry_init()

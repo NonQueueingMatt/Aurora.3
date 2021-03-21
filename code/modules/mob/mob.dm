@@ -835,29 +835,20 @@
 	for(var/mob/M in viewers())
 		M.see(message)
 
+/mob/proc/get_status_tab_items()
+	. = list()
+
 /mob/Stat()
 	..()
 	. = (is_client_active(10 MINUTES))
 
 	if(.)
-		if(statpanel("Status") && SSticker.current_state != GAME_STATE_PREGAME)
-			stat("Game ID", game_id)
-			stat("Map", current_map.full_name)
-			stat("Station Time", worldtime2text())
-			stat("Round Duration", get_round_duration_formatted())
-			stat("Last Transfer Vote", SSvote.last_transfer_vote ? time2text(SSvote.last_transfer_vote, "hh:mm") : "Never")
+		statpanel("Status")
 
 		if(client.holder)
-			if(statpanel("Status"))
-				stat("Location:", "([x], [y], [z]) [loc]")
-				if (LAZYLEN(client.holder.watched_processes))
-					for (var/datum/controller/ctrl in client.holder.watched_processes)
-						if (!ctrl)
-							LAZYREMOVE(client.holder.watched_processes, ctrl)
-						else
-							ctrl.stat_entry()
+			statpanel("MC")
 
-			if(statpanel("MC"))
+			if(statpanel("MC (legacy)"))
 				stat("CPU:", world.cpu)
 				stat("Tick Usage:", world.tick_usage)
 				stat("Instances:", num2text(world.contents.len, 7))
@@ -877,7 +868,7 @@
 						if (!Master.initializing && SS.flags & SS_NO_DISPLAY)
 							continue
 
-						SS.stat_entry()
+						SS.stat_entry_legacy()
 
 		if(listed_turf && client)
 			if(!TurfAdjacent(listed_turf))

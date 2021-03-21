@@ -73,17 +73,15 @@
 			if(controlling && prob(host.getBrainLoss()/20))
 				host.say("*[pick(list("blink","blink_r","choke","drool","twitch","twitch_s","gasp"))]")
 
-/mob/living/simple_animal/borer/Stat()
-	..()
-	statpanel("Status")
+/mob/living/simple_animal/borer/get_status_tab_items()
+	. = ..()
 
 	if(emergency_shuttle)
 		var/eta_status = emergency_shuttle.get_status_panel_eta()
 		if(eta_status)
-			stat(null, eta_status)
+			. += eta_status
 
-	if(client.statpanel == "Status")
-		stat("Chemicals", chemicals)
+		. += "Chemicals: [chemicals]"
 
 /mob/living/simple_animal/borer/proc/detach()
 	if(!host || !controlling)

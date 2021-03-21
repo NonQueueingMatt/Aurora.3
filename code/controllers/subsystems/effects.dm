@@ -70,7 +70,7 @@ var/datum/controller/subsystem/effects/SSeffects
 			return
 
 /datum/controller/subsystem/effects/stat_entry()
-	..("E:[effect_systems.len] V:[visuals.len]")
+	return ..("E:[effect_systems.len] V:[visuals.len]")
 
 /datum/controller/subsystem/effects/Recover()
 	if (istype(SSeffects))

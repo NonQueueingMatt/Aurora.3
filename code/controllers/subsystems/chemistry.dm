@@ -77,7 +77,7 @@ var/datum/controller/subsystem/chemistry/SSchemistry
 		check_specific_heat(_R)
 
 /datum/controller/subsystem/chemistry/stat_entry()
-	..("AH:[active_holders.len]")
+	return ..("AH:[active_holders.len]")
 
 /datum/controller/subsystem/chemistry/New()
 	NEW_SS_GLOBAL(SSchemistry)

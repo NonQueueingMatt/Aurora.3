@@ -179,47 +179,47 @@
 		return nutrition + stomach.ingested.total_volume
 	return 0
 
-/mob/living/carbon/human/Stat()
-	..()
-	if(statpanel("Status"))
-		stat("Intent:", "[a_intent]")
-		stat("Move Mode:", "[m_intent]")
-		if(emergency_shuttle)
-			var/eta_status = emergency_shuttle.get_status_panel_eta()
-			if(eta_status)
-				stat(null, eta_status)
-		if(is_diona() && DS)
-			stat("Biomass:", "[round(nutrition)] / [max_nutrition]")
-			stat("Energy:", "[round(DS.stored_energy)] / [round(DS.max_energy)]")
-			if(DS.regen_limb)
-				stat("Regeneration Progress:", " [round(DS.regen_limb_progress)] / [LIMB_REGROW_REQUIREMENT]")
-		if (internal)
-			if (!internal.air_contents)
-				qdel(internal)
-			else
-				stat("Internal Atmosphere Info", internal.name)
-				stat("Tank Pressure", internal.air_contents.return_pressure())
-				stat("Distribution Pressure", internal.distribute_pressure)
+/mob/living/carbon/human/get_status_tab_items()
+	. = ..()
+	. += "Intent: [a_intent]"
+	. += "Move Mode: [m_intent]"
+	if(emergency_shuttle)
+		var/eta_status = emergency_shuttle.get_status_panel_eta()
+		if(eta_status)
+			. += eta_status
+	if(is_diona() && DS)
+		. += "Biomass: [round(nutrition)] / [max_nutrition]"
+		. += "Energy: [round(DS.stored_energy)] / [round(DS.max_energy)]"
+		if(DS.regen_limb)
+			. += "Regeneration Progress: [round(DS.regen_limb_progress)] / [LIMB_REGROW_REQUIREMENT]"
+	if (internal)
+		if (!internal.air_contents)
+			qdel(internal)
+		else
+			. += "Internal Atmosphere Info: [internal.name]"
+			. += "Tank Pressure: [internal.air_contents.return_pressure()]"
+			. += "Distribution Pressure: [internal.distribute_pressure]"
 
-		var/obj/item/organ/internal/cell/IC = internal_organs_by_name[BP_CELL]
-		if(IC && IC.cell)
-			stat("Battery charge:", "[IC.get_charge()]/[IC.cell.maxcharge]")
+	var/obj/item/organ/internal/cell/IC = internal_organs_by_name[BP_CELL]
+	if(IC && IC.cell)
+		. += "Battery charge: [IC.get_charge()]/[IC.cell.maxcharge]"
 
-		if(back && istype(back,/obj/item/rig))
-			var/obj/item/rig/suit = back
-			var/cell_status = "ERROR"
-			if(suit.cell) cell_status = "[suit.cell.charge]/[suit.cell.maxcharge]"
-			stat(null, "Suit charge: [cell_status]")
+	if(back && istype(back,/obj/item/rig))
+		var/obj/item/rig/suit = back
+		var/cell_status = "ERROR"
+		if(suit.cell)
+			cell_status = "[suit.cell.charge]/[suit.cell.maxcharge]"
+		. += "Suit charge: [cell_status]"
 
-		if(mind)
-			var/datum/vampire/vampire = mind.antag_datums[MODE_VAMPIRE]
-			if(vampire)
-				stat("Usable Blood", vampire.blood_usable)
-				stat("Total Blood", vampire.blood_total)
-			var/datum/changeling/changeling = mind.antag_datums[MODE_CHANGELING]
-			if(changeling)
-				stat("Chemical Storage", changeling.chem_charges)
-				stat("Genetic Damage Time", changeling.geneticdamage)
+	if(mind)
+		var/datum/vampire/vampire = mind.antag_datums[MODE_VAMPIRE]
+		if(vampire)
+			. += "Usable Blood [vampire.blood_usable]"
+			. += "Total Blood [vampire.blood_total]"
+		var/datum/changeling/changeling = mind.antag_datums[MODE_CHANGELING]
+		if(changeling)
+			. += "Chemical Storage [changeling.chem_charges]"
+			. += "Genetic Damage Time [changeling.geneticdamage]"
 
 /mob/living/carbon/human/ex_act(severity)
 	if(!blinded)

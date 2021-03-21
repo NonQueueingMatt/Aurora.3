@@ -19,7 +19,7 @@ var/datum/controller/subsystem/icon_smooth/SSicon_smooth
 	smooth_queue = SSicon_smooth.smooth_queue
 
 /datum/controller/subsystem/icon_smooth/stat_entry()
-	..("Q:[smooth_queue.len]")
+	return ..("Q:[smooth_queue.len]")
 
 /datum/controller/subsystem/icon_smooth/fire()
 	if (explosion_in_progress)
