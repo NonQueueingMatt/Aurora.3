@@ -3,4 +3,4 @@
 -- 
 
 ALTER TABLE `ss13_player_preferences`
-	ADD COLUMN `theme_style` char(7) DEFAULT "Light"
+	ADD COLUMN `darkmode_theme` TINYINT DEFAULT '0'

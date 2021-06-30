@@ -608,12 +608,10 @@ var/list/localhost_addresses = list(
 		vars["fps"] = prefs.clientfps
 
 /client/proc/reload_theme()
-	var/theme = prefs.theme_style
-	switch(theme)
-		if(THEME_BYOND_LIGHT)
-			force_white_theme()
-		if(THEME_BYOND_DARK)
-			force_dark_theme()
+	if(prefs.darkmode_theme)
+		force_dark_theme()
+	else
+		force_white_theme()
 
 //I honestly can't find a good place for this atm.
 //If the webint interaction gets more features, I'll move it. - Skull132

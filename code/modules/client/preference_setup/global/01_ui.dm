@@ -8,7 +8,7 @@
 	S["UI_style_alpha"] >> pref.UI_style_alpha
 	S["html_UI_style"]  >> pref.html_UI_style
 	S["ooccolor"]       >> pref.ooccolor
-	S["theme_style"]	>> pref.theme_style
+	S["darkmode_theme"]	>> pref.darkmode_theme
 	S["clientfps"]		>> pref.clientfps
 
 /datum/category_item/player_setup_item/player_global/ui/save_preferences(var/savefile/S)
@@ -17,7 +17,7 @@
 	S["UI_style_alpha"] << pref.UI_style_alpha
 	S["html_UI_style"]	<< pref.html_UI_style
 	S["ooccolor"]		<< pref.ooccolor
-	S["theme_style"]	<< pref.theme_style
+	S["darkmode_theme"]	<< pref.darkmode_theme
 	S["clientfps"]		<< pref.clientfps
 
 /datum/category_item/player_setup_item/player_global/ui/gather_load_query()
@@ -29,7 +29,7 @@
 				"UI_style_alpha",
 				"html_UI_style",
 				"ooccolor",
-				"theme_style",
+				"darkmode_theme",
 				"clientfps",
 				"tooltip_style"
 			),
@@ -49,7 +49,7 @@
 			"html_UI_style",
 			"skin_theme",
 			"ooccolor",
-			"theme_style",
+			"darkmode_theme",
 			"clientfps",
 			"tooltip_style",
 			"ckey" = 1
@@ -64,7 +64,7 @@
 		"UI_style" = pref.UI_style,
 		"html_UI_style" = pref.html_UI_style,
 		"ooccolor" = pref.ooccolor,
-		"theme_style" = pref.theme_style,
+		"darkmode_theme" = pref.darkmode_theme,
 		"clientfps" = pref.clientfps,
 		"tooltip_style" = pref.tooltip_style
 	)
@@ -76,7 +76,8 @@
 	pref.clientfps 			= sanitize_integer(text2num(pref.clientfps), 0, 1000, initial(pref.clientfps))
 	pref.html_UI_style		= sanitize_inlist(pref.html_UI_style, SStheming.available_html_themes, initial(pref.html_UI_style))
 	pref.ooccolor			= sanitize_hexcolor(pref.ooccolor, initial(pref.ooccolor))
-	pref.theme_style		= sanitize_inlist(pref.theme_style, all_theme_styles, THEME_BYOND_LIGHT)
+	if(pref.darkmode_theme != FALSE && pref.darkmode_theme != TRUE)
+		pref.darkmode_theme = FALSE
 
 /datum/category_item/player_setup_item/player_global/ui/content(mob/user)
 	var/list/dat = list()
@@ -87,7 +88,7 @@
 	dat += "-Alpha(transparency): <a href='?src=\ref[src];select_alpha=1'><b>[pref.UI_style_alpha]</b></a> - <a href='?src=\ref[src];reset=alpha'>reset</a><br>"
 	dat += "<b>Tooltip Style:</b> <a href='?src=\ref[src];select_tooltip_style=1'><b>[pref.tooltip_style]</b></a><br>"
 	dat += "<b>HTML UI Style:</b> <a href='?src=\ref[src];select_html=1'><b>[pref.html_UI_style]</b></a><br>"
-	dat += "<b>BYOND UI Style:</b> <a href='?src=\ref[src];select_theme_pref=1'><b>[pref.theme_style]</b></a><br>"
+	dat += "<b>BYOND UI Style:</b> <a href='?src=\ref[src];select_theme_pref=1'><b>[pref.darkmode_theme ? "Dark Theme" : "Light Theme"]</b></a><br>"
 	dat += "<b>FPS:</b> <a href='?src=\ref[src];select_fps=1'><b>[pref.clientfps]</b></a> - <a href='?src=\ref[src];reset=fps'>reset</a><br>"
 	if(can_select_ooc_color(user))
 		dat += "<b>OOC Color:</b> "
@@ -130,9 +131,8 @@
 			return TOPIC_REFRESH
 
 	else if(href_list["select_theme_pref"])
-		var/new_theme_pref = input(user, "Choose theme style:", "Global Preference") as null|anything in list(THEME_BYOND_LIGHT, THEME_BYOND_DARK)
-		if(new_theme_pref && CanUseTopic(user))
-			pref.theme_style = new_theme_pref
+		if(CanUseTopic(user))
+			pref.darkmode_theme = !pref.darkmode_theme
 			var/mob/target_mob = preference_mob()
 			if(target_mob && target_mob.client)
 				target_mob.client.reload_theme()
