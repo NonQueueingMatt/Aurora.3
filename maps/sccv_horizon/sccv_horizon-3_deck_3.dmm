@@ -7231,7 +7231,7 @@
 /turf/simulated/floor/tiled/white,
 /area/hallway/medical/upper)
 "nn" = (
-/obj/structure/flora/tree/jungle/small/patience,
+/obj/structure/flora/ausbushes/lavendergrass,
 /turf/simulated/floor/grass/alt,
 /area/horizon/hallway/deck_three/primary/starboard)
 "no" = (
@@ -23212,8 +23212,7 @@
 /turf/simulated/floor/reinforced,
 /area/bridge/selfdestruct)
 "QK" = (
-/obj/structure/flora/ausbushes/ywflowers,
-/obj/structure/flora/ausbushes/pointybush,
+/obj/structure/flora/tree/jungle/small/patience,
 /turf/simulated/floor/grass/alt,
 /area/horizon/hallway/deck_three/primary/starboard)
 "QL" = (
@@ -26001,7 +26000,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 9
 	},
-/obj/structure/flora/ausbushes/sparsegrass,
+/obj/structure/flora/ausbushes/lavendergrass,
 /turf/simulated/floor/grass/alt,
 /area/horizon/hallway/deck_three/primary/starboard)
 "Wa" = (
