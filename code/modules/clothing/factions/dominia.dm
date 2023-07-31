@@ -165,6 +165,15 @@
 	item_state = "zhao_capez"
 	cape_backing_state = "capez_backing"
 
+/obj/item/clothing/accessory/poncho/dominia_cape/armsman
+	name = "armsman mantle"
+	icon_state = "armsman_mantle"
+	item_state = "armsman_mantle"
+
+/obj/item/clothing/accessory/poncho/dominia_cape/hospital
+	name = "dominian hospital cape"
+	icon_state = "dominian_cape_hospital"
+	item_state = "dominian_cape_hospital"
 
 /obj/item/clothing/accessory/poncho/dominia_cape/mantle
 	name = "dominian military cape"
