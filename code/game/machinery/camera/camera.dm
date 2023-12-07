@@ -303,7 +303,7 @@
 			if (S.current_camera == src)
 				O.unset_machine()
 				O.reset_view(null)
-				to_chat(O, "The screen bursts into static.")
+				to_chat(O, SPAN_WARNING("The screen bursts into static."))
 
 /obj/machinery/camera/update_icon()
 	if (!status || (stat & BROKEN))
@@ -472,3 +472,17 @@
 	wires.MendAll()
 	update_icon()
 	update_coverage()
+
+// VEHICLE CAMERA
+
+/obj/machinery/camera/vehicle
+	name = "vehicle camera"
+	desc = "It is used to monitor vehicle interiors."
+	network = list(NETWORK_VEHICLES)
+
+/obj/machinery/camera/vehicle/set_status(newstatus = FALSE)
+	if(newstatus)
+		status = TRUE
+	else
+		status = FALSE
+	kick_viewers()

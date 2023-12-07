@@ -16,6 +16,11 @@
 	buckle_movable = 1
 	buckle_lying = 0
 
+	// The mobs that are in each position/seat of the vehicle
+	var/list/mob/seats = list(
+		VEHICLE_DRIVER = null
+	)
+
 	var/buckling_sound = 'sound/effects/metal_close.ogg'
 
 	var/attack_log = null

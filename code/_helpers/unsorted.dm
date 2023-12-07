@@ -5,6 +5,9 @@
 //Checks if all high bits in req_mask are set in bitfield
 #define BIT_TEST_ALL(bitfield, req_mask) ((~(bitfield) & (req_mask)) == 0)
 
+// The sane, counter-clockwise angle to turn to get from /direction/ A to /direction/ B
+#define turning_angle(a, b) -(dir2angle(b) - dir2angle(a))
+
 //Inverts the colour of an HTML string
 /proc/invertHTML(HTMLstring)
 
