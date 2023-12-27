@@ -206,7 +206,11 @@
 
 /obj/machinery/light/set_pixel_offsets()
 	pixel_x = dir & (NORTH|SOUTH) ? 0 : (dir == EAST ? 12 : -12)
-	pixel_y = dir & (NORTH|SOUTH) ? (dir == NORTH ? DEFAULT_WALL_OFFSET : 0) : 0
+	pixel_y = dir & (NORTH|SOUTH) ? (dir == NORTH ? DEFAULT_WALL_OFFSET : -2) : 0
+
+/obj/machinery/light/small/set_pixel_offsets()
+	pixel_x = dir & (NORTH|SOUTH) ? 0 : (dir == EAST ? 12 : -12)
+	pixel_y = dir & (NORTH|SOUTH) ? (dir == NORTH ? DEFAULT_WALL_OFFSET : -22) : 0
 
 /obj/machinery/light/floor/set_pixel_offsets()
 	pixel_x = pixel_x
@@ -313,7 +317,7 @@
 
 /obj/machinery/light/proc/broken_sparks()
 	if(world.time > next_spark && !(stat & POWEROFF) && has_power())
-		spark(src, 3, alldirs)
+		spark(src, 3, GLOB.alldirs)
 		next_spark = world.time + 1 MINUTE + (rand(-15, 15) SECONDS)
 
 // ehh

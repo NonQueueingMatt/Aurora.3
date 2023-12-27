@@ -22,6 +22,8 @@
 #define SPAN_SOGHUN(X) ("<span class='soghun'>" + X + "</span>")
 #define SPAN_VOTE(X) ("<span class='vote'>" + X + "</span>")
 #define SPAN_HEAR(X) ("<span class='hear'>" + X + "</span>")
+#define SPAN_STYLE(style, X) "<span style=\"[style]\">[X]</span>"
+#define SPAN_COLOR(color, text) SPAN_STYLE("color: [color]", "[text]")
 
 #define SPAN_RED(x) "<span style='color:[COLOR_RED]'>[x]</span>"
 #define SPAN_YELLOW(x) "<span style='color:[COLOR_YELLOW]'>[x]</span>"
@@ -167,6 +169,9 @@
 
 /// Decrease the size of L by 1 from the end. Is the old last entry index.
 #define LIST_DEC(L) ((L).len--)
+
+/// Drops x into the the src's location, and then nulls its reference.
+#define DROP_NULL(x) if(x) { x.dropInto(loc); x = null}
 
 /// Radial input menu
 #define RADIAL_INPUT(user, choices) show_radial_menu(user, user, choices, tooltips = TRUE)

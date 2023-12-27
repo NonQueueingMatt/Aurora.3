@@ -4,8 +4,8 @@
 	departments = SIMPLEDEPT(DEPARTMENT_COMMAND_SUPPORT)
 	department_flag = SERVICE
 	faction = "Station"
-	total_positions = 1
-	spawn_positions = 1
+	total_positions = 2
+	spawn_positions = 2
 	supervisors = "company officials"
 	selection_color = "#6186cf"
 	economic_modifier = 15
@@ -16,8 +16,8 @@
 		SPECIES_SKRELL_AXIORI = 80
 	)
 
-	access = list(access_lawyer, access_maint_tunnels)
-	minimal_access = list(access_lawyer)
+	access = list(ACCESS_LAWYER, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_LAWYER)
 	alt_titles = list(
 		"Workplace Liaison",
 		"Corporate Representative",
@@ -106,8 +106,8 @@
 	departments = SIMPLEDEPT(DEPARTMENT_COMMAND_SUPPORT)
 	department_flag = SERVICE
 	faction = "Station"
-	total_positions = 1
-	spawn_positions = 1
+	total_positions = 2
+	spawn_positions = 2
 	supervisors = "your embassy"
 	selection_color = "#6186cf"
 	economic_modifier = 15
@@ -124,8 +124,8 @@
 		SPECIES_SKRELL_AXIORI = 170
 	)
 
-	access = list(access_consular, access_maint_tunnels)
-	minimal_access = list(access_consular)
+	access = list(ACCESS_CONSULAR, ACCESS_MAINT_TUNNELS)
+	minimal_access = list(ACCESS_CONSULAR)
 	outfit = /datum/outfit/job/representative/consular
 	blacklisted_species = list(SPECIES_VAURCA_BULWARK)
 	blacklisted_citizenship = list(CITIZENSHIP_SOL, CITIZENSHIP_ERIDANI, CITIZENSHIP_ELYRA_NCP, CITIZENSHIP_NONE, CITIZENSHIP_FREE_COUNCIL)

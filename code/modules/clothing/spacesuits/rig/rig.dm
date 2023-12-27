@@ -510,7 +510,7 @@
 
 	data["charge"] =       cell ? round(cell.charge,1) : 0
 	data["maxcharge"] =    cell ? cell.maxcharge : 0
-	data["chargestatus"] = cell ? Floor((cell.charge/cell.maxcharge)*50) : 0
+	data["chargestatus"] = cell ? FLOOR((cell.charge/cell.maxcharge)*50) : 0
 
 	data["emagged"] =       subverted
 	data["coverlock"] =     locked
@@ -802,7 +802,10 @@
 
 /obj/item/rig/dropped(var/mob/user)
 	..()
-	SSstatpanels.set_action_tabs(user.client, user)
+
+	if(user.client)
+		SSstatpanels.set_action_tabs(user.client, user)
+
 	null_wearer(user)
 
 
@@ -962,7 +965,7 @@
 			wearer.inertia_dir = 0 //If not then we can reset inertia and move
 
 	if(malfunctioning)
-		direction = pick(cardinal)
+		direction = pick(GLOB.cardinal)
 
 	// Inside an object, tell it we moved.
 	if(isobj(wearer.loc) || ismob(wearer.loc))
@@ -1033,22 +1036,12 @@
 			qdel(module)
 
 
-//Fiddles with some wires to possibly make the suit malfunction a little
-//Had to use numeric literals here, the wire defines in rig_wiring.dm weren't working
-//Possibly due to being defined in a later file, or undef'd somewhere
+//Fiddles with some wires to possibly make the suit malfunction a little.
 /obj/item/rig/proc/misconfigure(var/probability)
 	if (prob(probability))
-		wires.UpdatePulsed(1)//Fiddle with access
+		wires.emp_pulse()
 	if (prob(probability))
-		wires.UpdatePulsed(2)//frustrate the AI
-	if (prob(probability))
-		wires.UpdateCut(4)//break the suit
-	if (prob(probability))
-		wires.UpdatePulsed(8)
-	if (prob(probability))
-		wires.UpdateCut(16)
-	if (prob(probability))
-		subverted = 1
+		wires.emp_pulse()
 
 //Drains, rigs or removes the cell
 /obj/item/rig/proc/sabotage_cell()

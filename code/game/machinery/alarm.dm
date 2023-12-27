@@ -79,7 +79,8 @@ dir = NORTH; \
 pixel_y = 21;
 
 #define PRESET_SOUTH \
-dir = SOUTH;
+dir = SOUTH; \
+pixel_y = -3;
 
 #define PRESET_WEST \
 dir = WEST; \
@@ -105,7 +106,7 @@ pixel_x = 10;
 	idle_power_usage = 90
 	active_power_usage = 1500 //For heating/cooling rooms. 1000 joules equates to about 1 degree every 2 seconds for a single tile of air.
 	power_channel = ENVIRON
-	req_one_access = list(access_atmospherics, access_engine_equip)
+	req_one_access = list(ACCESS_ATMOSPHERICS, ACCESS_ENGINE_EQUIP)
 	clicksound = /singleton/sound_category/button_sound
 	clickvol = 30
 	obj_flags = OBJ_FLAG_MOVES_UNSUPPORTED
@@ -206,7 +207,7 @@ pixel_x = 10;
 	PRESET_SOUTH
 
 /obj/machinery/alarm/server
-	req_one_access = list(access_rd, access_atmospherics, access_engine_equip)
+	req_one_access = list(ACCESS_RD, ACCESS_ATMOSPHERICS, ACCESS_ENGINE_EQUIP)
 	target_temperature = 80
 	desc = "A device that controls the local air regulation machinery. This one is designed for use in small server rooms."
 	highpower = 1
@@ -225,7 +226,7 @@ pixel_x = 10;
 
 /obj/machinery/alarm/tcom
 	desc = "A device that controls the local air regulation machinery. This one is designed for use in server halls."
-	req_access = list(access_tcomsat)
+	req_access = list(ACCESS_TCOMSAT)
 	highpower = 1
 
 /obj/machinery/alarm/tcom/north
@@ -241,7 +242,7 @@ pixel_x = 10;
 	PRESET_SOUTH
 
 /obj/machinery/alarm/freezer
-	req_one_access = list(access_kitchen, access_atmospherics, access_engine_equip)
+	req_one_access = list(ACCESS_KITCHEN, ACCESS_ATMOSPHERICS, ACCESS_ENGINE_EQUIP)
 	highpower = 1
 	target_temperature = T0C - 20
 
@@ -332,7 +333,7 @@ pixel_x = 10;
 
 /obj/machinery/alarm/set_pixel_offsets()
 	pixel_x = ((src.dir & (NORTH|SOUTH)) ? 0 : (src.dir == EAST ? 10 : -10))
-	pixel_y = ((src.dir & (NORTH|SOUTH)) ? (src.dir == NORTH ? 21 : 0) : 0)
+	pixel_y = ((src.dir & (NORTH|SOUTH)) ? (src.dir == NORTH ? 21 : -6) : 0)
 
 /obj/machinery/alarm/proc/first_run()
 	alarm_area = get_area(src)
@@ -636,7 +637,7 @@ pixel_x = 10;
 
 /obj/machinery/alarm/interact(mob/user)
 	ui_interact(user)
-	wires.Interact(user)
+	wires.interact(user)
 
 /obj/machinery/alarm/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1, var/master_ui = null, var/datum/ui_state/state = default_state)
 	var/data = list()
@@ -956,7 +957,7 @@ pixel_x = 10;
 					to_chat(user, "<span class='notice'>Nothing happens.</span>")
 					return TRUE
 				else
-					if(allowed(usr) && !wires.IsIndexCut(AALARM_WIRE_IDSCAN))
+					if(allowed(usr) && !wires.is_cut(WIRE_IDSCAN))
 						locked = !locked
 						to_chat(user, "<span class='notice'>You [ locked ? "lock" : "unlock"] the Air Alarm interface.</span>")
 					else
