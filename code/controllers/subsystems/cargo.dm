@@ -86,7 +86,8 @@ SUBSYSTEM_DEF(cargo)
 	var/datum/cargospawner/spawner = new
 	spawner.start()
 	qdel(spawner)
-	..()
+
+	return SS_INIT_SUCCESS
 
 /*
 	Loading Data
@@ -764,7 +765,7 @@ SUBSYSTEM_DEF(cargo)
 				itemcount["[coi.ci.id]"] = 1
 
 		if(!dump_query.Execute(list(
-			"game_id"=game_id,
+			"game_id"=GLOB.round_id,
 			"order_id"=co.order_id,
 			"status"=co.status,
 			"price"=co.price,

@@ -1,7 +1,7 @@
 SUBSYSTEM_DEF(pai)
 	name = "pAI"
 	init_order = SS_INIT_MISC_FIRST
-	flags = SS_NO_FIRE
+	flags = SS_NO_FIRE | SS_NO_INIT
 
 	var/list/pai_software_by_key
 	var/list/default_pai_software
@@ -101,6 +101,7 @@ SUBSYSTEM_DEF(pai)
 
 			if(pai.mind)
 				update_antag_icons(pai.mind)
+				pai.mind.current.client.init_verbs()
 
 			pai_candidates -= candidate
 			usr << browse(null, "window=findPai")

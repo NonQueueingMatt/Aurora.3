@@ -26,11 +26,11 @@
 	pda_choice = 2
 	age = rand(getMinAge(),getMaxAge())
 	if(length(culture_restriction))
-		H.culture = GET_SINGLETON(pick(culture_restriction))
+		H.set_culture(GET_SINGLETON(pick(culture_restriction)))
 	if(length(origin_restriction))
 		for(var/O in origin_restriction)
 			if(O in culture_restriction)
-				H.origin = GET_SINGLETON(O)
+				H.set_origin(GET_SINGLETON(O))
 				break
 		if(!H.origin)
 			crash_with("Invalid origin restrictions [english_list(origin_restriction)] for culture restrictions [english_list(culture_restriction)]!")
@@ -234,7 +234,7 @@
 
 /datum/preferences/proc/return_chosen_high_job(var/title = FALSE)
 	var/datum/job/chosenJob
-	if(SSjobs.init_state < SS_INITSTATE_DONE)
+	if(!SSjobs.initialized)
 		return
 
 	if(job_civilian_low & ASSISTANT)
@@ -246,6 +246,8 @@
 		chosenJob = SSjobs.bitflag_to_job["[MEDSCI]"]["[job_medsci_high]"]
 	else if(job_engsec_high)
 		chosenJob = SSjobs.bitflag_to_job["[ENGSEC]"]["[job_engsec_high]"]
+	else if(job_event_high)
+		chosenJob = SSjobs.bitflag_to_job["[EVENTDEPT]"]["[job_event_high]"]
 
 	if(istype(chosenJob) && title)
 		return chosenJob.title

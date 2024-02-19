@@ -32,17 +32,17 @@
 		return
 	spill(user, target.loc)
 
-/obj/item/tray/attackby(obj/item/I, mob/user, var/click_params)
-	if (isrobot(I.loc))//safety to stop robots losing their items
+/obj/item/tray/attackby(obj/item/attacking_item, mob/user, params)
+	if (isrobot(attacking_item.loc))//safety to stop robots losing their items
 		return TRUE
 
-	if(istype(I, /obj/item/material/kitchen/rollingpin))
+	if(istype(attacking_item, /obj/item/material/kitchen/rollingpin))
 		if(cooldown < world.time - 25)
-			user.visible_message(SPAN_DANGER("[user] bashes [src] with [I]!"))
+			user.visible_message(SPAN_DANGER("[user] bashes [src] with [attacking_item]!"))
 			playsound(user.loc, 'sound/effects/shieldbash.ogg', 50, 1)
 			cooldown = world.time
 		return TRUE
-	attempt_load_item(I, user, click_params=click_params)
+	attempt_load_item(attacking_item, user, click_params=params)
 
 /*
 ============~~~~~======================~~~~~=============
@@ -219,3 +219,15 @@
 	matter = list(DEFAULT_TABLE_MATERIAL = 1000)
 	recyclable = TRUE
 	max_carry = 7 // That's 3 dishes, a knife, spoon and fork and a glass
+
+/obj/item/tray/tea
+	name = "tea tray"
+	desc = "A tray for serving tea."
+	icon_state = "teatray"
+	force = 3
+	throwforce = 3
+	atom_flags = 0
+	matter = list(DEFAULT_TABLE_MATERIAL = 1000)
+	recyclable = TRUE
+	max_carry = 6
+	contained_sprite = TRUE

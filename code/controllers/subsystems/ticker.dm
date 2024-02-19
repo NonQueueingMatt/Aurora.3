@@ -11,7 +11,6 @@ var/datum/controller/subsystem/ticker/SSticker
 	name = "Ticker"
 
 	priority = SS_PRIORITY_TICKER
-	flags = SS_NO_TICK_CHECK
 	runlevels = RUNLEVELS_DEFAULT | RUNLEVEL_LOBBY
 	init_order = SS_INIT_LOBBY
 
@@ -73,6 +72,8 @@ var/datum/controller/subsystem/ticker/SSticker
 /datum/controller/subsystem/ticker/Initialize(timeofday)
 	pregame()
 	restart_timeout = GLOB.config.restart_timeout
+
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/ticker/stat_entry(msg)
 	var/state = ""
@@ -423,7 +424,7 @@ var/datum/controller/subsystem/ticker/SSticker
 		pregame_timeleft = LOBBY_TIME
 		LOG_DEBUG("SSticker: lobby reset due to game setup failure, using pregame time [LOBBY_TIME]s.")
 	else
-		var/mc_init_time = round(Master.initialization_time_taken, 1)
+		var/mc_init_time = round(Master.init_timeofday, 1)
 		var/dynamic_time = LOBBY_TIME - mc_init_time
 		total_players = length(GLOB.player_list)
 		LAZYINITLIST(ready_player_jobs)
@@ -619,7 +620,7 @@ var/datum/controller/subsystem/ticker/SSticker
 
 		CHECK_TICK
 
-/datum/controller/subsystem/ticker/proc/station_explosion_cinematic(station_missed = 0, override = null, list/affected_levels = current_map.station_levels)
+/datum/controller/subsystem/ticker/proc/station_explosion_cinematic(station_missed = 0, override = null, list/affected_levels = SSatlas.current_map.station_levels)
 	if (cinematic)
 		return	//already a cinematic in progress!
 
@@ -762,9 +763,9 @@ var/datum/controller/subsystem/ticker/SSticker
 		var/list/ship_names = list()
 		for(var/datum/map_template/ruin/site in sites)
 			if(site.ship_cost)
-				ship_names += site.name
+				ship_names += "[site.name] ([site.spawn_weight])"
 			else
-				site_names += site.name
+				site_names += "[site.name] ([site.spawn_weight])"
 
 		var/datum/browser/sites_win = new(
 			usr,
@@ -772,7 +773,7 @@ var/datum/controller/subsystem/ticker/SSticker
 			"Sector: " + current_sector.name,
 			500, 500,
 		)
-		var/html = "<h1>Ships and sites that spawn in this sector:</h1>"
+		var/html = "<h1>Ships and sites that spawn in this sector, with their spawn weights:</h1>"
 		html += "<h3>Ships:</h3>"
 		html += english_list(ship_names)
 		html += "<h3>Sites:</h3>"

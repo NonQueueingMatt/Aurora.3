@@ -357,6 +357,7 @@ em {
 }
 .aooc {
   color: #d1021e;
+  font-weight: bold;
 }
 
 /* Admin: Private Messages */
@@ -605,4 +606,18 @@ em {
 .bad {
   color: #ee0000;
   font-weight: bold;
+}
+
+.examine_block {
+  background: #1b1c1e;
+  border: 1px solid #a4bad6;
+  margin: 0.5em;
+  padding: 0.5em 0.75em;
+}
+
+.examine_block .icon {
+  width: 1.5em;
+  height: 1.5em;
+  margin: 0;
+  padding: 0;
 }

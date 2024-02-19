@@ -3,7 +3,8 @@
 	name = null
 	desc = null
 
-	respawn_flag = CREW //Flag to check for when trying to spawn someone of that type (CREW, ANIMAL, MINISYNTH)
+	respawn_flag = CREW
+	disable_and_hide_if_full = FALSE
 
 	//Vars regarding the mob to use
 	spawn_mob = /mob/living/carbon/human //The mob that should be spawned
@@ -156,14 +157,14 @@
 		for(var/culture in culture_restriction)
 			var/singleton/origin_item/culture/CL = GET_SINGLETON(culture)
 			if(CL.type in M.species.possible_cultures)
-				M.culture = CL
+				M.set_culture(CL)
 				break
 		for(var/origin in M.culture.possible_origins)
 			var/singleton/origin_item/origin/OI = GET_SINGLETON(origin)
 			if(length(origin_restriction))
 				if(!(OI.type in origin_restriction))
 					continue
-			M.origin = OI
+			M.set_origin(OI)
 			M.accent = pick(OI.possible_accents)
 			break
 
@@ -183,4 +184,5 @@
 
 /mob/living/carbon/human/Destroy()
 	ghost_spawner = null
-	return ..()
+	. = ..()
+	GC_TEMPORARY_HARDDEL

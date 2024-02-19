@@ -27,7 +27,7 @@ SUBSYSTEM_DEF(sunlight)
 
 	var/thing
 	var/turf/T
-	for (thing in Z_ALL_TURFS(GLOB.config.sun_target_z))
+	for (thing in Z_TURFS(GLOB.config.sun_target_z))
 		T = thing
 		if (!(T.x % GLOB.config.sun_accuracy) && !(T.y % GLOB.config.sun_accuracy))
 			light_points += new /atom/movable/sunobj(thing)
@@ -35,7 +35,8 @@ SUBSYSTEM_DEF(sunlight)
 		CHECK_TICK
 
 	LOG_DEBUG("sunlight: [light_points.len] sun emitters.")
-	..()
+
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/sunlight/proc/set_overall_light(...)
 	. = 0

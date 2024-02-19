@@ -124,7 +124,7 @@
  *
  * Default behaviour is to send the [COMSIG_ATOM_PRE_EMP_ACT] and [COMSIG_ATOM_EMP_ACT] signal
  *
- * * severity - The severity of the EMP pulse (how strong it is), defines in `code\__defines\empulse.dm`
+ * * severity - The severity of the EMP pulse (how strong it is), defines in `code\__DEFINES\empulse.dm`
  *
  * Returns the protection value
  */
@@ -157,48 +157,48 @@
 /**
  * Checks if user can use this object. Set use_flags to customize what checks are done
  * Returns 0 (FALSE) if they can use it, a value representing why they can't if not
- * See `code\__defines\misc.dm` for the list of flags and return codes
+ * See `code\__DEFINES\misc.dm` for the list of flags and return codes
  *
  * * user - The `mob` to check against, if it can perform said use
- * * use_flags - The flags to modify the check behavior, eg. `USE_ALLOW_NON_ADJACENT`, see `code\__defines\misc.dm` for the list of flags
+ * * use_flags - The flags to modify the check behavior, eg. `USE_ALLOW_NON_ADJACENT`, see `code\__DEFINES\misc.dm` for the list of flags
  * * show_messages - A boolean, to indicate if a feedback message should be shown, about the reason why someone can't use the atom
  */
 /atom/proc/use_check(mob/user, use_flags = 0, show_messages = FALSE)
 	. = USE_SUCCESS
-	if(NOT_FLAG(use_flags, USE_ALLOW_NONLIVING) && !isliving(user)) // No message for ghosts.
+	if(!(use_flags & USE_ALLOW_NONLIVING) && !isliving(user)) // No message for ghosts.
 		return USE_FAIL_NONLIVING
 
-	if(NOT_FLAG(use_flags, USE_ALLOW_NON_ADJACENT) && !Adjacent(user))
+	if(!(use_flags & USE_ALLOW_NON_ADJACENT) && !Adjacent(user))
 		if (show_messages)
 			to_chat(user, SPAN_NOTICE("You're too far away from [src] to do that."))
 		return USE_FAIL_NON_ADJACENT
 
-	if(NOT_FLAG(use_flags, USE_ALLOW_DEAD) && user.stat == DEAD)
+	if(!(use_flags & USE_ALLOW_DEAD) && user.stat == DEAD)
 		if (show_messages)
 			to_chat(user, SPAN_NOTICE("How do you expect to do that when you're dead?"))
 		return USE_FAIL_DEAD
 
-	if(NOT_FLAG(use_flags, USE_ALLOW_INCAPACITATED) && (user.incapacitated()))
+	if(!(use_flags & USE_ALLOW_INCAPACITATED) && (user.incapacitated()))
 		if (show_messages)
 			to_chat(user, SPAN_NOTICE("You cannot do that in your current state."))
 		return USE_FAIL_INCAPACITATED
 
-	if(NOT_FLAG(use_flags, USE_ALLOW_NON_ADV_TOOL_USR) && !user.IsAdvancedToolUser())
+	if(!(use_flags & USE_ALLOW_NON_ADV_TOOL_USR) && !user.IsAdvancedToolUser())
 		if (show_messages)
 			to_chat(user, SPAN_NOTICE("You don't know how to operate [src]."))
 		return USE_FAIL_NON_ADV_TOOL_USR
 
-	if(HAS_FLAG(use_flags, USE_DISALLOW_SILICONS) && issilicon(user))
+	if((use_flags & USE_DISALLOW_SILICONS) && issilicon(user))
 		if (show_messages)
 			to_chat(user, SPAN_NOTICE("How do you propose doing that without hands?"))
 		return USE_FAIL_IS_SILICON
 
-	if(HAS_FLAG(use_flags, USE_DISALLOW_SPECIALS) && is_mob_special(user))
+	if((use_flags & USE_DISALLOW_SPECIALS) && is_mob_special(user))
 		if (show_messages)
 			to_chat(user, SPAN_NOTICE("Your current mob type prevents you from doing this."))
 		return USE_FAIL_IS_MOB_SPECIAL
 
-	if(HAS_FLAG(use_flags, USE_FORCE_SRC_IN_USER) && !(src in user))
+	if((use_flags & USE_FORCE_SRC_IN_USER) && !(src in user))
 		if (show_messages)
 			to_chat(user, SPAN_NOTICE("You need to be holding [src] to do that."))
 		return USE_FAIL_NOT_IN_USER
@@ -206,10 +206,10 @@
 /**
  * Checks if a mob can use an atom, message the user if not with an appropriate reason
  * Returns 0 (FALSE) if they can use it, a value representing why they can't if not
- * See `code\__defines\misc.dm` for the list of flags and return codes
+ * See `code\__DEFINES\misc.dm` for the list of flags and return codes
  *
  * * user - The `mob` to check against, if it can perform said use
- * * use_flags - The flags to modify the check behavior, eg. `USE_ALLOW_NON_ADJACENT`, see `code\__defines\misc.dm` for the list of flags
+ * * use_flags - The flags to modify the check behavior, eg. `USE_ALLOW_NON_ADJACENT`, see `code\__DEFINES\misc.dm` for the list of flags
  */
 /atom/proc/use_check_and_message(mob/user, use_flags = 0)
 	. = use_check(user, use_flags, TRUE)
@@ -261,8 +261,18 @@
 
 // Examination code for all atoms.
 // Returns TRUE, the caller always expects TRUE
-// This is used rather than SHOULD_CALL_PARENT as it enforces that subtypes of a type that explicitly returns still call parent
+// This is used rather than SHOULD_CALL_PARENT as it enforces that subtypes of a type that explicitly returns still call parent.
+// You should usually be overriding get_examine_text(), unless you need special examine behaviour.
 /atom/proc/examine(mob/user, distance, is_adjacent, infix = "", suffix = "")
+	var/list/examine_strings = get_examine_text(user, distance, is_adjacent, infix, suffix)
+	if(!length(examine_strings))
+		crash_with("Examine called with no examine strings on [src].")
+	to_chat(user, EXAMINE_BLOCK(examine_strings.Join("\n")))
+	return TRUE
+
+// This proc is what you should usually override to get things to show up inside the examine box.
+/atom/proc/get_examine_text(mob/user, distance, is_adjacent, infix = "", suffix = "")
+	. = list()
 	var/f_name = "\a [src]. [infix]"
 	if(src.blood_DNA && !istype(src, /obj/effect/decal))
 		if(gender == PLURAL)
@@ -274,27 +284,25 @@
 		else
 			f_name += "oil-stained [name][infix]."
 
-	to_chat(user, "[icon2html(src, user)] That's [f_name] [suffix]") // Object name. I.e. "This is an Object. It is a normal-sized item."
+	. += "[icon2html(src, user)] That's [f_name] [suffix]" // Object name. I.e. "This is an Object. It is a normal-sized item."
 
 	if(src.desc)
-		to_chat(user, src.desc)	// Object description.
+		. += src.desc	// Object description.
 
 	// Extra object descriptions examination code.
 	if(desc_extended || desc_info || (desc_antag && player_is_antag(user.mind))) // Checks if the object has a extended description, a mechanics description, and/or an antagonist description (and if the user is an antagonist).
-		to_chat(user, FONT_SMALL(SPAN_NOTICE("\[?\] This object has additional examine information available. <a href=?src=\ref[src];examine_fluff=1>\[Show In Chat\]</a>"))) // If any of the above are true, show that the object has more information available.
+		. += FONT_SMALL(SPAN_NOTICE("\[?\] This object has additional examine information available. <a href=?src=\ref[src];examine_fluff=1>\[Show In Chat\]</a>")) // If any of the above are true, show that the object has more information available.
 		if(desc_extended) // If the item has a extended description, show that it is available.
-			to_chat(user, FONT_SMALL("- This object has an extended description."))
+			. +=  FONT_SMALL("- This object has an extended description.")
 		if(desc_info) // If the item has a description regarding game mechanics, show that it is available.
-			to_chat(user, FONT_SMALL(SPAN_NOTICE("- This object has additional information about mechanics.")))
+			. += FONT_SMALL(SPAN_NOTICE("- This object has additional information about mechanics."))
 		if(desc_antag && player_is_antag(user.mind)) // If the item has an antagonist description and the user is an antagonist, show that it is available.
-			to_chat(user, FONT_SMALL(SPAN_ALERT("- This object has additional information for antagonists.")))
+			. += FONT_SMALL(SPAN_ALERT("- This object has additional information for antagonists."))
 
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 		if(H.glasses)
 			H.glasses.glasses_examine_atom(src, H)
-
-	return TRUE
 
 // Same as examine(), but without the "this object has more info" thing and with the extra information instead.
 /atom/proc/examine_fluff(mob/user, distance, is_adjacent, infix = "", suffix = "")
@@ -434,7 +442,7 @@
 		add_fibers(M)
 
 		// They have no prints.
-		if (HAS_FLAG(M.mutations, mFingerprints))
+		if ((M.mutations & mFingerprints))
 			if(fingerprintslast != M.key)
 				fingerprintshidden += "(Has no fingerprints) Real name: [M.real_name], Key: [M.key]"
 				fingerprintslast = M.key
@@ -475,7 +483,7 @@
 
 		// Add the fingerprints.
 		if(fingerprints[full_print])
-			switch(stringpercent(fingerprints[full_print]))	// Tells us how many stars are in the current prints.
+			switch(charcount(fingerprints[full_print]))	// Tells us how many stars are in the current prints.
 
 				if(28 to 32)
 					if(prob(1))
@@ -587,7 +595,13 @@
 		if(toxvomit)
 			this.icon_state = "vomittox_[pick(1,4)]"
 
-/mob/living/proc/handle_additional_vomit_reagents(var/obj/effect/decal/cleanable/vomit/vomit)
+/mob/living/proc/handle_additional_vomit_reagents(obj/effect/decal/cleanable/vomit/vomit)
+	SHOULD_NOT_SLEEP(TRUE)
+	SHOULD_CALL_PARENT(TRUE)
+
+	if(!istype(vomit))
+		return
+
 	vomit.reagents.add_reagent(/singleton/reagent/acid/stomach, 5)
 
 /atom/proc/clean_blood()
@@ -729,7 +743,7 @@
 	if(SSticker.current_state == GAME_STATE_PLAYING)
 		do_late_fire()
 		return
-	LAZYADD(SSatoms.late_loaders, src)
+	LAZYADD(SSmisc_late.late_misc_firers, src)
 
 /atom/proc/do_late_fire()
 	return

@@ -90,7 +90,7 @@ BREATH ANALYZER
 
 /proc/health_scan_mob(var/mob/M, var/mob/living/user, var/show_limb_damage = TRUE, var/just_scan = FALSE, var/sound_scan)
 	if(!just_scan)
-		if (((user.is_clumsy()) || HAS_FLAG(user.mutations, DUMB)) && prob(50))
+		if (((user.is_clumsy()) || (user.mutations & DUMB)) && prob(50))
 			user.visible_message("<b>[user]</b> runs the scanner over the floor.", "<span class='notice'>You run the scanner over the floor.</span>", "<span class='notice'>You hear metal repeatedly clunking against the floor.</span>")
 			to_chat(user, "<span class='notice'><b>Scan results for the ERROR:</b></span>")
 			if(sound_scan)
@@ -166,15 +166,16 @@ BREATH ANALYZER
 			pulse_result = "<span class='danger'>0</span>"
 		else
 			pulse_result = H.get_pulse(GETPULSE_TOOL)
-		pulse_result = "<span class='scan_green'>[pulse_result] BPM</span>"
 		if(H.pulse() == PULSE_NONE)
 			pulse_result = "<span class='scan_danger'>[pulse_result] BPM</span>"
 		else if(H.pulse() < PULSE_NORM)
 			pulse_result = "<span class='scan_notice'>[pulse_result] BPM</span>"
 		else if(H.pulse() > PULSE_NORM)
 			pulse_result = "<span class='scan_warning'>[pulse_result] BPM</span>"
+		else
+			pulse_result = "<span class='scan_green'>[pulse_result] BPM</span>"
 	else
-		pulse_result = "<span class='scan_danger'>0 BPM</span>"
+		pulse_result = "<span class='scan_danger'>0</span>"
 	dat += "Pulse rate: [pulse_result]"
 
 	// Body temperature. Rounds to one digit after decimal.
@@ -207,14 +208,15 @@ BREATH ANALYZER
 			if(-(INFINITY) to BLOOD_VOLUME_SURVIVE)
 				blood_volume_string = "<span class='scan_danger'>\<[BLOOD_VOLUME_SURVIVE]%</span>"
 
-		var/oxygenation_string = "<span class='scan_green'>[H.get_blood_oxygenation()]%</span>"
-		switch(H.get_blood_oxygenation())
+		var/oxygenation = H.get_blood_oxygenation()
+		var/oxygenation_string = "<span class='scan_green'>[oxygenation]%</span>"
+		switch(oxygenation)
 			if(BLOOD_VOLUME_OKAY to BLOOD_VOLUME_SAFE)
-				oxygenation_string = "<span class='scan_notice'>[oxygenation_string]%</span>"
+				oxygenation_string = "<span class='scan_notice'>[oxygenation]%</span>"
 			if(BLOOD_VOLUME_SURVIVE to BLOOD_VOLUME_OKAY)
-				oxygenation_string = "<span class='scan_warning'>[oxygenation_string]%</span>"
+				oxygenation_string = "<span class='scan_warning'>[oxygenation]%</span>"
 			if(-(INFINITY) to BLOOD_VOLUME_SURVIVE)
-				oxygenation_string = "<span class='scan_danger'>[oxygenation_string]%</span>"
+				oxygenation_string = "<span class='scan_danger'>[oxygenation]%</span>"
 		if(H.status_flags & FAKEDEATH)
 			oxygenation_string = "<span class='scan_danger'>[rand(0,10)]%</span>"
 		dat += "Blood pressure: [blood_pressure_string]"
@@ -599,7 +601,7 @@ BREATH ANALYZER
 		to_chat(user,"<span class='warning'>You can't find a way to use \the [src] on [H]!</span>")
 		return
 
-	if ( ((user.is_clumsy()) || HAS_FLAG(user.mutations, DUMB)) && prob(20))
+	if ( ((user.is_clumsy()) || (user.mutations & DUMB)) && prob(20))
 		to_chat(user,"<span class='danger'>Your hand slips from clumsiness!</span>")
 		if(!H.eyes_protected(src, FALSE))
 			eyestab(H,user)

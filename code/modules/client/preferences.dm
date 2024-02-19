@@ -85,9 +85,10 @@ var/list/preferences_datums = list()
 	var/list/alternate_languages = list() //Secondary language(s)
 	var/list/language_prefixes = list() // Language prefix keys
 	var/autohiss_setting = AUTOHISS_OFF
-	var/list/gear						// Custom/fluff item loadout.
-	var/list/gear_list = list()			//Custom/fluff item loadouts.
+	var/list/gear						// The gear in the currently selected loadout item preset
+	var/list/gear_list = list()			// The gear list holds all the different loadout item prests
 	var/gear_slot = 1					//The current gear save slot
+	var/gear_modified = FALSE
 
 	// IPC Stuff
 	var/machine_tag_status = TRUE
@@ -126,6 +127,10 @@ var/list/preferences_datums = list()
 	var/job_engsec_high = 0
 	var/job_engsec_med = 0
 	var/job_engsec_low = 0
+
+	var/job_event_high = 0
+	var/job_event_med = 0
+	var/job_event_low = 0
 
 	// A text blob which temporarily houses data from the SQL.
 	var/unsanitized_jobs = ""
@@ -210,7 +215,7 @@ var/list/preferences_datums = list()
 
 /datum/preferences/Destroy()
 	. = ..()
-	QDEL_NULL_LIST(char_render_holders)
+	QDEL_LIST(char_render_holders)
 
 /datum/preferences/proc/load_and_update_character(var/slot)
 	load_character(slot)
@@ -456,10 +461,9 @@ var/list/preferences_datums = list()
 	character.employer_faction = faction
 	character.religion = religion
 	character.accent = accent
-	character.origin = GET_SINGLETON(text2path(origin))
-	character.culture = GET_SINGLETON(text2path(culture))
-	character.origin.on_apply(character)
-	character.culture.on_apply(character)
+	character.set_culture(GET_SINGLETON(text2path(culture)))
+	character.set_origin(GET_SINGLETON(text2path(origin)))
+
 
 	// Destroy/cyborgize organs & setup body markings
 	character.sync_organ_prefs_to_mob(src)
@@ -584,7 +588,7 @@ var/list/preferences_datums = list()
 		LOG_DEBUG("Char-Log: Char [current_character] - [H.name] has joined with mind.assigned_role set to NULL")
 
 	var/DBQuery/query = GLOB.dbcon.NewQuery("INSERT INTO ss13_characters_log (char_id, game_id, datetime, job_name, alt_title) VALUES (:char_id:, :game_id:, NOW(), :job:, :alt_title:)")
-	query.Execute(list("char_id" = current_character, "game_id" = game_id, "job" = H.mind.assigned_role, "alt_title" = H.mind.role_alt_title))
+	query.Execute(list("char_id" = current_character, "game_id" = GLOB.round_id, "job" = H.mind.assigned_role, "alt_title" = H.mind.role_alt_title))
 
 // Turned into a proc so we could reuse it for SQL shenanigans.
 /datum/preferences/proc/new_setup(var/re_initialize = 0)
@@ -605,6 +609,8 @@ var/list/preferences_datums = list()
 	can_edit_name = 1
 
 	gear = list()
+	gear_list = list() //Dont copy the loadout
+	gear_modified = FALSE
 
 	//Reset the records when making a new char
 	med_record = ""
@@ -613,8 +619,6 @@ var/list/preferences_datums = list()
 	gen_record = ""
 	exploit_record = ""
 	ccia_record = ""
-
-	gear_list = list() //Dont copy the loadout
 
 	// Do we need to reinitialize a whole bunch more vars?
 	if (re_initialize)
@@ -654,6 +658,10 @@ var/list/preferences_datums = list()
 		job_engsec_high = 0
 		job_engsec_med = 0
 		job_engsec_low = 0
+
+		job_event_high = 0
+		job_event_med = 0
+		job_event_low = 0
 
 		alternate_option = 1
 		metadata = ""

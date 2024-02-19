@@ -212,7 +212,7 @@
 	if(!.)
 		return FALSE
 
-	health_scan_mob(owner, owner)
+	health_scan_mob(owner, owner, TRUE, TRUE)
 
 /obj/item/organ/internal/augment/tesla
 	name = "tesla spine"
@@ -478,6 +478,10 @@
 	name = "Zino language processor"
 	augment_languages = list(LANGUAGE_GUTTER)
 
+/obj/item/organ/internal/augment/language/eridani
+	name = "Eridani language processor"
+	augment_languages = list(LANGUAGE_TRADEBAND)
+
 /obj/item/organ/internal/augment/language/zeng
 	name = "Zeng-Hu Nral'malic language processor"
 	augment_languages = list(LANGUAGE_SKRELLIAN)
@@ -492,8 +496,8 @@
 	cooldown = 8
 
 	var/taste_sensitivity = TASTE_NORMAL
-	var/action_verb = "licks"
-	var/self_action_verb = "lick"
+	var/action_verb = "samples"
+	var/self_action_verb = "sample"
 
 /obj/item/organ/internal/augment/gustatorial/attack_self(var/mob/user)
 	. = ..()

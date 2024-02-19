@@ -226,10 +226,10 @@
 	icon_state = "ricetub"
 	var/has_chopsticks = FALSE
 
-/obj/item/trash/ricetub/attackby(obj/item/W, mob/living/user)
-	if(istype(W, /obj/item/material/kitchen/utensil/fork/chopsticks))
-		to_chat(user, SPAN_NOTICE("You reattach the [W] to \the [src]"))
-		qdel(W)
+/obj/item/trash/ricetub/attackby(obj/item/attacking_item, mob/user)
+	if(istype(attacking_item, /obj/item/material/kitchen/utensil/fork/chopsticks))
+		to_chat(user, SPAN_NOTICE("You reattach the [attacking_item] to \the [src]"))
+		qdel(attacking_item)
 		has_chopsticks = TRUE
 		update_icon()
 		return TRUE
@@ -317,3 +317,24 @@
 /obj/item/trash/stick
 	name = "candy stick"
 	icon_state = "rock_candy"
+
+/obj/item/trash/imperial_pot_empty
+	name = "imperial pot"
+	desc = "This large wooden pot was probably used to house a grand, elaborate, dominian feast at some point. How majestic it must have been. Oh well, get rid of it now before it draws rats."
+	icon = 'icons/obj/item/reagent_containers/food/cultural/human.dmi'
+	icon_state = "imperialpotempty"
+	drop_sound = 'sound/items/drop/shovel.ogg'
+	pickup_sound = 'sound/items/pickup/shovel.ogg'
+
+/obj/item/trash/wooden_platter
+	name = "wooden platter"
+	icon_state = "wooden_platter"
+	drop_sound = 'sound/items/drop/bottle.ogg'
+	pickup_sound = 'sound/items/pickup/bottle.ogg'
+
+/obj/item/trash/custard_bowl
+	name = "custard bowl"
+	desc = "It smells tasty... Wait, why are you smelling it? It's trash!"
+	icon_state = "custard_bowl"
+	drop_sound = 'sound/items/drop/glass.ogg'
+	pickup_sound = 'sound/items/pickup/glass.ogg'

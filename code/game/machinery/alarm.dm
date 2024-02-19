@@ -360,7 +360,7 @@ pixel_x = 10;
 	TLV["pressure"] =		list(ONE_ATMOSPHERE*0.80,ONE_ATMOSPHERE*0.90,ONE_ATMOSPHERE*1.10,ONE_ATMOSPHERE*1.20) /* kpa */
 	TLV["temperature"] =	list(T0C-26, T0C, T0C+40, T0C+66) // K
 
-/obj/machinery/alarm/process()
+/obj/machinery/alarm/process(seconds_per_tick)
 	if((stat & (NOPOWER|BROKEN)) || shorted || buildstage != 2)
 		return
 
@@ -391,7 +391,7 @@ pixel_x = 10;
 		return
 
 	//Handle temperature adjustment here.
-	handle_heating_cooling(environment)
+	handle_heating_cooling(environment, seconds_per_tick)
 
 	var/old_level = danger_level
 	var/old_pressurelevel = pressure_dangerlevel
@@ -423,7 +423,7 @@ pixel_x = 10;
 
 	return
 
-/obj/machinery/alarm/proc/handle_heating_cooling(var/datum/gas_mixture/environment)
+/obj/machinery/alarm/proc/handle_heating_cooling(datum/gas_mixture/environment, seconds_per_tick)
 	var/danger_level = null
 	ALARM_GET_DANGER_LEVEL(danger_level, target_temperature, TLV["temperature"])
 
@@ -448,23 +448,23 @@ pixel_x = 10;
 		//Unnecessary checks removed, duplication of effort
 
 		var/datum/gas_mixture/gas
-		gas = environment.remove(0.25*environment.total_moles)
+		gas = environment.remove(seconds_per_tick * 0.25*environment.total_moles)
 		if(gas)
 
 			if (gas.temperature <= target_temperature)	//gas heating
-				var/energy_used = min( gas.get_thermal_energy_change(target_temperature) , active_power_usage)
+				var/energy_used = min( gas.get_thermal_energy_change(target_temperature) , active_power_usage * seconds_per_tick)
 
 				gas.add_thermal_energy(energy_used)
 				//use_power(energy_used, ENVIRON) //handle by update_use_power instead
 			else	//gas cooling
-				var/heat_transfer = min(abs(gas.get_thermal_energy_change(target_temperature)), active_power_usage)
+				var/heat_transfer = min(abs(gas.get_thermal_energy_change(target_temperature)), active_power_usage * seconds_per_tick)
 
 				//Assume the heat is being pumped into the hull which is fixed at 20 C
 				//none of this is really proper thermodynamics but whatever
 
 				var/cop = gas.temperature/T20C	//coefficient of performance -> power used = heat_transfer/cop
 
-				heat_transfer = min(heat_transfer, cop * active_power_usage)	//this ensures that we don't use more than active_power_usage amount of power
+				heat_transfer = min(heat_transfer, cop * active_power_usage * seconds_per_tick)	//this ensures that we don't use more than active_power_usage amount of power
 
 				heat_transfer = -gas.add_thermal_energy(-heat_transfer)	//get the actual heat transfer
 
@@ -506,7 +506,7 @@ pixel_x = 10;
 		return
 
 	var/icon_level = danger_level
-	if (alarm_area.atmosalm)
+	if(alarm_area?.atmosalm)
 		icon_level = max(icon_level, 1)	//if there's an atmos alarm but everything is okay locally, no need to go past yellow
 
 	alarm_overlay = make_screen_overlay(icon, "alarm[icon_level]")
@@ -932,19 +932,19 @@ pixel_x = 10;
 			apply_mode()
 			return 1
 
-/obj/machinery/alarm/attackby(obj/item/W as obj, mob/user as mob)
-	if(!istype(W, /obj/item/forensics))
+/obj/machinery/alarm/attackby(obj/item/attacking_item, mob/user)
+	if(!istype(attacking_item, /obj/item/forensics))
 		src.add_fingerprint(user)
 
 	switch(buildstage)
 		if(2)
-			if(W.isscrewdriver())  // Opening that Air Alarm up.
+			if(attacking_item.isscrewdriver())  // Opening that Air Alarm up.
 				wiresexposed = !wiresexposed
 				to_chat(user, "<span class='notice'>You [wiresexposed ? "open" : "close"] the maintenance panel.</span>")
 				update_icon()
 				return TRUE
 
-			if (wiresexposed && W.iswirecutter())
+			if (wiresexposed && attacking_item.iswirecutter())
 				user.visible_message("<span class='warning'>[user] has cut the wires inside \the [src]!</span>", "You cut the wires inside \the [src].")
 				playsound(src.loc, 'sound/items/Wirecutter.ogg', 50, 1)
 				new/obj/item/stack/cable_coil(get_turf(src), 5)
@@ -952,7 +952,7 @@ pixel_x = 10;
 				update_icon()
 				return TRUE
 
-			if (W.GetID())// trying to unlock the interface with an ID card
+			if (attacking_item.GetID())// trying to unlock the interface with an ID card
 				if(stat & (NOPOWER|BROKEN))
 					to_chat(user, "<span class='notice'>Nothing happens.</span>")
 					return TRUE
@@ -965,8 +965,8 @@ pixel_x = 10;
 				return TRUE
 
 		if(1)
-			if(W.iscoil())
-				var/obj/item/stack/cable_coil/C = W
+			if(attacking_item.iscoil())
+				var/obj/item/stack/cable_coil/C = attacking_item
 				if (C.use(5))
 					to_chat(user, "<span class='notice'>You wire \the [src].</span>")
 					buildstage = 2
@@ -977,9 +977,9 @@ pixel_x = 10;
 					to_chat(user, "<span class='warning'>You need 5 pieces of cable to do wire \the [src].</span>")
 				return TRUE
 
-			else if(W.iscrowbar())
+			else if(attacking_item.iscrowbar())
 				to_chat(user, "You start prying out the circuit.")
-				if(W.use_tool(src, user, 20, volume = 50))
+				if(attacking_item.use_tool(src, user, 20, volume = 50))
 					to_chat(user, "You pry out the circuit!")
 					var/obj/item/airalarm_electronics/circuit = new /obj/item/airalarm_electronics()
 					circuit.forceMove(user.loc)
@@ -988,17 +988,17 @@ pixel_x = 10;
 				return TRUE
 
 		if(0)
-			if(istype(W, /obj/item/airalarm_electronics))
+			if(istype(attacking_item, /obj/item/airalarm_electronics))
 				to_chat(user, "You insert the circuit!")
-				qdel(W)
+				qdel(attacking_item)
 				buildstage = 1
 				update_icon()
 				return TRUE
 
-			else if(W.iswrench())
+			else if(attacking_item.iswrench())
 				to_chat(user, "You remove the air alarm assembly from the wall!")
 				new /obj/item/frame/air_alarm(get_turf(user))
-				playsound(src.loc, W.usesound, 50, 1)
+				playsound(src.loc, attacking_item.usesound, 50, 1)
 				qdel(src)
 				return TRUE
 
@@ -1008,12 +1008,12 @@ pixel_x = 10;
 	..()
 	queue_icon_update()
 
-/obj/machinery/alarm/examine(mob/user)
+/obj/machinery/alarm/get_examine_text(mob/user, distance, is_adjacent, infix, suffix)
 	. = ..()
 	if (buildstage < 2)
-		to_chat(user, "It is not wired.")
+		. +=  SPAN_WARNING("It is not wired.")
 	if (buildstage < 1)
-		to_chat(user, "The circuit is missing.")
+		. += SPAN_WARNING("The circuit is missing.")
 /*
 AIR ALARM CIRCUIT
 Just a object used in constructing air alarms

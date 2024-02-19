@@ -18,7 +18,6 @@ SUBSYSTEM_DEF(ghostroles)
 	src.spawners = SSghostroles.spawners
 
 /datum/controller/subsystem/ghostroles/Initialize(start_timeofday)
-	. = ..()
 	for(var/spawner in subtypesof(/datum/ghostspawner))
 		CHECK_TICK
 		var/datum/ghostspawner/G = new spawner
@@ -38,6 +37,8 @@ SUBSYSTEM_DEF(ghostroles)
 
 	for(var/spawn_type in spawn_types)
 		spawn_atom[spawn_type] = list()
+
+	return SS_INIT_SUCCESS
 
 //Adds a spawnpoint to the spawnpoint list
 /datum/controller/subsystem/ghostroles/proc/add_spawnpoints(var/obj/effect/ghostspawpoint/P)
@@ -118,13 +119,24 @@ SUBSYSTEM_DEF(ghostroles)
 		var/datum/ghostspawner/G = spawners[s]
 		if(G.cant_see(user))
 			continue
+
 		var/cant_spawn = G.cant_spawn(user)
+
 		var/list/manifest = list()
 		if(LAZYLEN(G.spawned_mobs))
 			for(var/datum/weakref/mob_ref in G.spawned_mobs)
 				var/mob/spawned_mob = mob_ref.resolve()
 				if(spawned_mob)
 					manifest += spawned_mob.real_name
+
+		var/atom/spawn_overmap_location = null
+		if(SSatlas.current_map.use_overmap)
+			var/atom/spawner = G.select_spawnlocation(FALSE)
+			if(istype(spawner))
+				var/obj/effect/overmap/visitable/sector = GLOB.map_sectors["[spawner.z]"]
+				if(istype(sector))
+					spawn_overmap_location = sector.name
+
 		var/list/spawner = list(
 			"short_name" = G.short_name,
 			"name" = G.name,
@@ -136,6 +148,7 @@ SUBSYSTEM_DEF(ghostroles)
 			"enabled" = G.enabled,
 			"count" = G.count,
 			"spawn_atoms" = length(G.spawn_atoms),
+			"spawn_overmap_location" = spawn_overmap_location,
 			"max_count" = G.max_count,
 			"tags" = G.tags,
 			"spawnpoints" = G.spawnpoints,
@@ -179,7 +192,7 @@ SUBSYSTEM_DEF(ghostroles)
 			. = TRUE
 
 		if("jump_to")
-			var/spawner_id = params["jump_to"]
+			var/spawner_id = params["spawner_id"]
 			var/datum/ghostspawner/human/spawner = spawners[spawner_id]
 			var/mob/abstract/observer/observer = usr
 			if(spawner && istype(observer) && spawner.can_jump_to(observer))
@@ -187,6 +200,19 @@ SUBSYSTEM_DEF(ghostroles)
 				if(isturf(turf))
 					observer.on_mob_jump()
 					observer.forceMove(turf)
+
+		if("follow_manifest_entry")
+			var/spawner_id = params["spawner_id"]
+			var/spawned_mob_name = params["spawned_mob_name"]
+			var/datum/ghostspawner/human/spawner = spawners[spawner_id]
+			var/mob/abstract/observer/observer = usr
+			if(istype(observer) && spawner.can_jump_to(observer) && spawner && LAZYLEN(spawner.spawned_mobs))
+				for(var/datum/weakref/mob_ref in spawner.spawned_mobs)
+					var/mob/spawned_mob = mob_ref.resolve()
+					if(spawned_mob && spawned_mob.real_name == spawned_mob_name)
+						observer.ManualFollow(spawned_mob)
+						break
+
 		if("enable")
 			var/datum/ghostspawner/S = spawners[params["enable"]]
 			if(!S)

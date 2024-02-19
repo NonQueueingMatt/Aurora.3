@@ -16,9 +16,10 @@ SUBSYSTEM_DEF(mapping)
 	for(var/atype in subtypesof(/singleton/submap_archetype))
 		submap_archetypes[atype] = new atype
 
-	current_map.build_away_sites()
-	current_map.build_exoplanets()
-	. = ..(timeofday)
+	SSatlas.current_map.build_away_sites()
+	SSatlas.current_map.build_exoplanets()
+
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/mapping/Recover()
 	flags |= SS_NO_INIT

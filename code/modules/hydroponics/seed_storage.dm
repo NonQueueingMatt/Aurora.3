@@ -18,7 +18,7 @@
 	return FALSE
 
 /obj/machinery/seed_storage
-	name = "Seed storage"
+	name = "seed storage"
 	desc = "It stores, sorts, and dispenses seeds."
 	icon = 'icons/obj/vending.dmi'
 	icon_state = SEED_NOUN_SEEDS
@@ -34,12 +34,12 @@
 	var/list/scanner = list() // What properties we can view
 
 /obj/machinery/seed_storage/random // This is mostly for testing, but I guess admins could spawn it
-	name = "Random seed storage"
+	name = "random seed storage"
 	scanner = list("stats", "produce", "soil", "temperature", "light")
 	starting_seeds = list(/obj/item/seeds/random = 50)
 
 /obj/machinery/seed_storage/garden
-	name = "Garden seed storage"
+	name = "garden seed storage"
 	scanner = list("stats")
 	starting_seeds = list(
 		/obj/item/seeds/aghrasshseed = 3,
@@ -72,6 +72,7 @@
 		/obj/item/seeds/grassseed = 3,
 		/obj/item/seeds/guamiseed = 2,
 		/obj/item/seeds/gukheseed = 3,
+		/obj/item/seeds/jaekseol = 3,
 		/obj/item/seeds/lemonseed = 3,
 		/obj/item/seeds/limeseed = 3,
 		/obj/item/seeds/mossseed = 2,
@@ -98,6 +99,7 @@
 		/obj/item/seeds/richcoffeeseed = 3,
 		/obj/item/seeds/sarezhiseed = 3,
 		/obj/item/seeds/seaweed = 3,
+		/obj/item/seeds/ = 3,
 		/obj/item/seeds/serkiflowerseed = 1,
 		/obj/item/seeds/shandseed = 2,
 		/obj/item/seeds/soyaseed = 3,
@@ -107,6 +109,7 @@
 		/obj/item/seeds/sugartree = 2,
 		/obj/item/seeds/sunflowerseed = 3,
 		/obj/item/seeds/teaseed = 3,
+		/obj/item/seeds/tieguanyin = 3,
 		/obj/item/seeds/tobaccoseed = 3,
 		/obj/item/seeds/tomatoseed = 3,
 		/obj/item/seeds/towermycelium = 3,
@@ -365,24 +368,25 @@
 					qdel(N)
 			. = TRUE
 
-/obj/machinery/seed_storage/attackby(var/obj/item/O, var/mob/user)
-	if (istype(O, /obj/item/seeds))
-		add(O)
-		user.visible_message(SPAN_NOTICE("[user] puts \the [O.name] into \the [src]."), SPAN_NOTICE("You put \the [O] into \the [src]."))
+/obj/machinery/seed_storage/attackby(obj/item/attacking_item, mob/user)
+	if (istype(attacking_item, /obj/item/seeds))
+		add(attacking_item)
+		user.visible_message(SPAN_NOTICE("[user] puts \the [attacking_item.name] into \the [src]."), SPAN_NOTICE("You put \the [attacking_item] into \the [src]."))
 		return
-	else if (istype(O, /obj/item/storage/bag/plants))
-		var/obj/item/storage/P = O
+	else if (istype(attacking_item, /obj/item/storage/bag/plants))
+		var/obj/item/storage/P = attacking_item
 		var/loaded = 0
 		for(var/obj/item/seeds/G in P.contents)
 			++loaded
 			add(G)
 		if (loaded)
-			user.visible_message(SPAN_NOTICE("[user] puts the seeds from \the [O.name] into \the [src]."), SPAN_NOTICE("You put the seeds from \the [O.name] into \the [src]."))
+			user.visible_message(SPAN_NOTICE("[user] puts the seeds from \the [attacking_item.name] into \the [src]."),
+								SPAN_NOTICE("You put the seeds from \the [attacking_item.name] into \the [src]."))
 		else
-			to_chat(user, SPAN_WARNING("There are no seeds in \the [O.name]."))
+			to_chat(user, SPAN_WARNING("There are no seeds in \the [attacking_item.name]."))
 		return
-	else if(O.iswrench())
-		playsound(loc, O.usesound, 50, 1)
+	else if(attacking_item.iswrench())
+		playsound(loc, attacking_item.usesound, 50, 1)
 		anchored = !anchored
 		to_chat(user, SPAN_NOTICE("You [anchored ? "wrench" : "unwrench"] \the [src]."))
 

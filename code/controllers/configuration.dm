@@ -51,11 +51,13 @@ GLOBAL_LIST_EMPTY(gamemode_cache)
 	"log_tools" = FALSE,	// Tools
 	"log_manifest" = TRUE,	// Manifest
 	"log_asset" = FALSE,	// log asset caching
+	"log_loadout" = TRUE,	// Loadout
 
 	/*#### SUBSYSTEMS ####*/
 
 	"log_subsystems" = TRUE,	// General Subsystems
 	"log_subsystems_chemistry" = TRUE,	// SSChemistry
+	"log_subsystems_codex" = TRUE,	// SScodex
 	"log_subsystems_atlas" = TRUE,	// ATLAS
 	"log_subsystems_ghostroles" = TRUE,	// Ghost Roles
 	"log_subsystems_law" = TRUE,	// Law
@@ -66,6 +68,7 @@ GLOBAL_LIST_EMPTY(gamemode_cache)
 	"log_subsystems_tgui" = TRUE, // TGUI
 	"log_subsystems_zas" = FALSE, // ZAS
 	"log_subsystems_zas_debug" = FALSE, // ZAS debug
+	"log_subsystems_http" = TRUE, //HTTP Log
 
 	/*#### MODULES ####*/
 
@@ -89,6 +92,7 @@ GLOBAL_LIST_EMPTY(gamemode_cache)
 	"query_debug_log" = "query_debug.log",
 	"world_runtime_log" = "world_runtime.log",
 	"sql_error_log" = "sql_error.log",
+	"topic_log" = "topic.log",
 	"world_game_log" = "world_game.log",
 	"world_job_debug_log" = "world_job_debug.log",
 	"signals_log" = "signals.log",
@@ -105,11 +109,13 @@ GLOBAL_LIST_EMPTY(gamemode_cache)
 	"harddel_log" = "harddel.log",
 	"world_paper_log" = "world_paper.log",
 	"world_manifest_log" = "world_manifest.log",
+	"world_loadout_log" = "world_loadout.log",
 
 	/*#### SUBSYSTEMS ####*/
 
 	"world_subsystems_log" = "subsystems/world_subsystems.log",
 	"world_subsystems_chemistry_log" = "subsystems/chemistry.log",
+	"world_subsystems_codex_log" = "subsystems/codex.log",
 	"world_subsystems_atlas_log" = "subsystems/atlas.log",
 	"world_subsystems_ghostroles_log" = "subsystems/ghostroles.log",
 	"world_subsystems_law_log" = "subsystems/law.log",
@@ -120,6 +126,7 @@ GLOBAL_LIST_EMPTY(gamemode_cache)
 	"world_subsystems_tgui" = "subsystems/tgui.log",
 	"world_subsystems_zas" = "subsystems/zas.log",
 	"world_subsystems_zas_debug" = "subsystems/zas.log",
+	"world_subsystems_http" = "subsystems/http.log",
 
 	/*#### MODULES ####*/
 
@@ -225,6 +232,7 @@ GLOBAL_LIST_EMPTY(gamemode_cache)
 
 	var/character_slots = 10				// The number of available character slots
 	var/loadout_slots = 3					// The number of loadout slots per character
+	var/loadout_cost = 15					// The maximum cost of the loadout per slot
 
 	var/max_maint_drones = 5				//This many drones can spawn,
 	var/allow_drone_spawn = 1				//assuming the admin allow them to.
@@ -390,7 +398,6 @@ GLOBAL_LIST_EMPTY(gamemode_cache)
 	var/list/api_rate_limit_whitelist = list()
 
 	// Master Controller settings.
-	var/mc_init_tick_limit = TICK_LIMIT_MC_INIT_DEFAULT
 	var/fastboot = FALSE	// If true, take some shortcuts during boot to speed it up for testing. Probably should not be used on production servers.
 
 	//UDP GELF Logging
@@ -843,6 +850,9 @@ GENERAL_PROTECT_DATUM(/datum/configuration)
 				if("loadout_slots")
 					GLOB.config.loadout_slots = text2num(value)
 
+				if("loadout_cost")
+					GLOB.config.loadout_cost = text2num(value)
+
 				if("allow_drone_spawn")
 					GLOB.config.allow_drone_spawn = text2num(value)
 
@@ -955,9 +965,6 @@ GENERAL_PROTECT_DATUM(/datum/configuration)
 
 				if("api_rate_limit_whitelist")
 					GLOB.config.api_rate_limit_whitelist = text2list(value, ";")
-
-				if("mc_ticklimit_init")
-					GLOB.config.mc_init_tick_limit = text2num(value) || TICK_LIMIT_MC_INIT_DEFAULT
 
 				if("ipintel_email")
 					if (value != "ch@nge.me")

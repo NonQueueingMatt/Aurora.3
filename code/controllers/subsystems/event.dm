@@ -34,8 +34,10 @@ SUBSYSTEM_DEF(events)
 	)
 	initialized = TRUE
 
-	if(current_map.use_overmap)
-		overmap_event_handler.create_events(current_map.overmap_z, current_map.overmap_size, current_map.overmap_event_areas)
+	if(SSatlas.current_map.use_overmap)
+		overmap_event_handler.create_events(SSatlas.current_map.overmap_z, SSatlas.current_map.overmap_size, SSatlas.current_map.overmap_event_areas)
+
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/events/Recover()
 	active_events = SSevents.active_events
