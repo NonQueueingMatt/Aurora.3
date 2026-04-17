@@ -236,8 +236,8 @@ GLOBAL_LIST_EMPTY_TYPED(preferences_datums, /datum/preferences)
 			load_and_update_character()
 
 /datum/preferences/Destroy()
-	. = ..()
 	QDEL_LIST(char_render_holders)
+	return ..()
 
 /datum/preferences/proc/load_and_update_character(var/slot)
 	load_character(slot)
@@ -528,7 +528,9 @@ GLOBAL_LIST_EMPTY_TYPED(preferences_datums, /datum/preferences)
 			if(istype(P) && (P.ability_flags & PSI_FLAG_CANON))
 				P.apply(character)
 
-	character.skills.set_skills_from_pref(src)
+	for(var/skill_type in skills)
+		var/singleton/skill/skill = GET_SINGLETON(skill_type)
+		skill.on_spawn(character, skills[skill.type])
 
 	if(icon_updates)
 		character.force_update_limbs()

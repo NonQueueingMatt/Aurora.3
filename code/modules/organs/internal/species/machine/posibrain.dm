@@ -140,6 +140,7 @@
 		stored_mmi.forceMove(get_turf(src))
 		if(owner.mind)
 			owner.mind.transfer_to(stored_mmi.brainmob)
+		stored_mmi = null
 
 	. = ..()
 
@@ -303,13 +304,13 @@
 		if(2)
 			to_chat(owner, FONT_LARGE(SPAN_DANGER("The electromagnetic current overloads your hydraulics!")))
 			owner.Stun(2)
-			owner.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/synth_emp, multiplicative_slowdown = 2)
+			owner.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/synth_emp, multiplicative_slowdown = 1)
 			medium_integrity_damage(50)
 			shake_camera(owner, 0.5 SECONDS, 3)
 		if(3)
 			to_chat(owner, FONT_LARGE(SPAN_MACHINE_WARNING("Your positronic circuits error and break under the electromagnetic current!")))
 			owner.Weaken(3)
-			owner.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/synth_emp, multiplicative_slowdown = 3)
+			owner.add_or_update_variable_movespeed_modifier(/datum/movespeed_modifier/synth_emp, multiplicative_slowdown = 1.5)
 			high_integrity_damage(25)
 			shake_camera(owner, 1 SECONDS, 5)
 
@@ -365,14 +366,14 @@
 	else
 		owner.robot_pain.icon_state = null
 
-/obj/item/organ/internal/machine/posibrain/low_integrity_damage(integrity)
+/obj/item/organ/internal/machine/posibrain/low_integrity_damage(integrity, seconds_per_tick)
 	var/damage_probability = get_integrity_damage_probability(integrity)
-	if(prob(damage_probability))
+	if(SPT_PROB(damage_probability, seconds_per_tick))
 		to_chat(owner, SPAN_MACHINE_WARNING("Neural pathway error located at block 0x[generate_hex()]."))
 		take_internal_damage(2)
 	. = ..()
 
-/obj/item/organ/internal/machine/posibrain/medium_integrity_damage(integrity)
+/obj/item/organ/internal/machine/posibrain/medium_integrity_damage(integrity, seconds_per_tick)
 	var/damage_probability = get_integrity_damage_probability(integrity)
 	var/list/static/medium_integrity_damage_messages = list(
 		"Your neural subroutines' alarms are all going off at once.",
@@ -381,14 +382,14 @@
 		"Your software warns you of dangerously low neural coherence.",
 		"Your self-preservation subroutines threaten to kick in. [SPAN_DANGER("WARNING. WARNING.")]"
 	)
-	if(prob(damage_probability))
+	if(SPT_PROB(damage_probability, seconds_per_tick))
 		to_chat(owner, SPAN_MACHINE_WARNING(pick(medium_integrity_damage_messages)))
 		take_internal_damage(2)
 	. = ..()
 
-/obj/item/organ/internal/machine/posibrain/high_integrity_damage(integrity)
+/obj/item/organ/internal/machine/posibrain/high_integrity_damage(integrity, seconds_per_tick)
 	var/damage_probability = get_integrity_damage_probability(integrity)
-	if(prob(damage_probability))
+	if(SPT_PROB(damage_probability, seconds_per_tick))
 		var/damage_roll = rand(1, 50)
 		switch(damage_roll)
 			if(1 to 10)

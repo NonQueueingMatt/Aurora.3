@@ -328,7 +328,7 @@
 
 /singleton/reagent/mortaphenyl
 	name = "Mortaphenyl"
-	description = "Mortaphenyl is an advanced, powerful analgesic medication which is highly effective at treating mild-severe pain as a result of severe, physical injury. Mortaphenyl is not effective when inhaled."
+	description = "Mortaphenyl is a weak, synthetic, analgesic opioid which is highly effective at treating mild-severe pain as a result of severe, physical injury. Mortaphenyl is not effective when inhaled."
 	reagent_state = LIQUID
 	color = "#CB68FC"
 	overdose = 15
@@ -443,7 +443,7 @@
 
 /singleton/reagent/tramarine
 	name = "Tramarine"
-	description = "Tramarine is a synthetic form of morphine developed by NanoTrasen early in its history, that can be used in its place for most medical purposes. It is known to be more dangerous however with alcohol, other opiods, or an overdose."
+	description = "Tramarine is a synthetic form of morphine developed by NanoTrasen early in its history, that can be used in its place for most medical purposes. It is known to be more dangerous however with alcohol, other opioids, or an overdose."
 	reagent_state = LIQUID
 	color = "#c4a05d"
 	overdose = 15
@@ -1615,13 +1615,13 @@
 
 /singleton/reagent/pneumalin/affect_breathe(var/mob/living/carbon/human/H, var/alien, var/removed, var/datum/reagents/holder)
 	H.adjustOxyLoss(removed) //Every unit heals 1 oxy damage
-	H.add_chemical_effect(CE_PNEUMOTOXIC, -removed * 1.5)
+	H.remove_chemical_effect(CE_PNEUMOTOXIC, removed * 1.5)
 	H.add_chemical_effect(CE_PULSE, -1)
 
 	var/obj/item/organ/internal/lungs/L = H.internal_organs_by_name[BP_LUNGS]
 	if(istype(L) && !BP_IS_ROBOTIC(L))
 		L.rescued = FALSE
-		L.damage = max(L.damage - (removed * 1.5), 0)
+		L.heal_damage(removed * 1.5)
 
 	. = ..()
 

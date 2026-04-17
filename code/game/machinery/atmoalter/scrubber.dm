@@ -76,6 +76,7 @@
 	if (power_draw < 0)
 		last_flow_rate = 0
 		last_power_draw = 0
+		last_mole_transfer = 0
 	else
 		power_draw = max(power_draw, power_losses)
 		cell.use(power_draw * CELLRATE)
@@ -116,7 +117,7 @@
 /obj/machinery/portable_atmospherics/powered/scrubber/ui_data(mob/user)
 	var/list/data = list()
 	data["portConnected"] = connected_port ? 1 : 0
-	data["tankPressure"] = round(air_contents.return_pressure() > 0 ? air_contents.return_pressure() : 0)
+	data["tankPressure"] = round(XGM_PRESSURE(air_contents))
 	data["rate"] = round(volume_rate)
 	data["minrate"] = round(minrate)
 	data["maxrate"] = round(maxrate)
@@ -127,7 +128,7 @@
 	data["hasHoldingTank"] = holding ? 1 : 0
 	if(holding)
 		data["holdingTankName"] = holding?.name
-		data["holdingTankPressure"] = round(holding.air_contents.return_pressure() > 0 ? holding.air_contents.return_pressure() : 0)
+		data["holdingTankPressure"] = round(XGM_PRESSURE(holding.air_contents))
 	else
 		data["holdingTankName"] = null
 		data["holdingTankPressure"] = null
@@ -197,6 +198,7 @@
 		update_use_power(POWER_USE_OFF)
 		last_flow_rate = 0
 		last_power_draw = 0
+		last_mole_transfer = 0
 		return 0
 
 	var/power_draw = -1
@@ -212,6 +214,7 @@
 	if (power_draw < 0)
 		last_flow_rate = 0
 		last_power_draw = 0
+		last_mole_transfer = 0
 	else
 		use_power_oneoff(power_draw)
 		update_connected_network()

@@ -15,8 +15,8 @@
 /singleton/education/robotics_masters
 	name = "Robotics Master's"
 	description = "You are at least 25 years of age, with a Master's in Robotics. Your specialization is in building and repairing IPCs and other smaller robots, though \
-					you are also capable of building exoskeletons and mechs. You're also proficient with some more basic engineering skills, though you prefer the \
-					theoretical aspect and robots in general."
+		you are also capable of building exoskeletons and mechs. You're also proficient with some fundamental engineering skills, though you prefer the \
+		theoretical aspect and robots in general."
 	jobs = list("Roboticist")
 	minimum_character_age = list(
 		SPECIES_HUMAN = 25,
@@ -26,7 +26,6 @@
 	skills = list(
 		/singleton/skill/research = SKILL_LEVEL_FAMILIAR,
 		/singleton/skill/robotics = SKILL_LEVEL_PROFESSIONAL,
-		/singleton/skill/surgery = SKILL_LEVEL_FAMILIAR,
 		/singleton/skill/electrical_engineering = SKILL_LEVEL_FAMILIAR,
 		/singleton/skill/mechanical_engineering = SKILL_LEVEL_FAMILIAR,
 	)
@@ -44,7 +43,6 @@
 	skills = list(
 		/singleton/skill/research = SKILL_LEVEL_FAMILIAR,
 		/singleton/skill/robotics = SKILL_LEVEL_TRAINED,
-		/singleton/skill/surgery = SKILL_LEVEL_FAMILIAR,
 		/singleton/skill/electrical_engineering = SKILL_LEVEL_FAMILIAR,
 		/singleton/skill/mechanical_engineering = SKILL_LEVEL_PROFESSIONAL
 	)

@@ -40,7 +40,10 @@
 		var/singleton/skill/skill = GET_SINGLETON(S)
 		if(!istype(skill))
 			continue
-		sanitized_skills[skill.type] = pref.skills[S]
+		var/skill_val = pref.skills[S]
+		if(skill_val <= SKILL_LEVEL_UNFAMILIAR)
+			continue
+		sanitized_skills["[skill.type]"] = skill_val
 
 	return list(
 		"education" = pref.education,
@@ -56,16 +59,27 @@
 	var/before = pref.skills
 	var/loaded_skills
 	try
-		loaded_skills = json_decode(pref.skills)
+		if(istext(pref.skills))
+			loaded_skills = json_decode(pref.skills)
+		else
+			loaded_skills = pref.skills
 	catch (var/exception/e)
 		log_debug("SKILLS: Caught [e]. Initial value: [before]")
-		pref.skills = list()
+		loaded_skills = list()
 
 	pref.skills = list()
-	for(var/new_skill in loaded_skills)
-		var/singleton/skill/skill = GET_SINGLETON(text2path(new_skill))
+	for(var/key in SSskills.required_skills)
+		var/singleton/skill/skill = GET_SINGLETON(key)
+		if (istype(skill))
+			pref.skills[skill.type] = SKILL_LEVEL_UNFAMILIAR
+
+	for(var/key,value in loaded_skills)
+		if (!key)
+			continue
+		var/path = istext(key) ? text2path(key) : key
+		var/singleton/skill/skill = GET_SINGLETON(path)
 		if(istype(skill))
-			pref.skills[skill.type] = loaded_skills[new_skill]
+			pref.skills[skill.type] = value
 
 /datum/category_item/player_setup_item/skills/sanitize_character(var/sql_load = 0)
 	//todomatt
@@ -124,7 +138,8 @@
 	dat += "<tr style='text-align:left;'>"
 	dat += "<th><a href='?src=[REF(src)];skillinfo=[skill.type]'>[skill.name]</a></th>"
 
-	var/current_level = pref.skills[skill.type]
+	var/level_from_pref = pref.skills[skill.type]
+	var/current_level = level_from_pref ? level_from_pref : SKILL_LEVEL_UNFAMILIAR
 	var/maximum_skill_level = get_maximum_skill_level(skill, education)
 
 	for(var/i = SKILL_LEVEL_UNFAMILIAR, i <= skill.maximum_level, i++)
@@ -136,15 +151,21 @@
 	var/base_maximum_level = skill.get_maximum_level(education)
 	var/remaining_skill_points = calculate_remaining_skill_points(GET_SINGLETON(skill.category))
 
-	for(var/skill_level = 0 to base_maximum_level)
-		. = skill_level
+	var/current_level = SKILL_LEVEL_UNFAMILIAR
+	if(skill.type in pref.skills)
+		current_level = pref.skills[skill.type]
 
-		var/skill_cost = skill.get_cost(skill_level + 1)
-		if(skill_cost > remaining_skill_points)
-			break
+	var/current_cost = 0
+	if(!(skill.type in education.skills))
+		current_cost = skill.get_cost(current_level)
 
-		skill_level++
-		remaining_skill_points -= skill_cost
+	var/available_points = remaining_skill_points + current_cost
+
+	for(var/skill_level = base_maximum_level; skill_level >= SKILL_LEVEL_UNFAMILIAR; skill_level--)
+		if(skill.get_cost(skill_level) <= available_points)
+			return skill_level
+
+	return SKILL_LEVEL_UNFAMILIAR
 
 /**
  * Turns a skill into a dynamic button.
@@ -154,7 +175,7 @@
 	if(effective_level <= 0)
 		return "<th></th>"
 
-	var/level_name = SSskills.skill_level_map[effective_level]
+	var/level_name = skill.skill_level_map[effective_level]
 	var/cost = skill.get_cost(effective_level)
 	var/button_label = "[level_name] ([cost])"
 	var/given_skill = FALSE
@@ -224,11 +245,11 @@
 		var/dat = "<html><center><b>[skill_to_show.name]</center></b>"
 		dat += "<hr>[skill_to_show.description]<br>"
 		if(skill_to_show.uneducated_skill_cap)
-			dat += "Without the relevant education, you may only reach the <b>[SSskills.skill_level_map[skill_to_show.uneducated_skill_cap]]</b> level.<br>"
+			dat += "Without the relevant education, you may only reach the <b>[skill_to_show.skill_level_map[skill_to_show.uneducated_skill_cap]]</b> level.<br>"
 		dat += "<hr>"
 		var/skill_level = (skill_to_show.type in pref.skills) ? pref.skills[skill_to_show.type] : SKILL_LEVEL_UNFAMILIAR
-		dat += "Your current level in this skill is [SPAN_BOLD(SSskills.skill_level_map[skill_level])].<br>"
-		dat += SPAN_NOTICE("[skill_to_show.skill_level_descriptions[skill_level]]")
+		dat += "Your current level in this skill is [SPAN_BOLD(skill_to_show.skill_level_map[skill_level])].<br>"
+		dat += "[skill_to_show.skill_level_descriptions[skill_level]]"
 		dat += "</html>"
 		skill_window.set_content(dat)
 		skill_window.open()
@@ -240,10 +261,7 @@
 			return
 
 		var/new_skill_value = text2num(href_list["newvalue"])
-		if(new_skill_value == SKILL_LEVEL_UNFAMILIAR)
-			pref.skills -= new_skill.type
-		else
-			pref.skills[new_skill.type] = text2num(new_skill_value)
+		pref.skills[new_skill.type] = text2num(new_skill_value)
 		return TOPIC_REFRESH
 
 	else if(href_list["open_education_menu"])
@@ -276,7 +294,7 @@
 			for(var/skill in education.skills)
 				var/singleton/skill/new_skill = GET_SINGLETON(skill)
 				pref.skills[new_skill.type] = education.skills[new_skill.type]
-				to_chat(user, SPAN_NOTICE("Added the [new_skill.name] skill at level [SSskills.skill_level_map[education.skills[new_skill.type]]]."))
+				to_chat(user, SPAN_NOTICE("Added the [new_skill.name] skill at level [new_skill.skill_level_map[education.skills[new_skill.type]]]."))
 
 		sanitize_character()
 		return TOPIC_REFRESH
@@ -294,7 +312,7 @@
 	var/list/skills_to_show = list()
 	for(var/skill in ED.skills)
 		var/singleton/skill/S = GET_SINGLETON(skill)
-		skills_to_show += "[S.name] ([SPAN_DANGER(SSskills.skill_level_map[ED.skills[S.type]])])"
+		skills_to_show += "[S.name] ([SPAN_DANGER(S.skill_level_map[ED.skills[S.type]])])"
 	dat +=  "<b>[english_list(skills_to_show)]</b>.<br>"
 	dat += "<br><center>\[<a href='?src=[REF(src)];[topic_data]=[html_encode(ED.type)]'>Select</a>\]</center>"
 	dat += "</html>"

@@ -109,13 +109,6 @@
 #define WAIT_ARRIVE  3
 #define WAIT_FINISH  4
 
-// Setting this much higher than 1024 could allow spammers to DOS the server easily.
-#define MAX_MESSAGE_LEN       1024
-#define MAX_PAPER_MESSAGE_LEN 3072
-#define MAX_BOOK_MESSAGE_LEN  9216
-#define MAX_LNAME_LEN         64
-#define MAX_NAME_LEN          63
-
 // Event defines.
 #define EVENT_LEVEL_MUNDANE  1
 #define EVENT_LEVEL_MODERATE 2
@@ -465,11 +458,6 @@ example:
 #define TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED BITFLAG(6)
 
 #define LANDING_ZONE_RADIUS 15 // Used for autoplacing landmarks on exoplanets
-
-#define RAD_LEVEL_LOW 1 // Around the level at which radiation starts to become harmful
-#define RAD_LEVEL_MODERATE 25
-#define RAD_LEVEL_HIGH 40
-#define RAD_LEVEL_VERY_HIGH 100
 
 #define RADIATION_THRESHOLD_CUTOFF 0.1	// Radiation will not affect a tile when below this value.
 

@@ -9,11 +9,14 @@
 
 	var/pronouns = NEUTER
 
-	var/species_items_equipped // used so species that need special items (autoinhalers for vaurca/RMT for offworlders) don't get them twice when they shouldn't.
+	/// Used so species that need special items (autoinhalers for vaurca/RMT for offworlders) don't get them twice when they shouldn't.
+	var/species_items_equipped
 
 	var/list/hud_list[11]
-	var/embedded_flag	  //To check if we've need to roll for damage on movement while an item is imbedded in us.
-	var/obj/item/rig/wearing_rig // This is very not good, but it's much much better than calling get_rig() every update_canmove() call.
+	/// To check if we've need to roll for damage on movement while an item is imbedded in us.
+	var/embedded_flag
+	/// This is very not good, but it's much much better than calling get_rig() every update_canmove() call.
+	var/obj/item/rig/wearing_rig
 	/// Pref holder for the speech bubble style.
 	var/speech_bubble_type
 
@@ -111,9 +114,10 @@
 
 	GLOB.human_mob_list -= src
 	GLOB.intent_listener -= src
+	// This is apparently a different list entirely from the list of organs on /mob/living/carbon.
+	// It's actually the set of all Limbs (left arm, head, leg leg, etc) we have. We Qdel and null the set of all limbs, which is unique to /human.
 	QDEL_LIST(organs)
-	internal_organs_by_name = null
-	internal_organs = null
+	// Then also null the associative list of those same limbs, which contains the same references.
 	organs_by_name = null
 	bad_internal_organs = null
 	bad_external_organs = null
@@ -135,6 +139,11 @@
 	QDEL_NULL(s_store)
 	QDEL_NULL(wear_suit)
 	QDEL_NULL(wear_mask)
+	QDEL_NULL(back)
+	QDEL_NULL(l_hand)
+	QDEL_NULL(r_hand)
+	QDEL_NULL(wrists)
+	QDEL_NULL(pants)
 	// Do this last so the mob's stuff doesn't drop on del.
 	QDEL_NULL(w_uniform)
 
@@ -230,6 +239,7 @@
 	if(A.area_blurb)
 		. += "[A.area_blurb]"
 		. += ""
+
 	. += "Intent: [a_intent]"
 	. += "Move Mode: [m_intent]"
 	if(is_diona() && DS)
@@ -245,7 +255,7 @@
 			qdel(internal)
 		else
 			. += "Internal Atmosphere Info: [internal.name]"
-			. += "Tank Pressure: [internal.air_contents.return_pressure()]"
+			. += "Tank Pressure: [XGM_PRESSURE(internal.air_contents)]"
 			. += "Distribution Pressure: [internal.distribute_pressure]"
 
 	var/obj/item/organ/internal/machine/power_core/IC = internal_organs_by_name[BP_CELL]
@@ -318,13 +328,15 @@
 			if (prob(50))
 				Paralyse(10)
 
+	var/target_zone = ran_zone()
+
 	// focus most of the blast on one organ
-	apply_damage(0.7 * b_loss, DAMAGE_BRUTE, null, DAMAGE_FLAG_EXPLODE, used_weapon = "Explosive blast")
-	apply_damage(0.7 * f_loss, DAMAGE_BURN, null, DAMAGE_FLAG_EXPLODE, used_weapon = "Explosive blast")
+	apply_damage(0.7 * b_loss, DAMAGE_BRUTE, target_zone, "Explosive blast", DAMAGE_FLAG_EXPLODE)
+	apply_damage(0.7 * f_loss, DAMAGE_BURN, target_zone, "Explosive blast", DAMAGE_FLAG_EXPLODE)
 
 	// distribute the remaining 30% on all limbs equally (including the one already dealt damage)
-	apply_damage(0.3 * b_loss, DAMAGE_BRUTE, null, DAMAGE_FLAG_EXPLODE | DAMAGE_FLAG_DISPERSED, used_weapon = "Explosive blast")
-	apply_damage(0.3 * f_loss, DAMAGE_BURN, null, DAMAGE_FLAG_EXPLODE | DAMAGE_FLAG_DISPERSED, used_weapon = "Explosive blast")
+	apply_damage(0.3 * b_loss, DAMAGE_BRUTE, null, "Explosive blast", DAMAGE_FLAG_EXPLODE | DAMAGE_FLAG_DISPERSED)
+	apply_damage(0.3 * f_loss, DAMAGE_BURN, null, "Explosive blast", DAMAGE_FLAG_EXPLODE | DAMAGE_FLAG_DISPERSED)
 
 	UpdateDamageIcon()
 
@@ -435,8 +447,7 @@
 	mob_win.set_content(dat)
 	mob_win.open()
 
-// called when something steps onto a human
-// this handles vehicles
+/// Called when something steps onto a human. This handles vehicles
 /mob/living/carbon/human/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	..()
 
@@ -444,7 +455,7 @@
 		var/obj/vehicle/V = arrived
 		V.RunOver(src)
 
-// Get rank from ID, ID inside PDA, PDA, ID in wallet, etc.
+/// Get rank from ID, ID inside PDA, PDA, ID in wallet, etc.
 /mob/living/carbon/human/proc/get_authentification_rank(var/if_no_id = "No id", var/if_no_job = "No job")
 	var/obj/item/card/id/id = GetIdCard()
 	if(!istype(id))
@@ -452,8 +463,7 @@
 	else
 		return id.rank ? id.rank : if_no_job
 
-//gets assignment from ID or ID inside PDA or PDA itself
-//Useful when player do something with computers
+/// Gets assignment from ID or ID inside PDA or PDA itself. Useful when player does something with computers.
 /mob/living/carbon/human/proc/get_assignment(var/if_no_id = "No ID", var/if_no_job = "No Job")
 	var/obj/item/card/id/I = GetIdCard()
 	if(istype(I))
@@ -461,8 +471,7 @@
 	else
 		return if_no_id
 
-//gets name from ID or ID inside PDA or PDA itself
-//Useful when player do something with computers
+/// Gets name from ID or ID inside PDA or PDA itself. Useful when player does something with computers.
 /mob/living/carbon/human/proc/get_authentification_name(var/if_no_id = "Unknown")
 	var/obj/item/card/id/I = GetIdCard()
 	if(istype(I))
@@ -470,7 +479,7 @@
 	else
 		return if_no_id
 
-//repurposed proc. Now it combines get_id_name() and get_face_name() to determine a mob's name variable. Made into a seperate proc as it'll be useful elsewhere
+/// Repurposed proc. Now it combines get_id_name() and get_face_name() to determine a mob's name variable.
 /mob/living/carbon/human/proc/get_visible_name()
 	if( wear_mask && (wear_mask.flags_inv&HIDEFACE) )	//Wearing a mask which hides our face, use id-name if possible
 		return get_id_name("Unknown")
@@ -482,15 +491,14 @@
 		return "[face_name] (as [id_name])"
 	return face_name
 
-//Returns "Unknown" if facially disfigured and real_name if not. Useful for setting name when polyacided or when updating a human's name variable
+/// Returns "Unknown" if facially disfigured and real_name if not. Useful for setting name when polyacided or when updating a human's name variable
 /mob/living/carbon/human/proc/get_face_name()
 	var/obj/item/organ/external/head = get_organ(BP_HEAD)
 	if(!head || head.disfigured || head.is_stump() || !real_name || (mutations & HUSK))	//disfigured. use id-name if possible
 		return "Unknown"
 	return real_name
 
-//gets name from ID or PDA itself, ID inside PDA doesn't matter
-//Useful when player is being seen by other mobs
+/// Gets name from ID or PDA itself, ID inside PDA doesn't matter. Useful when player is being seen by other mobs
 /mob/living/carbon/human/proc/get_id_name(var/if_no_id = "Unknown")
 	. = if_no_id
 	var/obj/item/card/id/I = GetIdCard()
@@ -498,7 +506,7 @@
 		return I.registered_name
 	return
 
-//gets ID card object from special clothes slot or null.
+/// Gets ID card object from special clothes slot or null.
 /mob/living/carbon/human/proc/get_idcard()
 	if(wear_id)
 		return wear_id.GetID()
@@ -758,7 +766,6 @@
 					var/message = "<b>Medical Records: [R.name]</b>\n\n" \
 						+ "<b>Name:</b> [R.name] <b>Blood Type:</b> [R.medical.blood_type]\n" \
 						+ "<b>DNA:</b> [R.medical.blood_dna]\n" \
-						+ "<b>Disabilities:</b> [R.medical.disabilities]\n" \
 						+ "<b>Notes:</b> [R.medical.notes]\n" \
 						+ "<a href='byond://?src=[REF(src)];medrecordComment=`'>\[View Comment Log\]</a>"
 					to_chat(usr, EXAMINE_BLOCK_DEEP_CYAN(message))
@@ -882,8 +889,8 @@
 	..()
 	return
 
-///eyecheck()
-///Returns a number between -1 to 2
+
+/// Returns a number between -1 to 2
 /mob/living/carbon/human/get_flash_protection(ignore_inherent = FALSE)
 
 	//Ling
@@ -915,8 +922,10 @@
 		if(prob(20))
 			to_chat(src, SPAN_NOTICE("Something bright flashes in the corner of your vision!"))
 
-//Used by various things that knock people out by applying blunt trauma to the head.
-//Checks that the species has a BP_HEAD (brain containing organ) and that hit_zone refers to it.
+/**
+ * Used by various things that knock people out by applying blunt trauma to the head.
+ * Checks that the species has a BP_HEAD (brain containing organ) and that hit_zone refers to it.
+ */
 /mob/living/carbon/human/proc/headcheck(var/target_zone, var/brain_tag = BP_BRAIN)
 	if(!species.has_organ[brain_tag])
 		return 0
@@ -1104,7 +1113,7 @@
 	sleep(350)	//wait 35 seconds before next volley
 	lastpuke = FALSE
 
-// A damaged stomach can put blood in your vomit.
+/// A damaged stomach can put blood in your vomit.
 /mob/living/carbon/human/handle_additional_vomit_reagents(obj/effect/decal/cleanable/vomit/vomit)
 	..()
 	if(should_have_organ(BP_STOMACH))
@@ -1373,7 +1382,7 @@
 	var/obj/item/organ/internal/lungs/L = internal_organs_by_name[species_organ]
 	return L && L.rescued
 
-//returns 1 if made bloody, returns 0 otherwise
+/// Returns 1 if made bloody, returns 0 otherwise
 /mob/living/carbon/human/add_blood(mob/living/carbon/C as mob)
 	if (!..())
 		return FALSE
@@ -1464,7 +1473,7 @@
 		self = 1
 
 	if ((src.species.flags & NO_BLOOD) || (status_flags & FAKEDEATH))
-		to_chat(usr, SPAN_WARNING(self ? "You have no pulse." : "[src] has no pulse!"))
+		to_chat(usr, SPAN_WARNING("[self ? "You have" : "[src] has"] no pulse!"))
 		return
 
 	if(!self)
@@ -1887,10 +1896,10 @@
 		playsound(src.loc, SFX_FRACTURE, 50, 1, -2)
 	current_limb.undislocate()
 
-/mob/living/carbon/human/drop_from_inventory(var/obj/item/W, var/atom/target = null)
-	if(W in organs)
+/mob/living/carbon/human/drop_from_inventory(obj/item/W, atom/target, update_icons = TRUE, force = FALSE)
+	if(!force && (W in organs))
 		return
-	..()
+	return ..()
 
 /mob/living/carbon/human/reset_view(atom/A, update_hud = 1)
 	..()
@@ -1900,15 +1909,15 @@
 		eyeobj.remove_visual(src)
 
 
-/mob/living/carbon/human/can_stand_overridden()
+/mob/living/carbon/human/proc/can_stand_overridden()
 	if(wearing_rig && wearing_rig.ai_can_move_suit(check_for_ai = 1))
 		// Actually missing a leg will screw you up. Everything else can be compensated for.
 		for(var/limbcheck in list(BP_L_LEG,BP_R_LEG))
 			var/obj/item/organ/affecting = get_organ(limbcheck)
 			if(!affecting)
-				return 0
-		return 1
-	return 0
+				return FALSE
+		return TRUE
+	return FALSE
 
 /mob/living/carbon/human/proc/can_drink(var/obj/item/I)
 	if(should_have_organ(BP_REACTOR))
@@ -2302,7 +2311,7 @@
 	look_up_open_space(get_turf(src))
 
 /mob/living/proc/look_up_open_space(var/turf/T)
-	if(client && !is_physically_disabled())
+	if(client && !MOB_IS_INCAPACITATED(INCAPACITATION_DISABLED))
 		if(z_eye)
 			reset_view(null)
 			QDEL_NULL(z_eye)
@@ -2325,7 +2334,7 @@
 	look_down_open_space(get_turf(src))
 
 /mob/living/proc/look_down_open_space(var/turf/T)
-	if(client && !is_physically_disabled())
+	if(client && !MOB_IS_INCAPACITATED(INCAPACITATION_DISABLED))
 		if(z_eye)
 			reset_view(null)
 			QDEL_NULL(z_eye)

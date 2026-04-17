@@ -1,6 +1,6 @@
 /obj/machinery/computer
 	name = "computer"
-	icon = 'icons/obj/machinery/modular_console.dmi'
+	icon = 'icons/obj/modular_computers/modular_console.dmi'
 	icon_state = "computer"
 	layer = ABOVE_STRUCTURE_LAYER
 	density = 1
@@ -89,7 +89,7 @@
 	if(dir == SOUTH)
 		layer = ABOVE_HUMAN_LAYER
 	ClearOverlays()
-	if(stat & NOPOWER)
+	if(!interact_offline && (stat & NOPOWER)) // we only stop here if we care about power
 		set_light(0)
 		return
 	else
@@ -250,7 +250,7 @@
 
 /obj/machinery/computer/terminal
 	name = "terminal"
-	icon = 'icons/obj/machinery/modular_terminal.dmi'
+	icon = 'icons/obj/modular_computers/modular_terminal.dmi'
 	is_connected = TRUE
 	has_off_keyboards = TRUE
 	can_pass_under = FALSE

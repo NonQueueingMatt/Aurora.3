@@ -79,4 +79,50 @@
 /// Raised on a mob to check it's psi-sensitivity rating. This is not the same thing as checking if someone is psionic, but psionic people have an innate bonus to the check.
 #define COMSIG_PSI_CHECK_SENSITIVITY "psi_check_sensitivity"
 
+// directional input signals.
+// TODO: Please rework these if you are porting actual keybindings.
+/// Raised on a mob when receiving a "Northeast" input key, typically the 'e' key.
+#define COMSIG_INPUT_KEY_QUICK_EQUIP "quick-equip_key_pressed"
+
+/// Raised on a mob when receiving a "Northwest" input key, typically the 'q' key.
+#define COMSIG_INPUT_KEY_DROP "drop_key_pressed"
+
 /*******Component Specific Signals*******/
+
+// /obj/item/gun signals
+
+#define COMSIG_GUN_TOGGLE_FIRING_MODE "gun_toggle_firing_mode"
+
+#define COMSIG_BEFORE_GUN_FIRE "before_gun_fire"
+
+// Mech signals
+
+#define COMSIG_MECH_MOVE_WASD "mech_move_wasd"
+
+#define COMSIG_MECH_MOVE_STRAFE "mech_move_strafe"
+
+#define COMSIG_MECH_TOGGLE_POWER "mech_toggle_power"
+
+// Unarmed Combat Signals
+
+#define COMSIG_UNARMED_HARM_ATTACKER "unarmed_harm_attacker"
+#define COMSIG_UNARMED_HARM_DEFENDER "unarmed_harm_defender"
+#define COMSIG_UNARMED_DISARM_ATTACKER "unarmed_disarm_attacker"
+#define COMSIG_UNARMED_DISARM_DEFENDER "unarmed_disarm_defender"
+
+// Bartending Skill Signals
+
+#define COMSIG_CONTAINER_DRANK "container_drank"
+
+// Hydroponics Signals
+/// Signal raised against the harvester of a plant during the Harvest() proc.
+#define COMSIG_PLANT_HARVESTER "plant_harvester"
+/// Signal raised against the plant being harvested during the Harvest() proc.
+#define COMSIG_PLANT_HARVESTED "plant_harvested"
+
+// Armed Combat Signals
+#define COMSIG_APPLY_HIT_EFFECT "apply_hit_effect"
+
+// Various computer signals for interrupting via skill or other effects.
+#define COMSIG_USE_REACTOR_COMPUTER "use_reactor_computer"
+#define COMSIG_USE_MECH_FAB "use_mech_fab"

@@ -316,8 +316,7 @@
 	icon_has_variants = TRUE
 
 /obj/item/stack/material/plasteel/Destroy()
-	. = ..()
-	GC_TEMPORARY_HARDDEL
+	return ..()
 
 /obj/item/stack/material/plasteel/full/Initialize()
 	. = ..()

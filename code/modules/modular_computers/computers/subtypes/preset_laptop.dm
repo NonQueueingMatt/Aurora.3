@@ -4,8 +4,7 @@
 	icon_state = "laptop-closed"
 
 /obj/item/modular_computer/laptop/preset/Destroy()
-	. = ..()
-	GC_TEMPORARY_HARDDEL
+	return ..()
 
 /obj/item/modular_computer/laptop/preset/install_default_hardware()
 	..()

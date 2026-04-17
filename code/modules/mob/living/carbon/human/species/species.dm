@@ -238,7 +238,7 @@
 	var/heat_level_2 = 400
 	/// Heat damage level 3 above this point
 	var/heat_level_3 = 1000
-	/// Species will gain this much temperature every second
+	/// Species will gain this much temperature (in degrees kelvin per second)
 	var/passive_temp_gain = 0
 	/// Dangerously high pressure
 	var/hazard_high_pressure = HAZARD_HIGH_PRESSURE
@@ -468,6 +468,9 @@
 	/// The default lighting alpha of this species. Override to set innate NVGs.
 	var/default_lighting_alpha = LIGHTING_PLANE_ALPHA_VISIBLE
 
+	/// Controls whether this species spawns with a Morale Component.
+	var/has_morale = TRUE
+
 /datum/species/proc/get_eyes(var/mob/living/carbon/human/H)
 	return
 
@@ -547,6 +550,7 @@
 /datum/species/proc/create_organs(var/mob/living/carbon/human/H) //Handles creation of mob organs.
 	for(var/obj/item/organ/organ in H.contents)
 		if((organ in H.organs) || (organ in H.internal_organs))
+			H.drop_from_inventory(organ, null, FALSE, TRUE)
 			qdel(organ)
 
 	if(H.organs)                  H.organs.Cut()
@@ -596,6 +600,9 @@
 
 	if(natural_armor)
 		H.AddComponent(natural_armor_type, natural_armor)
+
+	if(has_morale)
+		H.LoadComponent(MORALE_COMPONENT)
 
 /datum/species/proc/tap(var/mob/living/carbon/human/H,var/mob/living/target)
 	if(H.on_fire)
@@ -1002,7 +1009,9 @@
 /datum/species/proc/handle_stance_damage(var/mob/living/carbon/human/H, var/damage_only = FALSE)
 	var/static/support_limbs = list(
 		BP_L_LEG = BP_R_LEG,
-		BP_L_FOOT = BP_R_FOOT
+		BP_L_FOOT = BP_R_FOOT,
+		BP_R_LEG = BP_L_LEG,
+		BP_R_FOOT = BP_L_FOOT
 	)
 
 	var/has_opposite_limb = FALSE
@@ -1084,9 +1093,11 @@
  * This proc handles the species temperature regulation. By default, it just adds `passive_temp_gain` to the human's bodytemperature.
  * Can be overridden for more complex calculations.
  */
-/datum/species/proc/handle_temperature_regulation(mob/living/carbon/human/human)
-	human.bodytemperature += passive_temp_gain
 
+/datum/species/proc/handle_temperature_regulation(mob/living/carbon/human/human, seconds_per_tick)
+	human.bodytemperature += passive_temp_gain * seconds_per_tick
+
+/**
  * Gets a modifier for a skill category based on the character age or other species things.
  * Must return a list with all three skill categories to a modifier (example: list(SKILL_CATEGORY_EVERYDAY = 1.5) )
  */

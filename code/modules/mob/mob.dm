@@ -1,10 +1,9 @@
-#define UNBUCKLED 0
-#define PARTIALLY_BUCKLED 1
-#define FULLY_BUCKLED 2
-
 /mob/Destroy()//This makes sure that mobs with clients/keys are not just deleted from the game.
 	MOB_STOP_THINKING(src)
-
+	// Tell any mobs touching us that they're not pulling us anymore.
+	stop_pulling()
+	// Delete and null the grab objects that are touching this mob.
+	QDEL_LIST(grabbed_by)
 	GLOB.mob_list -= src
 	GLOB.dead_mob_list -= src
 	GLOB.living_mob_list -= src
@@ -53,8 +52,6 @@
 	if(click_handlers)
 		QDEL_LIST(click_handlers)
 
-	QDEL_NULL(skills)
-
 	return ..()
 
 /mob/New()
@@ -73,7 +70,6 @@
 	i_select = null
 	m_select = null
 	toxin = null
-	fire = null
 	bodytemp = null
 	healths = null
 	throw_icon = null
@@ -105,7 +101,9 @@
 
 	become_hearing_sensitive()
 
-	skills = new skills(src)
+	// This impacts area/entered(), gravity drifting, and probably plenty more. This will likely
+	// need to be removed/moved if and when any 'moodlet' system is implemented (ref. TG component).
+	become_area_sensitive(INNATE_TRAIT)
 
 /**
  * Generate the tag for this mob
@@ -319,12 +317,6 @@
 	if(!buckled_to)
 		return UNBUCKLED
 	return restrained() ? FULLY_BUCKLED : PARTIALLY_BUCKLED
-
-/mob/proc/is_physically_disabled()
-	return MOB_IS_INCAPACITATED(INCAPACITATION_DISABLED)
-
-/mob/proc/cannot_stand()
-	return MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKDOWN)
 
 // Inside this file, you should use MOB_IS_INCAPACITATED for performance reasons
 /mob/proc/incapacitated(var/incapacitation_flags = INCAPACITATION_DEFAULT)
@@ -775,6 +767,11 @@
 			to_chat(src, SPAN_WARNING("You can't pull someone being held in a grab!"))
 			return
 
+		for (var/obj/item/grab/G in list(M.l_hand, M.r_hand))
+			if(G && G.state >= GRAB_AGGRESSIVE)
+				to_chat(src, SPAN_WARNING("You can't pull both people at once, break the grab first!"))
+				return
+
 		// If your size is larger than theirs and you have some
 		// kind of mob pull value AT ALL, you will be able to pull
 		// them, so don't bother checking that explicitly.
@@ -825,9 +822,6 @@
 /mob/proc/is_active()
 	return (0 >= usr.stat)
 
-/mob/proc/is_dead()
-	return stat == DEAD
-
 /mob/proc/is_mechanical()
 	return FALSE
 
@@ -858,61 +852,58 @@
 	if(transforming)						return 0
 	return 1
 
-/// Not sure what to call this. Used to check if humans are wearing an AI-controlled exosuit and hence don't need to fall over yet.
-/mob/proc/can_stand_overridden()
-	return 0
-
 /// Updates canmove, lying and icons. Could perhaps do with a rename but I can't think of anything to describe it.
 /mob/proc/update_canmove()
-	if(in_neck_grab())
-		lying = FALSE
-		for(var/obj/item/grab/G in grabbed_by)
-			if(G.force_down)
-				lying = TRUE
-				break
-	else if(!resting && cannot_stand() && can_stand_overridden())
-		lying = FALSE
-		lying_is_intentional = FALSE
-		canmove = TRUE
-	else
-		if(istype(buckled_to, /obj/vehicle))
-			var/obj/vehicle/V = buckled_to
-			if(is_physically_disabled())
-				lying = TRUE
-				lying_is_intentional = FALSE
-				canmove = FALSE
-				pixel_y = V.mob_offset_y - 5
-			else
-				if(buckled_to.buckle_lying != -1) lying = buckled_to.buckle_lying
-				lying_is_intentional = FALSE
-				canmove = TRUE
-				pixel_y = V.mob_offset_y
-		else if(buckled_to)
-			anchored = TRUE
+	var/found_grab = FALSE
+	for(var/obj/item/grab/G as anything in grabbed_by)
+		if(G.wielded || G.state >= GRAB_AGGRESSIVE)
 			canmove = FALSE
-			if(isobj(buckled_to))
-				if(buckled_to.buckle_lying != -1)
-					lying = buckled_to.buckle_lying
-					lying_is_intentional = FALSE
-				if(buckled_to.buckle_movable)
-					anchored = FALSE
-					canmove = TRUE
-		else if(captured)
-			anchored = TRUE
-			canmove = FALSE
+			lying = G.wielded || (G.state >= GRAB_NECK && G.force_down)
+			found_grab = TRUE
+			break
+	var/mob/living/carbon/human/H = astype(src)
+	if(!found_grab)
+		if(!resting && MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKDOWN) && H?.can_stand_overridden())
 			lying = FALSE
-		else if(m_intent == M_LAY && !incapacitated())
-			lying = TRUE
-			lying_is_intentional = TRUE
+			lying_is_intentional = FALSE
 			canmove = TRUE
-		else if(sleeping)
-			lying = resting || is_dead() || (MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKDOWN) && sleeps_horizontal()) // Vaurca, IPCs and Diona sleep standing up, unless they were already lying down
-			lying_is_intentional = FALSE
-			canmove = !MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKOUT) && !weakened
 		else
-			lying = resting || is_dead() || MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKDOWN) && !recently_slept
-			lying_is_intentional = FALSE
-			canmove = !MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKOUT) && !weakened
+			if(buckled_to)
+				if(istype(buckled_to, /obj/vehicle))
+					var/obj/vehicle/V = buckled_to
+					if(MOB_IS_INCAPACITATED(INCAPACITATION_DISABLED))
+						lying = TRUE
+						lying_is_intentional = FALSE
+						canmove = FALSE
+						pixel_y = V.mob_offset_y - 5
+					else
+						if(buckled_to.buckle_lying != -1) lying = buckled_to.buckle_lying
+						lying_is_intentional = FALSE
+						canmove = TRUE
+						pixel_y = V.mob_offset_y
+				else
+					anchored = TRUE
+					canmove = FALSE
+					if(buckled_to.buckle_lying != -1)
+						lying = buckled_to.buckle_lying
+						lying_is_intentional = FALSE
+					if(buckled_to.buckle_movable)
+						anchored = FALSE
+						canmove = TRUE
+			else if(captured)
+				anchored = TRUE
+				canmove = FALSE
+				lying = FALSE
+				lying_is_intentional = FALSE
+			else if(sleeping)
+				lying = resting || (stat == DEAD) || (MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKDOWN) && !(H?.species?.sleeps_upright)) // Vaurca, IPCs and Diona sleep standing up, unless they were already lying down
+				lying_is_intentional = FALSE
+				canmove = !MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKOUT) && !weakened
+			else
+				var/incapacitated = (stat == DEAD) || MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKOUT) || weakened && !recently_slept
+				lying = incapacitated || resting
+				lying_is_intentional = !incapacitated
+				canmove = !MOB_IS_INCAPACITATED(INCAPACITATION_KNOCKOUT) && !weakened
 
 	if(lying)
 		ADD_TRAIT(src, TRAIT_UNDENSE, TRAIT_SOURCE_LYING_DOWN)
@@ -922,29 +913,10 @@
 	else
 		REMOVE_TRAIT(src, TRAIT_UNDENSE, TRAIT_SOURCE_LYING_DOWN)
 
-	for(var/obj/item/grab/G in grabbed_by)
-		if(G.wielded)
-			canmove = FALSE
-			lying = TRUE
-			break
-		if(G.state >= GRAB_AGGRESSIVE)
-			canmove = 0
-			break
-
-	//Temporarily moved here from the various life() procs
-	//I'm fixing stuff incrementally so this will likely find a better home.
-	//It just makes sense for now. ~Carn
-	if( update_icon )	//forces a full overlay update
-		update_icon = 0
-		regenerate_icons()
-	else if( lying != lying_prev )
+	if( lying != lying_prev )
 		update_icon()
 
 	return canmove
-
-
-/mob/proc/sleeps_horizontal()
-	return TRUE
 
 /mob/proc/facedir(var/ndir, var/force_change = FALSE)
 	if(!canface() || (client && client.moving))
@@ -1118,7 +1090,7 @@
 					break
 	if(affected)
 		affected.implants -= implant
-		for(var/datum/wound/wound in affected.wounds)
+		for(var/datum/wound/wound as anything in affected.wounds)
 			LAZYREMOVE(wound.embedded_objects, implant)
 		if(!surgical_removal)
 			shock_stage += 20
@@ -1589,7 +1561,3 @@
 		var/atom/movable/screen/plane_master/lighting/exterior_lighting = hud_used.plane_masters["[EXTERIOR_LIGHTING_PLANE]"]
 		if (exterior_lighting)
 			exterior_lighting.alpha = min(GLOB.minimum_exterior_lighting_alpha, lighting_alpha)
-
-#undef UNBUCKLED
-#undef PARTIALLY_BUCKLED
-#undef FULLY_BUCKLED

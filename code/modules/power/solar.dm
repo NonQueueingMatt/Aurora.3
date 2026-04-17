@@ -125,7 +125,7 @@
 		if(obscured) //get no light from the sun, so don't generate power
 			return
 		var/sgen = SOLARGENRATE * sunfrac
-		add_avail(sgen)
+		ADD_TO_POWERNET(src, sgen)
 		control.gen += sgen
 	else //if we're no longer on the same powernet, remove from control computer
 		unset_control()
@@ -269,7 +269,7 @@
 /obj/machinery/power/solar_control
 	name = "solar panel control"
 	desc = "A controller for solar panel arrays."
-	icon = 'icons/obj/machinery/modular_console.dmi'
+	icon = 'icons/obj/modular_computers/modular_console.dmi'
 	icon_state = "computer"
 	light_color = LIGHT_COLOR_YELLOW
 	anchored = 1

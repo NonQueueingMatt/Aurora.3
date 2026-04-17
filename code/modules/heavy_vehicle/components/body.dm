@@ -32,6 +32,13 @@
 	var/hide_pilot = TRUE
 	has_hardpoints = list(HARDPOINT_BACK, HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
 
+	/**
+	 * Maximum % chance for an ejection to fail based on how much damage the mech's torso has taken.
+	 * If you're stuck, better hope there's a friend available to bail you out..
+	 * Or you can keep the hatch open if you would rather risk getting zipped by incoming fire.
+	 */
+	var/ejection_fail_chance = 75
+
 /obj/item/mech_component/chassis/Initialize()
 	. = ..()
 	AddComponent(/datum/component/armor, armor, ARMOR_TYPE_STANDARD|ARMOR_TYPE_EXOSUIT)
@@ -106,7 +113,7 @@
 		cockpit.equalize(T.return_air())
 		changed = TRUE
 	else if(air_supply)
-		var/env_pressure = cockpit.return_pressure()
+		var/env_pressure = XGM_PRESSURE(cockpit)
 		var/pressure_delta = air_supply.release_pressure - env_pressure
 		if((air_supply.air_contents.temperature > 0) && (pressure_delta > 0))
 			var/transfer_moles = calculate_transfer_moles(air_supply.air_contents, cockpit, pressure_delta)

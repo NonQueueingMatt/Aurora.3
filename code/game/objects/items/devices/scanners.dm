@@ -10,9 +10,10 @@ BREATH ANALYZER
 /obj/item/healthanalyzer
 	name = "health analyzer"
 	desc = "A hand-held body scanner able to distinguish vital signs of the subject."
-	icon = 'icons/obj/item/healthanalyzer.dmi'
-	icon_state = "health"
-	item_state = "analyzer"
+	icon = 'icons/obj/item/scanner.dmi'
+	icon_state = "healthanalyzer"
+	item_state = "healthanalyzer"
+	contained_sprite = TRUE
 	obj_flags = OBJ_FLAG_CONDUCTABLE
 	slot_flags = SLOT_BELT
 	throwforce = 3
@@ -49,16 +50,21 @@ BREATH ANALYZER
 /proc/get_wound_severity(damage_ratio, can_heal_overkill, uppercase = FALSE)
 	var/degree = "none"
 
+	if(!damage_ratio)
+		if(uppercase)
+			degree = capitalize(degree)
+		return degree
+
 	switch(damage_ratio)
 		if (0 to 10)
 			degree = "minor"
-		if (11 to 25)
+		if (10 to 25)
 			degree = "moderate"
-		if (26 to 50)
+		if (25 to 50)
 			degree = "significant"
-		if (51 to 75)
+		if (50 to 75)
 			degree = "severe"
-		if (76 to 99)
+		if (75 to 100)
 			degree = "extreme"
 		if (100 to INFINITY)
 			degree = can_heal_overkill ? "critical" : "irreparable"
@@ -67,24 +73,27 @@ BREATH ANALYZER
 		degree = capitalize(degree)
 	return degree
 
-/proc/get_severity(amount, can_heal_overkill, uppercase = FALSE)
+/proc/get_severity(amount, uppercase = FALSE)
 	var/output = "none"
 
+	if(!amount)
+		if(uppercase)
+			output = capitalize(output)
+		return output
+
 	switch(amount)
-		if (0)
-			output = "none"
-		if (1 to 10)
+		if (0 to 10)
 			output = "minor"
-		if (11 to 25)
+		if (10 to 25)
 			output = "moderate"
-		if (26 to 50)
+		if (25 to 50)
 			output = "significant"
-		if (51 to 75)
+		if (50 to 75)
 			output = "severe"
-		if (76 to 99)
+		if (75 to 100)
 			output = "extreme"
 		if (100 to INFINITY)
-			output = can_heal_overkill ? "critical" : "irreparable"
+			output = "critical"
 
 	if(uppercase)
 		output = capitalize(output)
@@ -252,9 +261,9 @@ BREATH ANALYZER
 			for(var/obj/item/organ/external/org in damaged)
 				var/limb_result = "[capitalize(org.name)][BP_IS_ROBOTIC(org) ? " (Cybernetic)" : ""]:"
 				if(org.brute_dam > 0)
-					limb_result = "[limb_result] \[<font color = 'red'><b>[get_severity(org.brute_dam, TRUE)] physical trauma</b></font>\]"
+					limb_result = "[limb_result] \[<font color = 'red'><b>[get_wound_severity(org.brute_dam, (org.limb_flags & ORGAN_HEALS_OVERKILL), TRUE)] physical trauma</b></font>\]"
 				if(org.burn_dam > 0)
-					limb_result = "[limb_result] \[<font color = '#ffa500'><b>[get_severity(org.burn_dam, TRUE)] burns</b></font>\]"
+					limb_result = "[limb_result] \[<font color = '#ffa500'><b>[get_wound_severity(org.burn_dam, (org.limb_flags & ORGAN_HEALS_OVERKILL), TRUE)] burns</b></font>\]"
 				if(org.status & ORGAN_BLEEDING)
 					limb_result = "[limb_result] \[<span class='scan_danger'>bleeding</span>\]"
 				var/is_bandaged = org.is_bandaged()
@@ -373,11 +382,12 @@ BREATH ANALYZER
 		to_chat(usr, "The scanner no longer shows limb damage.")
 
 /obj/item/analyzer
-	name = "analyzer"
+	name = "gas analyzer"
 	desc = "A hand-held environmental scanner which reports current gas levels."
-	icon = 'icons/obj/item/air_analyzer.dmi'
-	icon_state = "analyzer"
-	item_state = "analyzer"
+	icon = 'icons/obj/item/scanner.dmi'
+	icon_state = "airanalyzer"
+	item_state = "airanalyzer"
+	contained_sprite = TRUE
 	w_class = WEIGHT_CLASS_SMALL
 	obj_flags = OBJ_FLAG_CONDUCTABLE
 	slot_flags = SLOT_BELT
@@ -393,7 +403,7 @@ BREATH ANALYZER
 	if(!user) return
 	var/air = user.return_air()
 	if (!air) return
-
+	flick("[icon_state]-scan", src)
 	return atmosanalyzer_scan(src, air, user)
 
 /obj/item/analyzer/attack_self(mob/user as mob)
@@ -410,9 +420,11 @@ BREATH ANALYZER
 /obj/item/mass_spectrometer
 	name = "mass spectrometer"
 	desc = "A hand-held mass spectrometer which identifies trace chemicals in a blood sample."
-	icon = 'icons/obj/item/mass_spectrometer.dmi'
+	icon = 'icons/obj/item/scanner.dmi'
 	icon_state = "spectrometer"
-	item_state = "spectrometer"
+	// Reuses the basic health analyzer inhands.
+	item_state = "healthanalyzer"
+	contained_sprite = TRUE
 	w_class = WEIGHT_CLASS_SMALL
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	obj_flags = OBJ_FLAG_CONDUCTABLE
@@ -472,8 +484,7 @@ BREATH ANALYZER
 
 /obj/item/mass_spectrometer/adv
 	name = "advanced mass spectrometer"
-	icon_state = "adv_spectrometer"
-	item_state = "adv_spectrometer"
+	icon_state = "spectrometer_adv"
 	details = TRUE
 	origin_tech = list(TECH_MAGNET = 4, TECH_BIO = 2)
 
@@ -486,9 +497,11 @@ BREATH ANALYZER
 /obj/item/reagent_scanner
 	name = "reagent scanner"
 	desc = "A hand-held reagent scanner which identifies chemical agents."
-	icon = 'icons/obj/item/reagent_scanner.dmi'
+	icon = 'icons/obj/item/scanner.dmi'
 	icon_state = "reagent_scanner"
-	item_state = "analyzer"
+	// Reuses the basic health analyzer inhands.
+	item_state = "healthanalyzer"
+	contained_sprite = TRUE
 	w_class = WEIGHT_CLASS_SMALL
 	obj_flags = OBJ_FLAG_CONDUCTABLE
 	slot_flags = SLOT_BELT
@@ -521,16 +534,18 @@ BREATH ANALYZER
 
 /obj/item/reagent_scanner/adv
 	name = "advanced reagent scanner"
-	icon_state = "adv_reagent_scanner"
-	item_state = "analyzer"
+	icon_state = "reagent_scanner_adv"
+	// Reuses the advanced health analyzer inhands.
+	item_state = "healthanalyzer_adv"
 	details = 1
 	origin_tech = list(TECH_MAGNET = 4, TECH_BIO = 2)
 
 /obj/item/slime_scanner
 	name = "slime scanner"
-	icon = 'icons/obj/item/slime_scanner.dmi'
+	icon = 'icons/obj/item/scanner.dmi'
 	icon_state = "slime_scanner"
-	item_state = "analyzer"
+	item_state = "slime_scanner"
+	contained_sprite = TRUE
 	origin_tech = list(TECH_BIO = 1)
 	w_class = WEIGHT_CLASS_SMALL
 	obj_flags = OBJ_FLAG_CONDUCTABLE
@@ -574,8 +589,10 @@ BREATH ANALYZER
 /obj/item/price_scanner
 	name = "price scanner"
 	desc = "Using an up-to-date database of various costs and prices, this device estimates the market price of an item up to 0.001% accuracy."
-	icon = 'icons/obj/item/price_scanner.dmi'
+	icon = 'icons/obj/item/scanner.dmi'
 	icon_state = "price_scanner"
+	item_state = "price_scanner"
+	contained_sprite = TRUE
 	item_flags = ITEM_FLAG_NO_BLUDGEON
 	slot_flags = SLOT_BELT
 	w_class = WEIGHT_CLASS_SMALL
@@ -590,14 +607,16 @@ BREATH ANALYZER
 
 	var/value = get_value(target)
 	user.visible_message(SPAN_NOTICE("\The [user] scans \the [target] with \the [src]."))
-	to_chat(user, SPAN_NOTICE("\The [src] estimates the price of \the [target] at <b>[value ? value : "N/A"]</b>."))
+	to_chat(user, SPAN_NOTICE("\The [src] estimates the price of \the [target] at <b>[value ? value : "N/A"]电</b>."))
 
 /obj/item/breath_analyzer
 	name = "breath analyzer"
 	desc = "A hand-held breath analyzer that provides a robust amount of information about the subject's respiratory system."
-	icon = 'icons/obj/item/breath_analyzer.dmi'
+	icon = 'icons/obj/item/scanner.dmi'
 	icon_state = "breath_analyzer"
-	item_state = "analyzer"
+	// Reuses the basic health analyzer inhands.
+	item_state = "healthanalyzer"
+	contained_sprite = TRUE
 	w_class = WEIGHT_CLASS_SMALL
 	obj_flags = OBJ_FLAG_CONDUCTABLE
 	slot_flags = SLOT_BELT
@@ -705,9 +724,10 @@ BREATH ANALYZER
 /obj/item/advanced_healthanalyzer
 	name = "advanced health analyzer"
 	desc = "An expensive and varied-use health analyzer that prints full-body scans after a short scanning delay."
-	icon = 'icons/obj/item/advanced_healthanalyzer.dmi'
-	icon_state = "health_adv"
-	item_state = "analyzer"
+	icon = 'icons/obj/item/scanner.dmi'
+	icon_state = "healthanalyzer_adv"
+	item_state = "healthanalyzer_adv"
+	contained_sprite = TRUE
 	slot_flags = SLOT_BELT
 	w_class = WEIGHT_CLASS_NORMAL
 	origin_tech = list(TECH_MAGNET = 2, TECH_BIO = 3)

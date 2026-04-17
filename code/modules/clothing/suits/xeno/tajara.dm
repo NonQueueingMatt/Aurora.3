@@ -182,6 +182,9 @@
 	/obj/item/healthanalyzer, /obj/item/flashlight, /obj/item/radio, /obj/item/tank/emergency_oxygen, /obj/item/breath_analyzer, /obj/item/reagent_containers/blood)
 	species_restricted = list(BODYTYPE_TAJARA)
 	desc_extended = null
+	armor = list(
+			bio = ARMOR_BIO_STRONG,
+		)
 
 /obj/item/clothing/head/winterhood/hoodie/taj_scrubs
 	name = "adhomian surgeon mask"
@@ -191,6 +194,12 @@
 	item_state = "tajscrubs_hood"
 	contained_sprite = TRUE
 	species_restricted = list(BODYTYPE_TAJARA)
+	body_parts_covered = FACE|HEAD
+	gas_transfer_coefficient = 0.90
+	permeability_coefficient = 0.01
+	armor = list(
+		BIO = ARMOR_BIO_RESISTANT
+	)
 
 /obj/item/clothing/suit/storage/hooded/tajaran/amohda
 	name = "amohdan cloak"
@@ -332,7 +341,7 @@
 		BOMB = ARMOR_BOMB_MINOR
 	)
 	siemens_coefficient = 0.50
-	allowed = list(/obj/item/gun/projectile/shotgun/pump/rifle, /obj/item/ammo_magazine/boltaction, /obj/item/gun/projectile/automatic/rifle/adhomian, /obj/item/flashlight)
+	allowed = list(/obj/item/gun/projectile/shotgun/pump/rifle, /obj/item/ammo_magazine/boltaction/adhomai, /obj/item/ammo_magazine/a68, /obj/item/gun/projectile/automatic/rifle/adhomian, /obj/item/flashlight)
 
 /obj/item/clothing/suit/storage/tajaran/dpra_jacket
 	name = "al'mariist jacket"
@@ -423,3 +432,15 @@
 	desc = "A jacket with the markings of the PRA national police department that can commonly be found in the rural parts of the PRA."
 	icon_state = "taj_cop_suit_rural"
 	item_state = "taj_cop_suit_rural"
+
+/obj/item/clothing/suit/storage/toggle/tajaran/pra_submarine
+	name = "\improper PRA submariner coat"
+	desc = "A black leather coat with a Zshram fur lining and collar found in use by the People's Republic of Adhomai's submarine service."
+	icon = 'icons/obj/tajara_items.dmi'
+	icon_state = "pra_submarine_coat"
+	item_state = "pra_submarine_coat"
+	contained_sprite = TRUE
+	desc_extended = "The Miraniye T’varrnav Varrom, translated as Miran’miran Submarine Coat, is the standard overcoat supplied to the Republican Navy’s submarine service. Designed to \
+	insulate and protect the wearer against the ice-cold water of the Adhomian seas, the black leather coat is a source of pride among submariners and coveted by Al’mariist and Royalist \
+	sailors as a war trophy. Once produced within the port city of Miran’mir it is named after, the war forced production to move to the Ardiye Romanqri Khaz’tra in Nal’tor. Despite this, \
+	the coat had only minor changes, remaining constant throughout as a symbol of the Hadiist menace across the waves."

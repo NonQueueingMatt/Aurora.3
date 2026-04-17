@@ -1,9 +1,10 @@
 /obj/item/geiger
 	name = "geiger counter"
 	desc = "A handheld device used for detecting and measuring radiation in an area."
-	icon = 'icons/obj/geiger_counter.dmi'
+	icon = 'icons/obj/item/scanner.dmi'
 	icon_state = "geiger_off"
-	item_state = "multitool"
+	item_state = "geiger"
+	contained_sprite = TRUE
 	w_class = WEIGHT_CLASS_SMALL
 	action_button_name = "Toggle geiger counter"
 	matter = list(MATERIAL_PLASTIC = 100, DEFAULT_WALL_MATERIAL = 100, MATERIAL_GLASS = 50)
@@ -17,7 +18,7 @@
 /obj/item/geiger/feedback_hints(mob/user, distance, is_adjacent)
 	. += ..()
 	var/msg = "[scanning ? "ambient" : "stored"] Radiation level: <b>[radiation_count ? radiation_count : "0"] IU/s</b>."
-	if(radiation_count > RAD_LEVEL_LOW)
+	if(radiation_count > RAD_LEVEL_VERY_LOW)
 		. += SPAN_WARNING("[msg]")
 	else
 		. += SPAN_NOTICE("[msg]")
@@ -33,9 +34,9 @@
 		QDEL_NULL(sound_token)
 
 /obj/item/geiger/Destroy()
-	. = ..()
 	STOP_PROCESSING(SSprocessing, src)
 	update_sound(0)
+	return ..()
 
 /obj/item/geiger/process()
 	if(!scanning)
@@ -58,15 +59,16 @@
 		update_sound(0)
 		return 1
 
+
 	if(!sound_token) update_sound(1)
 
 	switch(radiation_count)
 		if(null) icon_state = "geiger_on_1"
-		if(-INFINITY to RAD_LEVEL_LOW)
+		if(-INFINITY to RAD_LEVEL_VERY_LOW)
 			icon_state = "geiger_on_1"
 			geiger_volume = 0
 			sound_token.SetVolume(geiger_volume)
-		if(RAD_LEVEL_LOW + 0.01 to RAD_LEVEL_MODERATE)
+		if(RAD_LEVEL_VERY_LOW + 0.01 to RAD_LEVEL_MODERATE)
 			icon_state = "geiger_on_2"
 			geiger_volume = 10
 			sound_token.SetVolume(geiger_volume)
@@ -74,11 +76,11 @@
 			icon_state = "geiger_on_3"
 			geiger_volume = 25
 			sound_token.SetVolume(geiger_volume)
-		if(RAD_LEVEL_HIGH + 1 to RAD_LEVEL_VERY_HIGH)
+		if(RAD_LEVEL_HIGH + 1 to RAD_LEVEL_EXTREME)
 			icon_state = "geiger_on_4"
 			geiger_volume = 40
 			sound_token.SetVolume(geiger_volume)
-		if(RAD_LEVEL_VERY_HIGH + 1 to INFINITY)
+		if(RAD_LEVEL_EXTREME + 1 to INFINITY)
 			icon_state = "geiger_on_5"
 			geiger_volume = 60
 			sound_token.SetVolume(geiger_volume)

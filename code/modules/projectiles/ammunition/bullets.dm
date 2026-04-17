@@ -263,6 +263,27 @@
 	. = ..()
 	expend()
 
+/obj/item/ammo_casing/a68
+	desc = "A Z33 Tamparii bullet casing."
+	caliber = "6.8mm"
+	projectile_type = /obj/projectile/bullet/rifle/a68
+	icon_state = "rifle-casing"
+	spent_icon = "rifle-casing-spent"
+	max_stack = 5
+
+/obj/item/ammo_casing/a68/spent/Initialize()
+	. = ..()
+	expend()
+
+/obj/item/ammo_casing/a68/ap
+	desc = "A Z33r Tamparii bullet casing."
+	projectile_type = /obj/projectile/bullet/rifle/a68/ap
+	max_stack = 5
+
+/obj/item/ammo_casing/a68/blank
+	desc = "A Z33t Tamparii blank casing."
+	projectile_type = /obj/projectile/bullet/blank
+
 /obj/item/ammo_casing/a762/blank
 	desc = "A 7.62mm blank casing."
 	projectile_type = /obj/projectile/bullet/blank
@@ -386,9 +407,9 @@
 	projectile_type = /obj/projectile/bullet/gauss
 	max_stack = 2
 
-/obj/item/ammo_casing/gauss/carbine
-	name = "compact tungsten slug"
-	desc = "A heavy tungsten gauss slug. This one has a casing adapated for carbine models."
+/obj/item/ammo_casing/gauss/old
+	name = "depleted uranium slug"
+	desc = "A depleted uranium gauss slug. It seems quite old."
 	projectile_type = /obj/projectile/bullet/gauss/carbine
 
 /obj/item/ammo_casing/gauss/emp
@@ -520,7 +541,7 @@
 	icon_state = "rifle-casing"
 	spent_icon = "rifle-casing-spent"
 	caliber = ".599 Kumar Super"
-	projectile_type = /obj/projectile/bullet
+	projectile_type = /obj/projectile/bullet/rifle/kumar_super
 	max_stack = 5
 
 /obj/item/ammo_casing/c6mm

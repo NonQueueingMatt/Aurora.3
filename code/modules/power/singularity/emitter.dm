@@ -92,16 +92,26 @@
 
 /obj/machinery/power/emitter/update_icon()
 	ClearOverlays()
-	if(active && powernet && avail(active_power_usage))
+	if(active && powernet && POWER_AVAIL(src))
 		AddOverlays(emissive_appearance(icon, "[icon_state]_lights"))
 		AddOverlays("[icon_state]_lights")
+	if(anchored)
+		AddOverlays("+bolts")
+		if(state == 2)
+			AddOverlays("+welding")
+			var/image/lights_image = image(icon, null, "+lights")
+			lights_image.plane = ABOVE_LIGHTING_PLANE
+			AddOverlays(lights_image)
 
 /obj/machinery/power/emitter/attack_hand(mob/user)
 	add_fingerprint(user)
-	var/max_engineering_skill = max(user.get_skill_level(/singleton/skill/reactor_systems), user.get_skill_level(/singleton/skill/electrical_engineering))
+	var/max_engineering_skill = \
+		max(astype(user.GetComponent(REACTOR_SYSTEMS_SKILL_COMPONENT), SKILL_COMPONENT)?.skill_level, \
+			astype(user.GetComponent(ELECTRICAL_ENGINEERING_SKILL_COMPONENT), SKILL_COMPONENT)?.skill_level)
+
 	if(max_engineering_skill <= SKILL_LEVEL_TRAINED)
 		to_chat(user, SPAN_WARNING("You try to find the switch on \the [src]... How do you even turn this thing on?"))
-		if(!user.do_after_skill(3 SECONDS, src, list(/singleton/skill/reactor_systems, /singleton/skill/electrical_engineering)))
+		if(!do_after(user, 3 SECONDS + 1.5 SECONDS * (SKILL_LEVEL_TRAINED - max_engineering_skill)))
 			return
 		to_chat(user, SPAN_NOTICE("You finally find the switch!"))
 	activate(user)
@@ -155,7 +165,8 @@
 		update_icon()
 		return
 	if(((last_shot + fire_delay) <= world.time) && active)
-		var/actual_load = draw_power(active_power_usage)
+		var/actual_load = POWER_DRAW(src, active_power_usage)
+		DRAW_POWER(src, actual_load)
 		if(actual_load >= active_power_usage) //does the laser have enough power to shoot?
 			if(!powered)
 				powered = TRUE

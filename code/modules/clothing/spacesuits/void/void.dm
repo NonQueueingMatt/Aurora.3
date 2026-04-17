@@ -43,7 +43,7 @@
 	icon_state = "void"
 	item_state = "void"
 	desc = "A high-tech dark red space suit. Used for AI satellite maintenance."
-	slowdown = 1
+	slowdown = 0.5
 	armor = list(
 		MELEE = ARMOR_MELEE_RESISTANT,
 		BULLET = ARMOR_BALLISTIC_MINOR,
@@ -96,7 +96,7 @@
 		part_list += "\a [I]"
 	. +=  "\The [src] has [english_list(part_list)] installed."
 	if(tank && distance <= 1)
-		. += SPAN_NOTICE("The wrist-mounted pressure gauge reads [max(round(tank.air_contents.return_pressure()),0)] kPa remaining in \the [tank].")
+		. += SPAN_NOTICE("The wrist-mounted pressure gauge reads [max(round(XGM_PRESSURE(tank.air_contents)),0)] kPa remaining in \the [tank].")
 	if (cooler && distance <= 1)
 		. += SPAN_NOTICE("The mounted cooler's battery charge reads [round(cooler.cell.percent())]%")
 

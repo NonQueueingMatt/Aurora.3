@@ -17,19 +17,17 @@
 	#define SKILL_SUBCATEGORY_MEDICAL		"Medical"
 	#define SKILL_SUBCATEGORY_ENGINEERING	"Engineering"
 	#define SKILL_SUBCATEGORY_SCIENCE		"Science"
+	#define SKILL_SUBCATEGORY_OPERATIONS    "Operations"
 
 ///A combat skill is a skill that has a direct effect in combat. These have an increased cost.
 #define SKILL_CATEGORY_COMBAT			"Combat"
 	#define SKILL_SUBCATEGORY_RANGED		"Ranged"
 	#define SKILL_SUBCATEGORY_MELEE			"Melee"
+	#define SKILL_SUBCATEGORY_SUPPORT		"Support"
 
 #define BASE_SKILL_POINTS_COMBAT					4
 #define BASE_SKILL_POINTS_OCCUPATIONAL				8
 #define BASE_SKILL_POINTS_EVERYDAY					8
-
-#define SKILL_DIFFICULTY_MODIFIER_EASY				1
-#define SKILL_DIFFICULTY_MODIFIER_MEDIUM			2
-#define SKILL_DIFFICULTY_MODIFIER_HARD				4
 
 /// Critical success on a difficulty class. Obtained by rolling a nat 20 or +10 over the DC. Used for skills at the moment, will be used for more later.
 #define ROLL_RESULT_CRITICAL_SUCCESS 2

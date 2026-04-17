@@ -7,6 +7,7 @@
 	w_class = WEIGHT_CLASS_SMALL
 	obj_flags = OBJ_FLAG_CONDUCTABLE
 	slot_flags = SLOT_BELT
+	contained_sprite = TRUE
 	light_color = LIGHT_COLOR_HALOGEN
 	light_system = DIRECTIONAL_LIGHT
 	light_range = 4
@@ -60,7 +61,7 @@
 		if(starts_with_cell)
 			cell = new cell_type(src)
 		brightness_levels = list("low" = 2, "medium" = 3, "high" = 4)
-		power_usage = ((brightness_levels[brightness_level]/ 10 ) / efficiency_modifier)
+		power_usage = ((brightness_levels[brightness_level]/ 100 ) / efficiency_modifier)
 	else
 		verbs -= /obj/item/flashlight/verb/toggle_brightness
 

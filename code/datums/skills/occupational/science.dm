@@ -1,37 +1,38 @@
 /singleton/skill/research
 	name = "Research"
-	description = "it's generic research shit, using the protolathe, destructive analyzers, etc"
-	uneducated_skill_cap = SKILL_LEVEL_UNFAMILIAR
-	category =  /singleton/skill_category/occupational
-	subcategory = SKILL_SUBCATEGORY_SCIENCE
-
-/singleton/skill/robotics
-	name = "Robotics"
-	description = "Robotics is well you know what the fuck it is man"
+	description = "Not currently implemented"
 	maximum_level = SKILL_LEVEL_PROFESSIONAL
-	uneducated_skill_cap = SKILL_LEVEL_FAMILIAR
+	uneducated_skill_cap = SKILL_LEVEL_TRAINED
 	category =  /singleton/skill_category/occupational
 	subcategory = SKILL_SUBCATEGORY_SCIENCE
+	component_type = RESEARCH_SKILL_COMPONENT
 
 /singleton/skill/xenobotany
 	name = "Xenobotany"
-	description = "Xenobotany is the creation and study of new or alien genomes of plants. It is necessary to be able to properly splice and process them."
-	uneducated_skill_cap = SKILL_LEVEL_UNFAMILIAR
+	description = "Not currently implemented."
+	maximum_level = SKILL_LEVEL_PROFESSIONAL
+	uneducated_skill_cap = SKILL_LEVEL_TRAINED
 	category =  /singleton/skill_category/occupational
 	subcategory = SKILL_SUBCATEGORY_SCIENCE
+	component_type = XENOBOTANY_SKILL_COMPONENT
 
 /singleton/skill/archaeology
 	name = "Xenoarchaeology"
-	description = "Xenoarchaeology is the study of alien civilizations, artifacts, architecture, and so on. It is necessary for the unearthing and cataloguing of \
-				alien artifacts."
-	uneducated_skill_cap = SKILL_LEVEL_UNFAMILIAR
+	description = "Not currently implemented."
+	maximum_level = SKILL_LEVEL_PROFESSIONAL
+	uneducated_skill_cap = SKILL_LEVEL_TRAINED
 	category =  /singleton/skill_category/occupational
 	subcategory = SKILL_SUBCATEGORY_SCIENCE
+	component_type = ARCHAOLOGY_SKILL_COMPONENT
 
 /singleton/skill/xenobiology
 	name = "Xenobiology"
 	description = "Xenobiology is the study of the research and cataloguing of alien lifeforms. It is necessary not only for the proper detailing of \
-				alien creatures, but also for their processing, such as with slimes."
-	uneducated_skill_cap = SKILL_LEVEL_UNFAMILIAR
+		alien creatures, but also for their processing, such as with slimes. " \
+		+ "Having this skill at least at the \"Trained\" rank is required to extract cores from slimes."
+	maximum_level = SKILL_LEVEL_PROFESSIONAL
+	uneducated_skill_cap = SKILL_LEVEL_TRAINED
 	category =  /singleton/skill_category/occupational
 	subcategory = SKILL_SUBCATEGORY_SCIENCE
+	component_type = XENOBOTANY_SKILL_COMPONENT
+	required = TRUE

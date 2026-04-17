@@ -21,7 +21,7 @@
 	new /obj/item/flash(src)
 	new /obj/item/taperoll/engineering(src)
 	new /obj/item/rfd/piping(src)
-	new /obj/item/gun/energy/disruptorpistol/miniature(src)
+	new /obj/item/gun/projectile/sec(src)
 	new /obj/item/clothing/accessory/holster/waist(src)
 	new /obj/item/gps/engineering(src)
 	new /obj/item/pipewrench(src)
@@ -86,7 +86,6 @@
 
 	// Painters
 	new /obj/item/paint_sprayer(src)
-	new /obj/item/pipe_painter(src)
 
 // Atmospherics Technician
 /obj/structure/closet/secure_closet/atmos_personal
@@ -120,7 +119,6 @@
 
 	// Painters
 	new /obj/item/paint_sprayer(src)
-	new /obj/item/pipe_painter(src)
 
 // Electrical Supplies
 /obj/structure/closet/secure_closet/engineering_electrical

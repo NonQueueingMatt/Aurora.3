@@ -9,7 +9,7 @@
 	mob_push_flags = ALLMOBS
 	can_be_buckled = FALSE
 	accent = ACCENT_TTS
-	appearance_flags = KEEP_TOGETHER
+	appearance_flags = KEEP_TOGETHER | DEFAULT_APPEARANCE_FLAGS | TILE_BOUND | LONG_GLIDE
 	pass_flags_self = PASSVEHICLE
 	var/decal
 
@@ -76,7 +76,16 @@
 	var/use_air      = FALSE
 
 	// Interface stuff.
+
+	/// The next world tick that the mech has to wait for before it can change its Throttle (forward and backward movement).
 	var/next_mecha_move = 0
+
+	/// The next world tick that the mech has to wait for before it can turn.
+	var/next_mecha_turn = 0
+
+	/// The next world tick that the mech has to wait for before it can strafe.
+	var/next_mecha_strafe = 0
+
 	var/list/hud_elements = list()
 	var/list/hardpoint_hud_elements = list()
 	var/atom/movable/screen/mecha/health/hud_health
@@ -254,6 +263,13 @@
 /// `var/remote` can be set to TRUE to have proc adjust where messages and hud elements are presented
 /// If `remote` is TRUE, messages and other hud elements are called on the exosuit itself to prevent wierdness, and errors are handled in `handle_hear_say()`
 /mob/living/heavy_vehicle/proc/toggle_power(var/mob/user, var/remote = FALSE)
+	var/cancelled = FALSE
+	var/delay = 0
+	SEND_SIGNAL(user, COMSIG_MECH_TOGGLE_POWER, &cancelled, &delay)
+	if (cancelled || delay && !do_after(user, delay))
+		to_chat(user, SPAN_WARNING("There's just too many buttons! You fail to find the power switch!"))
+		return
+
 	// if remotely called, send these messages to the exosuit, not the person calling this proc
 	var/reciever = user
 	if(remote)

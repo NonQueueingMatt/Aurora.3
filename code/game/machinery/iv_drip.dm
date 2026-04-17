@@ -92,7 +92,7 @@
 	else
 		. += "No chemicals attached."
 	if(tank)
-		. += "Installed is [is_loose ? "\a [tank] sitting loose" : "\a [tank] secured"] on the stand. The meter shows <b>[round(tank.air_contents.return_pressure())] kPa</b>, \
+		. += "Installed is [is_loose ? "\a [tank] sitting loose" : "\a [tank] secured"] on the stand. The meter shows <b>[round(XGM_PRESSURE(tank.air_contents))] kPa</b>, \
 		with the pressure set to <b>[round(tank.distribute_pressure)] kPa</b>. The valve is <b>[valve_open ? "open" : "closed"]</b>."
 	else
 		. += "No gas tank installed."
@@ -252,7 +252,7 @@
 				playsound(src, 'sound/machines/twobeep.ogg', 50, extrarange = SILENCED_SOUND_EXTRARANGE)
 				breath_mask_rip()
 				return
-			if(tank.air_contents.return_pressure() <= 10)
+			if(XGM_PRESSURE(tank.air_contents) <= 10)
 				src.visible_message(SPAN_WARNING("\The [src] buzzes, automatically deactivating \the [tank] and retracting \the [breath_mask]."))
 				playsound(src, 'sound/machines/buzz-two.ogg', 50, extrarange = SILENCED_SOUND_EXTRARANGE)
 				breath_mask_rip()
@@ -716,18 +716,15 @@
 
 	if(use_check_and_message(usr))
 		return
-	set_rate:
-		var/amount = tgui_input_number(usr, "Set the IV drip's transfer rate.", "IV Drip", transfer_amount, transfer_limit, 0.001, round_value = FALSE)
-		if(!amount)
-			return
-		if ((0.001 > amount || amount > transfer_limit) && amount != 0)
-			to_chat(usr, SPAN_WARNING("Entered value must be between 0.001 and [transfer_limit]."))
-			goto set_rate
-		if (transfer_amount == 0)
-			transfer_amount = REM
-			return
-		transfer_amount = amount
-		to_chat(usr, SPAN_NOTICE("Transfer rate set to [src.transfer_amount] u/sec."))
+
+	transfer_amount = tgui_input_number( \
+		usr, \
+		"Set the IV drip's transfer rate between 0.001 and [transfer_limit].", \
+		"IV Drip", \
+		transfer_amount, \
+		transfer_limit, 0.001, \
+		round_value = FALSE)
+	to_chat(usr, SPAN_NOTICE("Transfer rate set to [src.transfer_amount] u/sec."))
 
 /obj/machinery/iv_drip/RefreshParts()
 	..()

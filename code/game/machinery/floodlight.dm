@@ -6,7 +6,7 @@
 	icon_state = "flood00"
 	density = TRUE
 	obj_flags = OBJ_FLAG_ROTATABLE
-	light_system = MOVABLE_LIGHT
+	light_system = DIRECTIONAL_LIGHT
 	light_range = 6
 	light_color = LIGHT_COLOR_TUNGSTEN
 
@@ -23,11 +23,15 @@
 		return
 	else
 		. += SPAN_WARNING("\The [src] has no cell installed!")
-	. += SPAN_NOTICE("The installed [cell.name] has [Percent(cell.charge, cell.maxcharge)]% charge remaining.")
+	. += SPAN_NOTICE("The installed [cell.name] has [AS_PCT(cell.charge, cell.maxcharge)]% charge remaining.")
 
 /obj/machinery/floodlight/Initialize()
 	. = ..()
 	cell = new /obj/item/cell(src)
+
+/obj/machinery/floodlight/Destroy()
+	QDEL_NULL(cell)
+	return ..()
 
 /obj/machinery/floodlight/update_icon()
 	ClearOverlays()

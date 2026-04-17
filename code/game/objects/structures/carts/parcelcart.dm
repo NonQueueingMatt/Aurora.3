@@ -36,7 +36,7 @@
 	update_icon()
 
 /obj/structure/cart/storage/parcelcart/Destroy()
-	QDEL_NULL(my_parcels)
+	QDEL_LIST(my_parcels)
 	return ..()
 
 /obj/structure/cart/storage/parcelcart/attackby(obj/item/attacking_item, mob/user)
@@ -85,9 +85,9 @@
 	if(my_parcels.len <= 4)
 		slowdown = 0
 	else if(my_parcels.len > 4 && my_parcels.len < 11)
-		slowdown = 1
+		slowdown = 0.5
 	else if(my_parcels.len >= 11)
-		slowdown = 2
+		slowdown = 1
 
 /obj/structure/cart/storage/parcelcart/attack_hand(mob/user)
 	if(!isliving(user))

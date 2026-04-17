@@ -46,6 +46,8 @@
 	var/list/alt_ages = null
 	/// Assoc list of alt titles (as strings) to a list of faction titles (as strings). Defines what alt title can belong to what faction. Remains Null if no restrictions in use.
 	var/list/alt_factions = null
+	/// Assoc list of alt titles (as strings) to a list of citizenships (as strings). Defines what alt title can belong to what citizenship. Remains Null if no restrictions in use.
+	var/list/alt_citizenships = null
 
 	/// If this job should use roundstart spawnpoints for latejoin (offstation jobs etc)
 	var/latejoin_at_spawnpoints = FALSE
@@ -73,6 +75,11 @@
 	/// The job name of the aide and bodyguard slots. Used for consulars and representatives.
 	var/aide_job
 	var/bodyguard_job
+
+	/**
+	 * Associated list of /singleton/skill/skill_name = skill_level that this job requires.
+	 */
+	var/alist/skill_requirements = alist()
 
 //Only override this proc
 /datum/job/proc/pre_spawn(mob/abstract/new_player/player)

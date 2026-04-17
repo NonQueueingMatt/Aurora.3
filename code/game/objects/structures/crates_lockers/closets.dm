@@ -5,7 +5,7 @@
 	icon_state = "generic"
 	density = TRUE
 	build_amt = 2
-	slowdown = 5
+	slowdown = 2.5
 	pass_flags_self = PASSSTRUCTURE | LETPASSCLICKS | PASSTRACE
 
 	var/icon_door = null
@@ -79,6 +79,9 @@
 	/// Used by body bags and air bubbles.
 	var/contains_body = FALSE
 
+	/// If its a plain grey closet or crate, you can use the paint sprayer on it ONCE to change its appearance.
+	var/can_label = FALSE
+
 /obj/structure/closet/mechanics_hints(mob/user, distance, is_adjacent)
 	. += ..()
 	. += "When closed, a <b>welder</b> could be used to weld the closet shut."
@@ -124,6 +127,10 @@
 		fill()
 	if(secure)
 		verbs += /obj/structure/closet/proc/verb_togglelock
+
+	// Only plain grey crates and closets can be repainted. Handle label-ability here so we don't have to deal with a ton of bespoke definition adjustments.
+	if(icon_state == "crate" || icon_state == "generic")
+		can_label = TRUE
 	return mapload ? INITIALIZE_HINT_LATELOAD : INITIALIZE_HINT_NORMAL
 
 /obj/structure/closet/LateInitialize()
@@ -492,8 +499,10 @@
 			attack_hand(user)
 	else if(istype(attacking_item,/obj/item/card/id) && secure)
 		togglelock(user)
+	else if(istype(attacking_item, /obj/item/paint_sprayer))
+		return
 
-// Secure locker cutting open stuff.
+	// Secure locker cutting open stuff.
 	else if(!opened && secure)
 		if(!broken && istype(attacking_item,/obj/item/material/twohanded/chainsaw))
 			var/obj/item/material/twohanded/chainsaw/ChainSawVar = attacking_item
@@ -570,11 +579,10 @@
 /obj/structure/closet/relaymove(mob/living/user, direction)
 	. = ..()
 
-	if(user.stat || !isturf(loc))
+	if(user.stat || !isturf(loc) || user.loc != src || open())
 		return
 
-	if(!open())
-		to_chat(user, SPAN_NOTICE("It won't budge!"))
+	to_chat(user, SPAN_NOTICE("It won't budge!"))
 
 /obj/structure/closet/attack_hand(mob/user as mob)
 	add_fingerprint(user)
@@ -835,6 +843,22 @@
 	new /obj/item/stack/material/steel(get_turf(src))
 	qdel(src)
 
+/obj/structure/closet/proc/paint_container(paint_color)
+	// Fucking engineering container sprites. Closets and crates handle their main sprite/door naming differently.
+	var/eng_prefix = findtext(paint_color,"eng_")
+	if(eng_prefix)
+		if(istype(src,/obj/structure/closet/crate))
+			icon_state = paint_color
+			icon_door = "eng"
+			icon_door_override = TRUE
+		else
+			icon_state = "eng"
+			icon_door = paint_color
+	// And back to sanity.
+	else
+		icon_state = paint_color
+	can_label = FALSE
+	update_icon()
 /*
 ==========================
 	Contents Scanner
@@ -843,8 +867,9 @@
 /obj/item/cratescanner
 	name = "crate contents scanner"
 	desc = "A  handheld device used to scan and print a manifest of a container's contents. Does not work on locked crates, for privacy reasons."
-	icon = 'icons/obj/item/cratescanner.dmi'
-	icon_state = "cratescanner"
+	icon = 'icons/obj/item/scanner.dmi'
+	icon_state = "crate_scanner"
+	item_state = "crate_scanner"
 	matter = list(DEFAULT_WALL_MATERIAL = 250, MATERIAL_GLASS = 140)
 	w_class = WEIGHT_CLASS_SMALL
 	obj_flags = OBJ_FLAG_CONDUCTABLE

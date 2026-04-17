@@ -73,7 +73,7 @@
 	icobase = 'icons/mob/human_races/vaurca/r_vaurcabb.dmi'
 	eyes = "vaurca_attendant_eyes"
 
-	slowdown = -0.8
+	slowdown = -0.6
 	brute_mod = 0.9
 	oxy_mod = 1
 	radiation_mod = 0.5
@@ -320,6 +320,9 @@
 /datum/species/bug/type_big/handle_post_spawn(var/mob/living/carbon/human/H)
 	H.mutations |= HULK
 	return ..()
+
+/datum/species/bug/type_big/New()
+	..()
 
 /datum/species/bug/type_e
 	name = SPECIES_VAURCA_BULWARK

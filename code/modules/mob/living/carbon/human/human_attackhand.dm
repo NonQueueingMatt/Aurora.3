@@ -126,6 +126,9 @@
 				if(G.assailant == M)
 					to_chat(M, SPAN_NOTICE("You already grabbed [src]."))
 					return
+				if(G.state >= GRAB_NECK)
+					to_chat(M, SPAN_NOTICE("You try to grab [src], but they are being held too tightly."))
+					return
 
 			if (!attempt_grab(M))
 				return
@@ -172,6 +175,16 @@
 			var/hit_zone = H.zone_sel.selecting
 			var/obj/item/organ/external/affecting = get_organ(hit_zone)
 
+			// Check both "attacker" and "defender" for component based responses to unarmed attacks.
+			var/attacker_skill_level = SKILL_LEVEL_UNFAMILIAR // Lacking any component responses, treat the attacker as 'rank 1'
+			var/defender_skill_level = SKILL_LEVEL_UNFAMILIAR // Lacking any component responses, treat the defender as 'rank 1'
+			var/miss_chance = 15 // Base chance for melee attacks targeting body parts other than the torso to fail.
+			var/block_chance = 20 // Chance to block incoming attacks when in Harm or Grab intent.
+			SEND_SIGNAL(H, COMSIG_UNARMED_HARM_ATTACKER, src, &attacker_skill_level, &miss_chance, &rand_damage, &block_chance)
+			SEND_SIGNAL(src, COMSIG_UNARMED_HARM_DEFENDER, H, &defender_skill_level, &miss_chance, &rand_damage, &block_chance)
+			if (miss_chance < 1)
+				accurate = TRUE
+
 			if(!affecting || affecting.is_stump())
 				to_chat(M, SPAN_DANGER("They are missing that limb!"))
 				return 1
@@ -183,7 +196,7 @@
 					accurate = 1
 				if(I_HURT, I_GRAB)
 					// We're in a fighting stance, there's a chance we block
-					if(src.canmove && src!=H && prob(20))
+					if(src.canmove && src!=H && block_chance >= 1 && prob(block_chance))
 						block = 1
 
 			if (M.grabbed_by.len)
@@ -225,18 +238,9 @@
 				if(prob(80))
 					hit_zone = ran_zone(hit_zone)
 
-				var/melee_skill_level = H.get_skill_level(/singleton/skill/unarmed_combat)
-				var/miss_chance = 15
-				switch(melee_skill_level)
-					if(SKILL_LEVEL_UNFAMILIAR)
-						miss_chance = 25
-					if(SKILL_LEVEL_FAMILIAR)
-						miss_chance = 20
-
-				var/skill_difference = H.get_skill_difference(src, /singleton/skill/unarmed_combat)
 				if(prob(miss_chance) && hit_zone != BP_CHEST) // Missed!
 					if(!src.lying)
-						attack_message = "[H] attempted to strike [src], [skill_difference < -1 ? "but [src] [pick("dodged", "ducked")] out of the way!" : "but missed!"]"
+						attack_message = "[H] attempted to strike [src], [attacker_skill_level - defender_skill_level <= -1 ? "but [src] [pick("dodged", "ducked")] out of the way!" : "but missed!"]"
 					else
 						attack_message = "[H] attempted to strike [src], but [src.get_pronoun("he")] rolled out of the way!"
 						src.set_dir(pick(GLOB.cardinals))
@@ -315,15 +319,17 @@
 				to_chat(M, SPAN_NOTICE("You don't want to risk hurting [src]!"))
 				return FALSE
 
-			var/melee_skill_level = H.get_skill_level(/singleton/skill/unarmed_combat)
-			var/skill_difference = H.get_skill_difference(src, /singleton/skill/unarmed_combat)
-			var/disarm_cost
-			var/obj/item/organ/internal/machine/power_core/cell = M.internal_organs_by_name[BP_CELL]
-			var/obj/item/cell/potato
-			if(cell)
-				potato = cell.cell
+			var/attacker_skill_level = SKILL_LEVEL_UNFAMILIAR
+			var/defender_skill_level = SKILL_LEVEL_UNFAMILIAR
+			var/disarm_cost = 0
+			var/push_chance = 25
+			var/disarm_chance = 25
+			SEND_SIGNAL(H, COMSIG_UNARMED_DISARM_ATTACKER, src, &attacker_skill_level, &disarm_cost, &push_chance, &disarm_chance)
+			SEND_SIGNAL(src, COMSIG_UNARMED_DISARM_DEFENDER, H, &defender_skill_level, &disarm_cost, &push_chance, &disarm_chance)
+			var/skill_difference = attacker_skill_level - defender_skill_level
 
 			if(isipc(M))
+				var/obj/item/cell/potato = astype(M.internal_organs_by_name[BP_CELL], /obj/item/organ/internal/machine/power_core)?.cell
 				disarm_cost = potato.maxcharge / 24
 				if(potato.charge < disarm_cost)
 					to_chat(M, SPAN_DANGER("You don't have enough charge to disarm someone!"))
@@ -389,7 +395,7 @@
 								return W.afterattack(target,src)
 						else
 							if(M.Adjacent(src))
-								visible_message(SPAN_DANGER("[src] retaliates against [M]'s [melee_skill_level == SKILL_LEVEL_UNFAMILIAR ? "inexperienced shoving" : "disarm attempt"] with [W]!"))
+								visible_message(SPAN_DANGER("[src] retaliates against [M]'s [attacker_skill_level == SKILL_LEVEL_UNFAMILIAR ? "inexperienced shoving" : "disarm attempt"] with [W]!"))
 								return M.attackby(W,src)
 
 			var/randn = rand(1, 100)
@@ -421,8 +427,6 @@
 					forceMove(GET_TURF_ABOVE(current_turf)) //We use GET_TURF_ABOVE so people can't cheese it by turning their sprite.
 					return
 
-			var/push_chance = 25
-			push_chance += -(skill_difference * 5)
 			if(randn <= push_chance)
 				if(H.gloves && istype(H.gloves,/obj/item/clothing/gloves/force))
 					apply_effect(6, WEAKEN)
@@ -444,8 +448,6 @@
 						playsound(loc, 'sound/weapons/push.ogg', 50, 1, -1)
 					return
 
-			var/disarm_chance = 25
-			disarm_chance += -(skill_difference * 5)
 			if(randn <= disarm_chance)
 				if(H.gloves && istype(H.gloves, /obj/item/clothing/gloves/force))
 					playsound(loc, 'sound/weapons/push_connect.ogg', 50, 1, -1)
@@ -477,13 +479,14 @@
 						//No return here is intentional, as it will then try to disarm other items, and/or play a failed disarm message
 
 			playsound(loc, SFX_PUNCH_MISS, 25, 1, -1)
-			visible_message(SPAN_DANGER("[M] [melee_skill_level == SKILL_LEVEL_UNFAMILIAR ? "[pick("inexpertly", "clumsily")] disarm" : "disarm"] attempted to disarm [src]!"))
+			visible_message(SPAN_DANGER("[M] [attacker_skill_level == SKILL_LEVEL_UNFAMILIAR ? "[pick("inexpertly", "clumsily")] disarm" : "disarm"] attempted to disarm [src]!"))
 	return
 
 /mob/living/carbon/human/proc/cpr(mob/living/carbon/human/H, var/starting = FALSE, var/cpr_mode)
 	var/obj/item/main_hand = H.get_active_hand()
 	var/obj/item/off_hand = H.get_inactive_hand()
-	var/medicine_skill = H.get_skill_level(/singleton/skill/medicine)
+	var/datum/component/skill/medicine/medicine_component = H.GetComponent(MEDICINE_SKILL_COMPONENT)
+	var/medicine_skill = medicine_component ? medicine_component.skill_level : SKILL_LEVEL_TRAINED
 	if(istype(main_hand) || istype(off_hand))
 		cpr = FALSE
 		to_chat(H, SPAN_NOTICE("You cannot perform CPR with anything in your hands."))
@@ -579,11 +582,6 @@
 			fail = prob(80)
 			if(fail)
 				to_chat(H, SPAN_DANGER("No... that wasn't how you do it!"))
-
-		else if(medicine_skill == SKILL_LEVEL_UNFAMILIAR)
-			fail = prob(90)
-			if(fail)
-				to_chat(H, SPAN_NOTICE("You were just slightly off!"))
 
 		if(!fail)
 			if(!L.is_bruised() || (L.is_bruised() && L.rescued))

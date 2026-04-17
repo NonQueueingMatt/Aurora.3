@@ -26,7 +26,7 @@
 	/// We only try to show a gibbing animation if this exists
 	var/icon_gib = null
 
-	appearance_flags = KEEP_TOGETHER
+	appearance_flags = KEEP_TOGETHER | DEFAULT_APPEARANCE_FLAGS | TILE_BOUND | LONG_GLIDE
 
 	/// Blood colour for impact visuals
 	var/blood_type = COLOR_HUMAN_BLOOD
@@ -118,6 +118,7 @@
 	//LETTING SIMPLE ANIMALS ATTACK? WHAT COULD GO WRONG. Defaults to zero so Ian can still be cuddly
 	var/melee_damage_lower = 0
 	var/melee_damage_upper = 0
+	var/melee_reach = 1
 	var/armor_penetration = 0
 	var/attack_flags = 0
 	var/attacktext = "attacked"
@@ -250,11 +251,15 @@
 
 /mob/living/simple_animal/Destroy()
 	CutOverlays(blood_overlay)
-	movement_target = null
+	lostMovementTarget()
 	QDEL_NULL(udder)
 
 	. = ..()
-	GC_TEMPORARY_HARDDEL
+
+/mob/living/simple_animal/proc/lostMovementTarget()
+	if(movement_target)
+		UnregisterSignal(movement_target, COMSIG_QDELETING)
+		movement_target = null
 
 /mob/living/simple_animal/Move(NewLoc, direct)
 	// this is a janky way to prevent mobs wandering into chasms, but allows them to be thrown into it by someone else if the mob is dead
@@ -753,11 +758,11 @@
 /mob/living/simple_animal/cat/proc/handle_movement_target()
 	//if our target is neither inside a turf or inside a human(???), stop
 	if((movement_target) && !(isturf(movement_target.loc) || ishuman(movement_target.loc) ))
-		movement_target = null
+		lostMovementTarget()
 		stop_automated_movement = 0
 	//if we have no target or our current one is out of sight/too far away
 	if( !movement_target || !(movement_target.loc in oview(src, 4)) )
-		movement_target = null
+		lostMovementTarget()
 		stop_automated_movement = 0
 
 	if(movement_target)
@@ -778,7 +783,7 @@
 
 /mob/living/simple_animal/death(gibbed, deathmessage = "dies!")
 	GLOB.move_manager.stop_looping(src)
-	movement_target = null
+	lostMovementTarget()
 	ADD_TRAIT(src, TRAIT_UNDENSE, TRAIT_SOURCE_MOB_DEATH)
 	if (isopenturf(loc))
 		ADD_FALLING_ATOM(src)
@@ -944,7 +949,7 @@
 		canmove = 0
 		wander = 0
 		GLOB.move_manager.stop_looping(src)
-		movement_target = null
+		lostMovementTarget()
 		update_icon()
 
 /// Wakes the mob up from sleeping
@@ -974,6 +979,8 @@
 		fall_asleep()
 
 	to_chat(src, SPAN_NOTICE("You are now [resting ? "resting" : "getting up"]."))
+
+	SEND_SIGNAL(src, COMSIG_MOB_RESTED)
 
 	update_icon()
 
@@ -1065,6 +1072,9 @@
 		AddOverlays(upper_fire_emissive)
 		AddOverlays(lower_fire_overlay)
 		AddOverlays(lower_fire_emissive)
+		throw_alert(ALERT_FIRE, /atom/movable/screen/alert/fire)
+	else
+		clear_alert(ALERT_FIRE)
 
 
 /mob/living/simple_animal/get_resist_power()
@@ -1120,6 +1130,16 @@
 /mob/living/simple_animal/proc/derez()
 	visible_message(SPAN_NOTICE("\The [src] fades away!"))
 	qdel(src)
+
+//Taken from /obj/item/proc/attack_can_reach
+/mob/living/simple_animal/proc/attack_can_reach(var/atom/us, var/atom/them, var/range)
+	if(us.Adjacent(them))
+		return TRUE // Already adjacent.
+	else if(range <= 1)
+		return FALSE
+	if(AStar(get_turf(us), get_turf(them), /turf/proc/AdjacentTurfsRanged, /turf/proc/Distance, max_nodes=25, max_node_depth=range))
+		return TRUE
+	return FALSE
 
 #undef BLOOD_NONE
 #undef BLOOD_LIGHT

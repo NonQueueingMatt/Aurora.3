@@ -35,7 +35,7 @@ var/global/enabled_spooking = 0
 ///////////////////////////////////////////////////////////////////////////////////////////////Panels
 
 /datum/admins/proc/show_player_panel(var/mob/M in GLOB.mob_list)
-	set category = "Admin"
+	set category = "Admin.Player Info"
 	set name = "Show Player Panel"
 	set desc="Edit player (respawn, ban, heal, etc)"
 
@@ -236,7 +236,7 @@ var/global/enabled_spooking = 0
 
 #define PLAYER_NOTES_ENTRIES_PER_PAGE 50
 /datum/admins/proc/PlayerNotes()
-	set category = "Admin"
+	set category = "Admin.Player Info"
 	set name = "Player Notes"
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
@@ -299,7 +299,7 @@ var/global/enabled_spooking = 0
 
 
 /datum/admins/proc/show_player_info(var/key as text)
-	set category = "Admin"
+	set category = "Admin.Player Info"
 	set name = "Show Player Info"
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
@@ -694,16 +694,16 @@ var/global/enabled_spooking = 0
 
 
 /datum/admins/proc/announce()
-	set category = "Special Verbs"
+	set category = "Special Verbs.Narration/Messaging"
 	set name = "Announce"
 	set desc="Announce your desires to the world"
 
 	if (!check_rights(R_ADMIN))
 		return
 
-	var/message = tgui_input_text(usr, "Enter a global message to send.", "Admin Announce", multiline = TRUE)
+	var/message = tgui_input_text(usr, "Enter a global message to send.", "Admin Announce", multiline = TRUE, encode = FALSE)
 	if(message)
-		if(!check_rights(R_SERVER, 0))
+		if(!check_rights(R_ADMIN, 0))
 			message = sanitize(message, 500, extra = 0)
 		message = replacetext(message, "\n", "<br>") // required since we're putting it in a <p> tag
 		to_world("<span class=notice><b>[usr.client.holder.fakekey ? "Administrator" : usr.key] Announces:</b><p style='text-indent: 50px'>[message]</p></span>")
@@ -1352,7 +1352,7 @@ var/global/enabled_spooking = 0
 	feedback_add_details("admin_verb","SPOOKY") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /datum/admins/proc/ccannoucment()
-	set category = "Special Verbs"
+	set category = "Special Verbs.Narration/Messaging"
 	set name = "Custom sound Command Announcment"
 	set desc = "Emulate announcement that looks and sounds like the real one."
 	if(!check_rights(R_FUN))
@@ -1399,11 +1399,14 @@ var/global/enabled_spooking = 0
 /datum/admins/proc/set_odyssey()
 	set name = "Set Odyssey Type"
 	set category = "Special Verbs"
+	if (!SSodyssey.initialized)
+		to_chat(usr, SPAN_WARNING("You must wait for the server to finish initializing."))
+		return
 
 	if(!check_rights(R_ADMIN))
 		return
 
-	if(SSticker.current_state != GAME_STATE_SETTING_UP)
+	if(SSticker.current_state > GAME_STATE_SETTING_UP)
 		to_chat(usr, SPAN_WARNING("You need to use this verb while the game is still setting up!"))
 		return
 

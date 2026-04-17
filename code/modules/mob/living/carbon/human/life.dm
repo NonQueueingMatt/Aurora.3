@@ -59,7 +59,7 @@
 
 		//Organs
 		handle_organs(seconds_per_tick)
-		stabilize_body_temperature() //Body temperature adjusts itself (self-regulation)
+		stabilize_body_temperature(seconds_per_tick) //Body temperature adjusts itself (self-regulation)
 
 		//Random events (vomiting etc)
 		handle_random_events()
@@ -235,12 +235,6 @@
 					Weaken(3)
 					if(!lying)
 						emote("collapse")
-				if(prob(5) && prob(100 * RADIATION_SPEED_COEFFICIENT) && species.name == SPECIES_HUMAN) //apes go bald
-					if((h_style != "Bald" || f_style != "Shaved" ))
-						to_chat(src, SPAN_WARNING("Your hair falls out."))
-						h_style = "Bald"
-						f_style = "Shaved"
-						update_hair()
 
 			if (total_radiation > 75)
 				src.apply_radiation(-1 * RADIATION_SPEED_COEFFICIENT)
@@ -296,14 +290,14 @@
 
 	if(breath)
 		//exposure to extreme pressures can rupture lungs
-		var/check_pressure = breath.return_pressure()
+		var/check_pressure = XGM_PRESSURE(breath)
 		if(check_pressure < ONE_ATMOSPHERE / 5 || check_pressure > ONE_ATMOSPHERE * 5)
 			if(!is_lung_ruptured() && prob(5))
 				rupture_lung()
 
 	return breath
 
-/mob/living/carbon/human/handle_environment(datum/gas_mixture/environment)
+/mob/living/carbon/human/handle_environment(datum/gas_mixture/environment, seconds_per_tick)
 	..()
 
 	if(!environment)
@@ -313,7 +307,7 @@
 	species.handle_environment_special(src)
 
 	//Moved pressure calculations here for use in skip-processing check.
-	var/pressure = environment.return_pressure()
+	var/pressure = XGM_PRESSURE(environment)
 	var/adjusted_pressure = calculate_affecting_pressure(pressure)
 
 	if (consume_nutrition_from_air)
@@ -330,8 +324,10 @@
 		if(bodytemperature > (0.1 * HUMAN_HEAT_CAPACITY/(HUMAN_EXPOSED_SURFACE_AREA*STEFAN_BOLTZMANN_CONSTANT))**(1/4) + COSMIC_RADIATION_TEMPERATURE)
 			//Thermal radiation into space
 			var/heat_loss = HUMAN_EXPOSED_SURFACE_AREA * STEFAN_BOLTZMANN_CONSTANT * ((bodytemperature - COSMIC_RADIATION_TEMPERATURE)**4)
+			// Temperature loss in Watts (kgm^2/s^3)
 			var/temperature_loss = heat_loss/HUMAN_HEAT_CAPACITY
-			bodytemperature -= temperature_loss
+			// Since body temperature is in Joules (kgm^2/s^2), we multiply temperature loss by DT (in seconds) to convert from Watts to Joules before subtracting.
+			bodytemperature -= temperature_loss * seconds_per_tick
 	else
 		var/loc_temp = T0C
 		if(istype(loc, /obj/machinery/atmospherics/unary/cryo_cell))
@@ -437,9 +433,9 @@
 		baseline += clothing.body_temperature_change
 	return baseline
 
-/mob/living/carbon/human/proc/stabilize_body_temperature()
+/mob/living/carbon/human/proc/stabilize_body_temperature(seconds_per_tick)
 	if (species.passive_temp_gain) // We produce heat naturally.
-		species.handle_temperature_regulation(src)
+		species.handle_temperature_regulation(src, seconds_per_tick)
 
 	if (species.body_temperature == null)
 		return //this species doesn't have metabolic thermoregulation
@@ -453,19 +449,16 @@
 
 	if(bodytemperature < species.cold_level_1) //260.15 is 310.15 - 50, the temperature where you start to feel effects.
 		if(nutrition >= 2) //If we are very, very cold we'll use up quite a bit of nutriment to heat us up.
-			adjustNutritionLoss(2)
-		var/recovery_amt = max((body_temperature_difference / BODYTEMP_AUTORECOVERY_DIVISOR), BODYTEMP_AUTORECOVERY_MINIMUM)
-		bodytemperature += recovery_amt
+			adjustNutritionLoss(seconds_per_tick)
+		bodytemperature += max((body_temperature_difference / BODYTEMP_AUTORECOVERY_DIVISOR * seconds_per_tick), BODYTEMP_AUTORECOVERY_MINIMUM * seconds_per_tick)
 	else if(species.cold_level_1 <= bodytemperature && bodytemperature <= species.heat_level_1)
-		var/recovery_amt = body_temperature_difference / BODYTEMP_AUTORECOVERY_DIVISOR
-		bodytemperature += recovery_amt
+		bodytemperature += body_temperature_difference / BODYTEMP_AUTORECOVERY_DIVISOR * seconds_per_tick
 	else if(bodytemperature > species.heat_level_1) //360.15 is 310.15 + 50, the temperature where you start to feel effects.
 		if(hydration >= 2)
-			adjustHydrationLoss(2)
+			adjustHydrationLoss(seconds_per_tick)
 			if((species.flags & CAN_SWEAT) && fire_stacks == 0)
 				fire_stacks = -1
-		var/recovery_amt = min((body_temperature_difference / BODYTEMP_AUTORECOVERY_DIVISOR), -BODYTEMP_AUTORECOVERY_MINIMUM)	//We're dealing with negative numbers
-		bodytemperature += recovery_amt
+		bodytemperature += min((body_temperature_difference * seconds_per_tick / BODYTEMP_AUTORECOVERY_DIVISOR), -BODYTEMP_AUTORECOVERY_MINIMUM * seconds_per_tick)	//We're dealing with negative numbers
 
 /**
  * Returns a bitflag for the body parts currently heat-protected. Called and used by get_heat_protection()
@@ -873,6 +866,7 @@
 #define DRUNK_STRING "drunk"
 #define BLEEDING_STRING "bleeding"
 #define POSING_STRING "posing"
+#define STASIS_STRING "stasis"
 
 /mob/living/carbon/human/handle_regular_hud_updates()
 	if(hud_updateflag) // update our mob's hud overlays, AKA what others see flaoting above our head
@@ -1062,12 +1056,6 @@
 			if (oxygen.icon_state != new_oxy)
 				oxygen.icon_state = new_oxy
 
-		if(fire)
-			//fire_alert is either 0 if no alert, 1 for cold and 2 for heat.
-			var/new_fire = fire_alert ? "fire[fire_alert]" : "fire0"
-			if (fire.icon_state != new_fire)
-				fire.icon_state = new_fire
-
 		if(bodytemp)
 			var/new_temp
 			if (!species)
@@ -1134,8 +1122,18 @@
 				if(!has_drunk_status)
 					add_status_to_hud(DRUNK_STRING, SPAN_GOOD("You are drunk. Your words are slurred, and your movements are uncoordinated."))
 			else if(has_drunk_status)
+				client.screen -= status_overlays[DRUNK_STRING]
 				qdel(status_overlays[DRUNK_STRING])
 				status_overlays -= DRUNK_STRING
+
+			var/has_stasis_status = LAZYISIN(status_overlays, STASIS_STRING)
+			if(InStasis())
+				if(!has_stasis_status)
+					add_status_to_hud(STASIS_STRING, "Your biological functions are slowed. You can't interact with much in this state.")
+			else if(has_stasis_status)
+				client.screen -= status_overlays[STASIS_STRING]
+				qdel(status_overlays[STASIS_STRING])
+				status_overlays -= STASIS_STRING
 
 			var/has_bleeding_limb = FALSE
 			var/has_bleeding_status = LAZYISIN(status_overlays, BLEEDING_STRING)
@@ -1147,6 +1145,7 @@
 				if(!has_bleeding_status)
 					add_status_to_hud(BLEEDING_STRING, SPAN_HIGHDANGER("Blood gushes from one of your bodyparts, inspect yourself and seal the wound."))
 			else if(has_bleeding_status)
+				client.screen -= status_overlays[BLEEDING_STRING]
 				qdel(status_overlays[BLEEDING_STRING])
 				status_overlays -= BLEEDING_STRING
 
@@ -1155,6 +1154,7 @@
 				if(!has_posing_status)
 					add_status_to_hud(POSING_STRING, SPAN_NOTICE("You are posing. Your current pose is \"[pose]\""))
 			else if(has_posing_status)
+				client.screen -= status_overlays[POSING_STRING]
 				qdel(status_overlays[POSING_STRING])
 				status_overlays -= POSING_STRING
 
@@ -1168,6 +1168,7 @@
 #undef DRUNK_STRING
 #undef BLEEDING_STRING
 #undef POSING_STRING
+#undef STASIS_STRING
 
 /mob/living/carbon/human/proc/add_status_to_hud(var/set_overlay, var/set_status_message)
 	var/atom/movable/screen/status/new_status = new /atom/movable/screen/status(null, ui_style2icon(client.prefs.UI_style), set_overlay, set_status_message)

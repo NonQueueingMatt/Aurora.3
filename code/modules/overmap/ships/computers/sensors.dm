@@ -38,7 +38,7 @@
 
 /obj/machinery/computer/ship/sensors/terminal
 	name = "sensors terminal"
-	icon = 'icons/obj/machinery/modular_terminal.dmi'
+	icon = 'icons/obj/modular_computers/modular_terminal.dmi'
 	icon_screen = "teleport"
 	icon_keyboard = "teleport_key"
 	icon_keyboard_emis = "teleport_key_mask"
@@ -462,7 +462,7 @@
 	var/turf/T=get_turf(src)
 	if(istype(T))
 		var/datum/gas_mixture/environment = T.return_air()
-		if(environment && environment.return_pressure() > MINIMUM_PRESSURE_DIFFERENCE_TO_SUSPEND)
+		if(SAFE_XGM_PRESSURE(environment) > MINIMUM_PRESSURE_DIFFERENCE_TO_SUSPEND)
 			return 0
 	return 1
 

@@ -360,7 +360,12 @@
 
 	outfit = /obj/outfit/job/operations_manager
 
-	blacklisted_species = list(SPECIES_TAJARA_MSAI, SPECIES_TAJARA_ZHAN, SPECIES_VAURCA_WORKER, SPECIES_VAURCA_WARRIOR, SPECIES_VAURCA_ATTENDANT, SPECIES_VAURCA_BULWARK, SPECIES_VAURCA_BREEDER)
+	blacklisted_species = list(SPECIES_TAJARA_MSAI, SPECIES_VAURCA_WORKER, SPECIES_VAURCA_WARRIOR, SPECIES_VAURCA_ATTENDANT, SPECIES_VAURCA_BULWARK, SPECIES_VAURCA_BREEDER)
+
+	skill_requirements = alist(
+		/singleton/skill/pilot_spacecraft = SKILL_LEVEL_FAMILIAR,
+		/singleton/skill/pilot_mechs = SKILL_LEVEL_FAMILIAR
+	)
 
 /obj/outfit/job/operations_manager
 	name = "Operations Manager"
@@ -414,6 +419,10 @@
 
 	blacklisted_species = list(SPECIES_VAURCA_BREEDER)
 
+	skill_requirements = alist(
+		/singleton/skill/pilot_mechs = SKILL_LEVEL_FAMILIAR
+	)
+
 /obj/outfit/job/hangar_tech
 	name = "Hangar Technician"
 	jobtype = /datum/job/hangar_tech
@@ -466,6 +475,10 @@
 	outfit = /obj/outfit/job/mining
 
 	blacklisted_species = list(SPECIES_VAURCA_BREEDER)
+
+	skill_requirements = alist(
+		/singleton/skill/pilot_spacecraft = SKILL_LEVEL_FAMILIAR
+	)
 
 /obj/outfit/job/mining
 	name = "Shaft Miner"
@@ -526,6 +539,10 @@
 	outfit = /obj/outfit/job/machinist
 
 	blacklisted_species = list(SPECIES_VAURCA_BREEDER)
+
+	skill_requirements = alist(
+		/singleton/skill/robotics = SKILL_LEVEL_TRAINED
+	)
 
 /obj/outfit/job/machinist
 	name = "Machinist"

@@ -19,10 +19,15 @@
 	if(.)
 		visible_message("<b>\The [src]</b> points to \the [pointing_at].")
 
-/mob/living/drop_from_inventory(var/obj/item/item, var/atom/target)
-	. = ..(item, target)
-	if(item && item.GetID())
+/mob/living/drop_from_inventory(var/obj/item/item, var/atom/target, update_icons = TRUE, force = FALSE)
+	. = ..()
+	if(item?.GetID())
 		BITSET(hud_updateflag, ID_HUD) //If we drop our ID, update ID HUD
+
+/mob/living/carbon/drop_from_inventory(obj/item/W, atom/target, update_icons = TRUE, force = FALSE)
+	if(!force && (W in internal_organs))
+		return
+	return ..()
 
 /*one proc, four uses
 swapping: if it's 1, the mobs are trying to switch, if 0, non-passive is pushing passive
@@ -161,9 +166,9 @@ default behaviour is:
 			if(ishuman(target_movable_atom))
 				var/mob/living/carbon/human/target_human = target_movable_atom
 				if(target_human.grabbed_by)
-					for(var/obj/item/grab/grab_item in target_human.grabbed_by)
-						step(grab_item.assailant, get_dir(grab_item.assailant, target_human))
-						grab_item.adjust_position()
+					for (var/obj/item/grab/G in list(target_human.l_hand, target_human.r_hand))
+						step(G.assailant, get_dir(G.assailant, target_human))
+						G.adjust_position()
 		now_pushing = FALSE
 
 /**
@@ -792,6 +797,7 @@ default behaviour is:
 	last_special = world.time
 	resting = !resting
 	to_chat(src, SPAN_NOTICE("You are now [resting ? "resting" : "getting up"]."))
+	SEND_SIGNAL(src, COMSIG_MOB_RESTED)
 	update_canmove()
 	update_icon()
 
@@ -817,11 +823,6 @@ default behaviour is:
 	if(layer > UNDERDOOR)//Don't toggle it if we're hiding
 		layer = UNDERDOOR
 		underdoor = 1
-
-/mob/living/carbon/drop_from_inventory(var/obj/item/W, var/atom/target = null)
-	if(W in internal_organs)
-		return
-	..()
 
 /mob/living/touch_map_edge()
 
