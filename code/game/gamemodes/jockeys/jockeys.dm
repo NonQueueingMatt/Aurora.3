@@ -3,6 +3,7 @@
 /datum/game_mode/jockeys
 	name = "jockeys"
 	config_tag = "jockeys"
+	max_players = 15
 	required_enemies = 2
 	required_players = 10
 	antag_scaling_coeff = 7 // three jockeys at highpop
